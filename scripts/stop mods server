@@ -1,0 +1,18 @@
+#!/bin/bash
+#
+# stop mods server
+#
+# Neil Gershenfeld 
+# (c) Massachusetts Institute of Technology 2016
+#
+# This work may be reproduced, modified, distributed, performed, and 
+# displayed for any purpose, but must acknowledge the fab modules 
+# project. Copyright is retained and must be preserved. The work is 
+# provided as is; no warranty is provided, and users accept all 
+# liability.
+#
+pkill -f "node printserver.js"
+pkill -f "node serialserver.js"
+pkill -f "http-server -p 8080"
+zenity --info --text 'mods server stopped'
+

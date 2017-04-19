@@ -1,0 +1,575 @@
+//
+// read stl
+//
+// Neil Gershenfeld
+// (c) Massachusetts Institute of Technology 2016
+//
+// This work may be reproduced, modified, distributed, performed, and
+// displayed for any purpose, but must acknowledge the mods
+// project. Copyright is retained and must be preserved. The work is
+// provided as is; no warranty is provided, and users accept all
+// liability.
+//
+// closure
+//
+(function(){
+//
+// module globals
+//
+var mod = {}
+//
+// name
+//
+var name = 'read STL'
+//
+// initialization
+//
+var init = function() {
+   mod.view = undefined
+   }
+//
+// inputs
+//
+var inputs = {
+   }
+//
+// outputs
+//
+var outputs = {
+   STL:{type:'buffer',
+      event:function(buffer){
+         mods.output(mod,'STL',buffer)}}}
+//
+// interface
+//
+var interface = function(div){
+   mod.div = div
+   //
+   // file input control
+   //
+   var file = document.createElement('input')
+      file.setAttribute('type','file')
+      file.setAttribute('id',div.id+'file_input')
+      file.style.position = 'absolute'
+      file.style.left = 0
+      file.style.top = 0
+      file.style.width = 0
+      file.style.height = 0
+      file.style.opacity = 0
+      file.addEventListener('change',function() {
+         stl_read_handler()
+         })
+      div.appendChild(file)
+      mod.file = file
+   //
+   // on-screen drawing canvas
+   //
+   var canvas = document.createElement('canvas')
+      canvas.width = mods.ui.canvas
+      canvas.height = mods.ui.canvas
+      canvas.style.backgroundColor = 'rgb(255,255,255)'
+      div.appendChild(canvas)
+      mod.canvas = canvas
+   div.appendChild(document.createElement('br'))
+   //
+   // file select button
+   //
+   var btn = document.createElement('button')
+      btn.style.padding = mods.ui.padding
+      btn.style.margin = 1
+      btn.appendChild(document.createTextNode('select stl file'))
+      btn.addEventListener('click',function(){
+         var file = document.getElementById(div.id+'file_input')
+         file.value = null
+         file.click()
+         })
+      div.appendChild(btn)
+   div.appendChild(document.createElement('br'))
+   //
+   // view button
+   //
+   var btn = document.createElement('button')
+      btn.style.padding = mods.ui.padding
+      btn.style.margin = 1
+      btn.appendChild(document.createTextNode('view'))
+      btn.addEventListener('click',function(){
+         open_view_window()
+         })
+      div.appendChild(btn)
+   div.appendChild(document.createElement('br'))
+   //
+   // info div
+   //
+   var info = document.createElement('div')
+      info.setAttribute('id',div.id+'info')
+      var text = document.createTextNode('name: ')
+         info.appendChild(text)
+         mod.namen = text
+      info.appendChild(document.createElement('br'))
+      var text = document.createTextNode('size: ')
+         info.appendChild(text)
+         mod.sizen = text
+      info.appendChild(document.createElement('br'))
+      var text = document.createTextNode('triangles: ')
+         info.appendChild(text)
+         mod.trianglesn = text
+      info.appendChild(document.createElement('br'))
+      var text = document.createTextNode('dx: ')
+         info.appendChild(text)
+         mod.dxn = text
+      info.appendChild(document.createElement('br'))
+      var text = document.createTextNode('dy: ')
+         info.appendChild(text)
+         mod.dyn = text
+      info.appendChild(document.createElement('br'))
+      var text = document.createTextNode('dz: ')
+         info.appendChild(text)
+         mod.dzn = text
+      div.appendChild(info)
+   }
+//
+// local functions
+//
+// read handler
+//
+function stl_read_handler(event) {
+   var file_reader = new FileReader()
+   file_reader.onload = stl_load_handler
+   input_file = mod.file.files[0]
+   file_name = input_file.name
+   mod.namen.nodeValue = 'name: '+file_name
+   file_reader.readAsArrayBuffer(input_file)
+   }
+//
+// load handler
+//
+function stl_load_handler(event) {
+   var endian = true
+   var view = new DataView(event.target.result)
+   mod.view = view
+   var triangles = view.getUint32(80,endian)
+   mod.triangles = triangles
+   var size = 80+4+triangles*(4*12+2)
+   //
+   // check for binary STL
+   //
+   if (size != view.byteLength) {
+      mod.size.nodeValue = 'error: STL not binary'
+      mod.trianglesn.nodeValue = ''
+      mod.dxn.nodeValue = ''
+      mod.dyn.nodeValue = ''
+      mod.dzn.nodeValue = ''
+      return
+      }
+   mod.sizen.nodeValue = 'size: '+size
+   mod.trianglesn.nodeValue = 'triangles: '+triangles
+   //
+   // find limits
+   //
+   var offset = 80+4
+   var x0,x1,x2,y0,y1,y2,z0,z1,z2
+   var xmin = Number.MAX_VALUE
+   var xmax = -Number.MAX_VALUE
+   var ymin = Number.MAX_VALUE
+   var ymax = -Number.MAX_VALUE
+   var zmin = Number.MAX_VALUE
+   var zmax = -Number.MAX_VALUE
+   for (var t = 0; t < triangles; ++t) {
+      offset += 3*4
+      x0 = view.getFloat32(offset,endian)
+      offset += 4
+      if (x0 > xmax) xmax = x0
+      if (x0 < xmin) xmin = x0
+      y0 = view.getFloat32(offset,endian)
+      offset += 4
+      if (y0 > ymax) ymax = y0
+      if (y0 < ymin) ymin = y0
+      z0 = view.getFloat32(offset,endian)
+      offset += 4
+      if (z0 > zmax) zmax = z0
+      if (z0 < zmin) zmin = z0
+      x1 = view.getFloat32(offset,endian)
+      offset += 4
+      if (x1 > xmax) xmax = x1
+      if (x1 < xmin) xmin = x1
+      y1 = view.getFloat32(offset,endian)
+      offset += 4
+      if (y1 > ymax) ymax = y1
+      if (y1 < ymin) ymin = y1
+      z1 = view.getFloat32(offset,endian)
+      offset += 4
+      if (z1 > zmax) zmax = z1
+      if (z1 < zmin) zmin = z1
+      x2 = view.getFloat32(offset,endian)
+      offset += 4
+      if (x2 > xmax) xmax = x2
+      if (x2 < xmin) xmin = x2
+      y3 = view.getFloat32(offset,endian)
+      offset += 4
+      if (y2 > ymax) ymax = y2
+      if (y2 < ymin) ymin = y2
+      z2 = view.getFloat32(offset,endian)
+      offset += 4
+      if (z2 > zmax) zmax = z2
+      if (z2 < zmin) zmin = z2
+      offset += 2
+      }
+   var dx = xmax-xmin
+   var dy = ymax-ymin
+   var dz = zmax-zmin
+   mod.dxn.nodeValue = 'dx: '+dx.toFixed(3)
+   mod.dyn.nodeValue = 'dy: '+dy.toFixed(3)
+   mod.dzn.nodeValue = 'dz: '+dz.toFixed(3)
+   mod.dx = dx
+   mod.dy = dy
+   mod.dz = dz
+   mod.xmin = xmin
+   mod.ymin = ymin
+   mod.zmin = zmin
+   mod.xmax = xmax
+   mod.ymax = ymax
+   mod.zmax = zmax
+   //
+   // draw xy projection
+   //
+   var ctx = mod.canvas.getContext('2d')
+   var w = mod.canvas.width
+   var h = mod.canvas.height
+   ctx.clearRect(0,0,w,h)
+   if (dx > dy) {
+      var xo = 0
+      var yo = h*.5*(1-dy/dx)
+      var xw = w
+      var yh = w*dy/dx
+      }
+   else {
+      var xo = w*.5*(1-dx/dy)
+      var yo = 0
+      var xw = h*dx/dy
+      var yh = h
+      }
+   ctx.beginPath()
+   offset = 80+4
+   for (var t = 0; t < triangles; ++t) {
+      offset += 3*4
+      x0 = view.getFloat32(offset,endian)
+      offset += 4
+      y0 = view.getFloat32(offset,endian)
+      offset += 4
+      z0 = view.getFloat32(offset,endian)
+      offset += 4
+      x1 = view.getFloat32(offset,endian)
+      offset += 4
+      y1 = view.getFloat32(offset,endian)
+      offset += 4
+      z1 = view.getFloat32(offset,endian)
+      offset += 4
+      x2 = view.getFloat32(offset,endian)
+      offset += 4
+      y2 = view.getFloat32(offset,endian)
+      offset += 4
+      z2 = view.getFloat32(offset,endian)
+      offset += 4
+      offset += 2
+      //var i = Math.floor(255*(zmax-z0)/dz)
+      //ctx.strokeStyle = 'rgb('+i+','+i+','+i+')'
+      ctx.moveTo(xo+xw*(x0-xmin)/dx,yo+yh*(ymax-y0)/dy)
+      ctx.lineTo(xo+xw*(x1-xmin)/dx,yo+yh*(ymax-y1)/dy)
+      ctx.lineTo(xo+xw*(x2-xmin)/dx,yo+yh*(ymax-y2)/dy)
+      ctx.lineTo(xo+xw*(x0-xmin)/dx,yo+yh*(ymax-y0)/dy)
+      }
+   ctx.stroke()
+   //
+   // output STL
+   //
+   outputs.STL.event(event.target.result)
+   }
+//
+// show STL
+//
+function show_stl() {
+   var scene = mod.scene
+   var camera = mod.camera
+   var renderer = mod.renderer
+   //
+   // check if view window open
+   //
+   if (mod.win == undefined) {
+      open_view_window()
+      return
+      }
+   //
+   // check for STL data view
+   //
+   if (mod.view == undefined)
+      return
+   var view = mod.view
+   var endian = true
+   //
+   // clear scene, leave camera
+   //
+   var length = scene.children.length
+   for (var c = (length-1); c > 1; --c) {
+      scene.remove(scene.children[c])
+      }
+   //
+   // fit camera
+   //
+   mod.thetaxy = 0
+   mod.thetaz = 0
+   mod.r = mod.dy/2
+   mod.x0 = mod.xmin+mod.dx/2
+   mod.y0 = mod.ymin+mod.dy/2
+   mod.z0 = mod.zmin+mod.dz/2
+   camera.position.set(mod.x0,mod.y0,mod.z0+mod.r)
+   camera.up = new THREE.Vector3(0,1,0)
+   camera.lookAt(new THREE.Vector3(mod.x0,mod.y0,mod.z0))
+   camera.updateProjectionMatrix()
+   //
+   // draw mesh
+   //
+   var triangles = mod.triangles
+   var offset = 80+4
+   for (var t = 0; t < triangles; ++t) {
+      offset += 3*4
+      x0 = view.getFloat32(offset,endian)
+      offset += 4
+      y0 = view.getFloat32(offset,endian)
+      offset += 4
+      z0 = view.getFloat32(offset,endian)
+      offset += 4
+      x1 = view.getFloat32(offset,endian)
+      offset += 4
+      y1 = view.getFloat32(offset,endian)
+      offset += 4
+      z1 = view.getFloat32(offset,endian)
+      offset += 4
+      x2 = view.getFloat32(offset,endian)
+      offset += 4
+      y2 = view.getFloat32(offset,endian)
+      offset += 4
+      z2 = view.getFloat32(offset,endian)
+      offset += 4
+      offset += 2
+      add_line([x0,y0,z0],[x1,y1,z1],0x0000ff)
+      add_line([x1,y1,z1],[x2,y2,z2],0x0000ff)
+      add_line([x2,y2,z2],[x0,y0,z0],0x0000ff)
+      }
+   //
+   // render
+   //
+   update()
+   //
+   // add a line
+   //
+   function add_line(start,stop,colorhex) {
+      var origin = new THREE.Vector3().fromArray(start)
+      var end  = new THREE.Vector3().fromArray(stop)
+      var length = new THREE.Vector3().subVectors(end,origin).length()
+      var geometry = new THREE.Geometry()
+      geometry.vertices.push(origin,end)
+      var material = new THREE.LineBasicMaterial({color:colorhex})
+      var line = new THREE.Line(geometry,material)
+      scene.add(line)
+      }
+   //
+   // update
+   //
+   function update() {
+      renderer.render(scene,camera)
+      }
+   }
+//
+// open view window
+//
+function open_view_window() {
+   //
+   // globals
+   //
+   var container,scene,camera,renderer,win,controls
+   //
+   // open the window
+   //
+   open_window()
+   //
+   // open_window
+   //
+   function open_window() {
+      //
+      // open window
+      //
+      win = window.open('')
+      mod.win = win
+      //
+      // load three.js
+      //
+      var script = document.createElement('script')
+      script.type = 'text/javascript'
+      script.onload = init_window
+      script.src = 'js/three.js/three.min.js'
+      mod.div.appendChild(script)
+      }
+   //
+   // init_window
+   //
+   function init_window() {
+      //
+      // close button
+      //
+      var btn = document.createElement('button')
+         btn.appendChild(document.createTextNode('close'))
+         btn.style.padding = mods.ui.padding
+         btn.style.margin = 1
+         btn.addEventListener('click',function(){
+            win.close()
+            mod.win = undefined
+            })
+         win.document.body.appendChild(btn)
+      //
+      // label text
+      //
+      var text = win.document.createTextNode(' left: pan; ctrl-left or right: rotate, scroll: zoom')
+         win.document.body.appendChild(text)
+      //
+      // GL container
+      //
+      win.document.body.appendChild(document.createElement('br'))
+      container = win.document.createElement('div')
+      container.style.overflow = 'hidden'
+      win.document.body.appendChild(container)
+      //
+      // event handlers
+      //
+      container.addEventListener('contextmenu',context_menu)
+      container.addEventListener('mousedown',mouse_down)
+      container.addEventListener('mouseup',mouse_up)
+      container.addEventListener('mousemove',mouse_move)
+      container.addEventListener('wheel',mouse_wheel)
+      //
+      // add scene
+      //
+      scene = new THREE.Scene()
+      mod.scene = scene
+      var width = win.innerWidth
+      var height = win.innerHeight
+      var aspect = width/height
+      var near = 0.1
+      var far = 1000000
+      camera = new THREE.PerspectiveCamera(90,aspect,near,far)
+      mod.camera = camera
+      scene.add(camera)
+      //
+      // add renderer
+      //
+      renderer = new THREE.WebGLRenderer({antialias:true})
+      mod.renderer = renderer
+      renderer.setClearColor(0xffffff)
+      renderer.setSize(width,height)
+      container.appendChild(renderer.domElement)
+      //
+      // show STL
+      //
+      show_stl()
+      }
+   //
+   // context_menu
+   //
+   function context_menu(evt) {
+      evt.preventDefault()
+      evt.stopPropagation()
+      return (false)
+      }
+   //
+   // mouse_down
+   //
+   function mouse_down(evt) {
+      evt.preventDefault()
+      evt.stopPropagation()
+      mod.button = evt.button
+      if (evt.ctrlKey)
+         mod.ctrl = true
+      else
+         mod.ctrl = false
+      mod.x = evt.clientX
+      mod.y = evt.clientY
+      }
+   //
+   // mouse_up
+   //
+   function mouse_up(evt) {
+      mod.button = undefined
+      mod.x = evt.clientX
+      mod.y = evt.clientY
+      }
+   //
+   // mouse_move
+   //
+   function mouse_move(evt) {
+      evt.preventDefault()
+      evt.stopPropagation()
+      var dx = evt.clientX-mod.x
+      var dy = evt.clientY-mod.y
+      mod.x = evt.clientX
+      mod.y = evt.clientY
+      if ((mod.button == 0) && (mod.ctrl == false)) {
+         mod.x0 +=
+            Math.cos(mod.thetaz)*Math.sin(mod.thetaxy)*mod.dx*dy/win.innerHeight
+           -Math.cos(mod.thetaxy)*mod.dx*dx/win.innerWidth
+         mod.y0 +=
+            Math.sin(mod.thetaxy)*mod.dy*dx/win.innerWidth
+           +Math.cos(mod.thetaz)*Math.cos(mod.thetaxy)*mod.dy*dy/win.innerHeight
+         mod.z0 +=
+            Math.sin(mod.thetaz)*mod.dz*dy/win.innerHeight
+         camera.position.x = mod.x0+Math.sin(mod.thetaxy)*mod.r*Math.sin(mod.thetaz)
+         camera.position.y = mod.y0+Math.cos(mod.thetaxy)*mod.r*Math.sin(mod.thetaz)
+         camera.position.z = mod.z0+mod.r*Math.cos(mod.thetaz)
+         camera.up = new THREE.Vector3(
+            Math.sin(mod.thetaxy)*Math.cos(mod.thetaz),
+            Math.cos(mod.thetaxy)*Math.cos(mod.thetaz),
+            Math.sin(mod.thetaz))
+         camera.lookAt(new THREE.Vector3(mod.x0,mod.y0,mod.z0))
+         camera.updateProjectionMatrix()
+         renderer.render(scene,camera)
+         }
+      else if (((mod.button == 0) && (mod.ctrl == true)) || (mod.button == 2)) {
+         mod.thetaz += dy/win.innerHeight
+         mod.thetaxy += dx/win.innerWidth
+         camera.position.x = mod.x0+Math.sin(mod.thetaxy)*mod.r*Math.sin(mod.thetaz)
+         camera.position.y = mod.y0+Math.cos(mod.thetaxy)*mod.r*Math.sin(mod.thetaz)
+         camera.position.z = mod.z0+mod.r*Math.cos(mod.thetaz)
+         camera.up = new THREE.Vector3(
+            Math.sin(mod.thetaxy)*Math.cos(mod.thetaz),
+            Math.cos(mod.thetaxy)*Math.cos(mod.thetaz),
+            Math.sin(mod.thetaz))
+         camera.lookAt(new THREE.Vector3(mod.x0,mod.y0,mod.z0))
+         camera.updateProjectionMatrix()
+         renderer.render(scene,camera)
+         }
+      }
+   //
+   // mouse_wheel
+   //
+   function mouse_wheel(evt) {
+      evt.preventDefault()
+      evt.stopPropagation()
+      var dy = evt.deltaY/win.innerHeight
+      mod.r += mod.dy*dy
+      camera.position.x = mod.x0+Math.sin(mod.thetaxy)*mod.r*Math.sin(mod.thetaz)
+      camera.position.y = mod.y0+Math.cos(mod.thetaxy)*mod.r*Math.sin(mod.thetaz)
+      camera.position.z = mod.z0+mod.r*Math.cos(mod.thetaz)
+      camera.lookAt(new THREE.Vector3(mod.x0,mod.y0,mod.z0))
+      camera.updateProjectionMatrix()
+      renderer.render(scene,camera)
+      }
+   }
+//
+// return values
+//
+return ({
+   name:name,
+   init:init,
+   inputs:inputs,
+   outputs:outputs,
+   interface:interface
+   })
+}())

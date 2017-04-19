@@ -1,0 +1,614 @@
+//
+// convert STL image
+//
+// Neil Gershenfeld
+// (c) Massachusetts Institute of Technology 2016
+//
+// This work may be reproduced, modified, distributed, performed, and
+// displayed for any purpose, but must acknowledge the mods
+// project. Copyright is retained and must be preserved. The work is
+// provided as is; no warranty is provided, and users accept all
+// liability.
+//
+// closure
+//
+(function(){
+//
+// module globals
+//
+var mod = {}
+//
+// name
+//
+var name = 'convert STL image'
+//
+// initialization
+//
+var init = function() {
+   mod.dpi.value = 100
+   mod.dpmm.value = 100/25.4
+   mod.upi.value = 25.4
+   mod.upmm.value = 1
+   mod.pz.checked = true
+   mod.int24.checked = true
+   }
+//
+// inputs
+//
+var inputs = {
+   STL:{type:'buffer',
+      event:function(evt){
+         mod.view = new DataView(evt.detail)
+         show_stl()}}}
+//
+// outputs
+//
+var outputs = {
+   image:{type:'RGBA',
+      event:function(){
+         var ctx = mod.img.getContext("2d")
+         var img = ctx.getImageData(0,0,mod.img.width,mod.img.height)
+         mods.output(mod,'image',img)}},
+   imageInfo:{type:'object',
+      event:function(){
+         var obj = {}
+         obj.name = "SVG image"
+         obj.dpi = parseFloat(mod.dpi.value)
+         obj.width = mod.img.width
+         obj.height = mod.img.height
+         mods.output(mod,'imageInfo',obj)}}}
+//
+// interface
+//
+var interface = function(div){
+   mod.div = div
+   //
+   // on-screen drawing canvas
+   //
+   var canvas = document.createElement('canvas')
+      canvas.width = mods.ui.canvas
+      canvas.height = mods.ui.canvas
+      canvas.style.backgroundColor = 'rgb(255,255,255)'
+      div.appendChild(canvas)
+      mod.canvas = canvas
+   div.appendChild(document.createElement('br'))
+   //
+   // off-screen image canvas
+   //
+   var canvas = document.createElement('canvas')
+      mod.img = canvas
+   //
+   // convert button
+   //
+   var btn = document.createElement('button')
+      btn.style.padding = mods.ui.padding
+      btn.style.margin = 1
+      btn.appendChild(document.createTextNode('convert'))
+      btn.addEventListener('click',function(){
+         ;
+         })
+      div.appendChild(btn)
+   //
+   // view button
+   //
+   var btn = document.createElement('button')
+      btn.style.padding = mods.ui.padding
+      btn.style.margin = 1
+      btn.appendChild(document.createTextNode('view'))
+      btn.addEventListener('click',function(){
+         var win = window.open('')
+         var btn = document.createElement('button')
+            btn.appendChild(document.createTextNode('close'))
+            btn.style.padding = mods.ui.padding
+            btn.style.margin = 1
+            btn.addEventListener('click',function(){
+               win.close()
+               })
+            win.document.body.appendChild(btn)
+         win.document.body.appendChild(document.createElement('br'))
+         var canvas = document.createElement('canvas')
+            canvas.width = mod.img.width
+            canvas.height = mod.img.height
+            win.document.body.appendChild(canvas)
+         var ctx = canvas.getContext("2d")
+            ctx.drawImage(mod.img,0,0)
+         })
+      div.appendChild(btn)
+   div.appendChild(document.createElement('br'))
+   //
+   // projection
+   //
+   div.appendChild(document.createTextNode('projection: '))
+   div.appendChild(document.createElement('br'))
+   var input = document.createElement('input')
+      input.type = 'radio'
+      input.name = mod.div.id+'projection'
+      input.id = mod.div.id+'mx'
+      input.addEventListener('click',function(){
+         show_stl()
+         })
+      div.appendChild(input)
+      mod.mx = input
+   div.appendChild(document.createTextNode('-x'))
+   var input = document.createElement('input')
+      input.type = 'radio'
+      input.name = mod.div.id+'projection'
+      input.id = mod.div.id+'px'
+      input.addEventListener('click',function(){
+         show_stl()
+         })
+      div.appendChild(input)
+      mod.px = input
+   div.appendChild(document.createTextNode(' x'))
+   var input = document.createElement('input')
+      input.type = 'radio'
+      input.name = mod.div.id+'projection'
+      input.id = mod.div.id+'my'
+      input.addEventListener('click',function(){
+         show_stl()
+         })
+      div.appendChild(input)
+      mod.my = input
+   div.appendChild(document.createTextNode('-y'))
+   var input = document.createElement('input')
+      input.type = 'radio'
+      input.name = mod.div.id+'projection'
+      input.id = mod.div.id+'py'
+      input.addEventListener('click',function(){
+         show_stl()
+         })
+      div.appendChild(input)
+      mod.py = input
+   div.appendChild(document.createTextNode(' y'))
+   var input = document.createElement('input')
+      input.type = 'radio'
+      input.name = mod.div.id+'projection'
+      input.id = mod.div.id+'mz'
+      input.addEventListener('click',function(){
+         show_stl()
+         })
+      div.appendChild(input)
+      mod.mz = input
+   div.appendChild(document.createTextNode('-z'))
+   var input = document.createElement('input')
+      input.type = 'radio'
+      input.name = mod.div.id+'projection'
+      input.id = mod.div.id+'pz'
+      input.addEventListener('click',function(){
+         show_stl()
+         })
+      div.appendChild(input)
+      mod.pz = input
+   div.appendChild(document.createTextNode(' z'))
+   div.appendChild(document.createElement('br'))
+   //
+   // type format
+   //
+   div.appendChild(document.createTextNode('height map:'))
+   div.appendChild(document.createElement('br'))
+   var input = document.createElement('input')
+      input.type = 'radio'
+      input.name = mod.div.id+'type'
+      input.id = mod.div.id+'int8'
+      div.appendChild(input)
+      mod.int8= input
+   div.appendChild(document.createTextNode('grayscale'))
+   var input = document.createElement('input')
+      input.type = 'radio'
+      input.name = mod.div.id+'type'
+      input.id = mod.div.id+'int24'
+      div.appendChild(input)
+      mod.int24 = input
+   div.appendChild(document.createTextNode('RGB'))
+   var input = document.createElement('input')
+      input.type = 'radio'
+      input.name = mod.div.id+'type'
+      input.id = mod.div.id+'int32'
+      div.appendChild(input)
+      mod.int32 = input
+   div.appendChild(document.createTextNode('RGBA'))
+   div.appendChild(document.createElement('br'))
+   //
+   // dots
+   //
+   div.appendChild(document.createTextNode('dots per:'))
+   div.appendChild(document.createElement('br'))
+   div.appendChild(document.createTextNode('inch '))
+   var input = document.createElement('input')
+      input.type = 'text'
+      input.size = 6
+      input.addEventListener('input',function(){
+         mod.dpmm.value = parseFloat(mod.dpi.value)/25.4
+         update_size()
+         })
+      div.appendChild(input)
+      mod.dpi = input
+   div.appendChild(document.createTextNode(' mm '))
+   var input = document.createElement('input')
+      input.type = 'text'
+      input.size = 6
+      input.addEventListener('input',function(){
+         mod.dpi.value = parseFloat(mod.dpmm.value)*25.4
+         update_size()
+         })
+      div.appendChild(input)
+      mod.dpmm = input
+   //
+   // units
+   //
+   div.appendChild(document.createElement('br'))
+   div.appendChild(document.createTextNode('units per:'))
+   div.appendChild(document.createElement('br'))
+   div.appendChild(document.createTextNode('inch '))
+   var input = document.createElement('input')
+      input.type = 'text'
+      input.size = 6
+      input.addEventListener('input',function(){
+         mod.upmm.value = parseFloat(mod.upi.value)/25.4
+         update_size()
+         })
+      div.appendChild(input)
+      mod.upi = input
+   div.appendChild(document.createTextNode(' mm '))
+   var input = document.createElement('input')
+      input.type = 'text'
+      input.size = 6
+      input.addEventListener('input',function(){
+         mod.upi.value = parseFloat(mod.upmm.value)*25.4
+         update_size()
+         })
+      div.appendChild(input)
+      mod.upmm = input
+   //
+   // size
+   //
+   div.appendChild(document.createElement('br'))
+   var text = document.createTextNode('image size:')
+      div.appendChild(text)
+   div.appendChild(document.createElement('br'))
+   var text = document.createTextNode('(pixels)')
+      div.appendChild(text)
+      mod.pixels = text
+   div.appendChild(document.createElement('br'))
+   var text = document.createTextNode('(inches)')
+      div.appendChild(text)
+      mod.inches = text
+   div.appendChild(document.createElement('br'))
+   var text = document.createTextNode('(mm)')
+      div.appendChild(text)
+      mod.mm = text
+   }
+//
+// local functions
+//
+// show STL
+//
+function show_stl() {
+   var view = mod.view
+   var endian = true
+   var triangles = view.getUint32(80,endian)
+   mod.triangles = triangles
+   var size = 80+4+triangles*(4*12+2)
+   //
+   // check for binary STL
+   //
+   if (size != view.byteLength) {
+      return
+      }
+   //
+   // find limits
+   //
+   var offset = 80+4
+   var x0,x1,x2,y0,y1,y2,z0,z1,z2
+   var xmin = Number.MAX_VALUE
+   var xmax = -Number.MAX_VALUE
+   var ymin = Number.MAX_VALUE
+   var ymax = -Number.MAX_VALUE
+   var zmin = Number.MAX_VALUE
+   var zmax = -Number.MAX_VALUE
+   for (var t = 0; t < triangles; ++t) {
+      offset += 3*4
+      x0 = view.getFloat32(offset,endian)
+      offset += 4
+      if (x0 > xmax) xmax = x0
+      if (x0 < xmin) xmin = x0
+      y0 = view.getFloat32(offset,endian)
+      offset += 4
+      if (y0 > ymax) ymax = y0
+      if (y0 < ymin) ymin = y0
+      z0 = view.getFloat32(offset,endian)
+      offset += 4
+      if (z0 > zmax) zmax = z0
+      if (z0 < zmin) zmin = z0
+      x1 = view.getFloat32(offset,endian)
+      offset += 4
+      if (x1 > xmax) xmax = x1
+      if (x1 < xmin) xmin = x1
+      y1 = view.getFloat32(offset,endian)
+      offset += 4
+      if (y1 > ymax) ymax = y1
+      if (y1 < ymin) ymin = y1
+      z1 = view.getFloat32(offset,endian)
+      offset += 4
+      if (z1 > zmax) zmax = z1
+      if (z1 < zmin) zmin = z1
+      x2 = view.getFloat32(offset,endian)
+      offset += 4
+      if (x2 > xmax) xmax = x2
+      if (x2 < xmin) xmin = x2
+      y3 = view.getFloat32(offset,endian)
+      offset += 4
+      if (y2 > ymax) ymax = y2
+      if (y2 < ymin) ymin = y2
+      z2 = view.getFloat32(offset,endian)
+      offset += 4
+      if (z2 > zmax) zmax = z2
+      if (z2 < zmin) zmin = z2
+      offset += 2
+      }
+   mod.dx = xmax-xmin
+   mod.dy = ymax-ymin
+   mod.dz = zmax-zmin
+   mod.xmin = xmin
+   mod.ymin = ymin
+   mod.zmin = zmin
+   mod.xmax = xmax
+   mod.ymax = ymax
+   mod.zmax = zmax
+   update_size()
+   //
+   // draw projection
+   //
+   var ctx = mod.canvas.getContext('2d')
+   var w = mod.canvas.width
+   var h = mod.canvas.height
+   ctx.clearRect(0,0,w,h)
+   if (mod.mx.checked) {
+      var dx = mod.dy
+      var dy = mod.dz
+      }
+   else if (mod.px.checked) {
+      var dx = mod.dy
+      var dy = mod.dz
+      }
+   else if (mod.my.checked) {
+      var dx = mod.dx
+      var dy = mod.dz
+      }
+   else if (mod.py.checked) {
+      var dx = mod.dx
+      var dy = mod.dz
+      }
+   else if (mod.mz.checked) {
+      var dx = mod.dx
+      var dy = mod.dy
+      }
+   else if (mod.pz.checked) {
+      var dx = mod.dx
+      var dy = mod.dy
+      }
+   if (dx > dy) {
+      var xo = 0
+      var yo = h*.5*(1-dy/dx)
+      var xw = w
+      var yh = w*dy/dx
+      }
+   else {
+      var xo = w*.5*(1-dx/dy)
+      var yo = 0
+      var xw = h*dx/dy
+      var yh = h
+      }
+   ctx.beginPath()
+   offset = 80+4
+   for (var t = 0; t < triangles; ++t) {
+      offset += 3*4
+      x0 = view.getFloat32(offset,endian)
+      offset += 4
+      y0 = view.getFloat32(offset,endian)
+      offset += 4
+      z0 = view.getFloat32(offset,endian)
+      offset += 4
+      x1 = view.getFloat32(offset,endian)
+      offset += 4
+      y1 = view.getFloat32(offset,endian)
+      offset += 4
+      z1 = view.getFloat32(offset,endian)
+      offset += 4
+      x2 = view.getFloat32(offset,endian)
+      offset += 4
+      y2 = view.getFloat32(offset,endian)
+      offset += 4
+      z2 = view.getFloat32(offset,endian)
+      offset += 4
+      offset += 2
+      if (mod.mx.checked) {
+         x0 = xo+xw*(ymax-y0)/dx
+         y0 = yo+yh*(zmax-z0)/dy
+         x1 = xo+xw*(ymax-y1)/dx
+         y1 = yo+yh*(zmax-z1)/dy
+         x2 = xo+xw*(ymax-y2)/dx
+         y2 = yo+yh*(zmax-z2)/dy
+         }
+      else if (mod.px.checked) {
+         x0 = xo+xw*(y0-ymin)/dx
+         y0 = yo+yh*(zmax-z0)/dy
+         x1 = xo+xw*(y1-ymin)/dx
+         y1 = yo+yh*(zmax-z1)/dy
+         x2 = xo+xw*(y2-ymin)/dx
+         y2 = yo+yh*(zmax-z2)/dy
+         }
+      else if (mod.my.checked) {
+         x0 = xo+xw*(xmax-x0)/dx
+         y0 = yo+yh*(zmax-z0)/dy
+         x1 = xo+xw*(xmax-x1)/dx
+         y1 = yo+yh*(zmax-z1)/dy
+         x2 = xo+xw*(xmax-x2)/dx
+         y2 = yo+yh*(zmax-z2)/dy
+         }
+      else if (mod.py.checked) {
+         x0 = xo+xw*(x0-xmin)/dx
+         y0 = yo+yh*(zmax-z0)/dy
+         x1 = xo+xw*(x1-xmin)/dx
+         y1 = yo+yh*(zmax-z1)/dy
+         x2 = xo+xw*(x2-xmin)/dx
+         y2 = yo+yh*(zmax-z2)/dy
+         }
+      else if (mod.mz.checked) {
+         x0 = xo+xw*(xmax-x0)/dx
+         y0 = yo+yh*(ymax-y0)/dy
+         x1 = xo+xw*(xmax-x1)/dx
+         y1 = yo+yh*(ymax-y1)/dy
+         x2 = xo+xw*(xmax-x2)/dx
+         y2 = yo+yh*(ymax-y2)/dy
+         }
+      else if (mod.pz.checked) {
+         x0 = xo+xw*(x0-xmin)/dx
+         y0 = yo+yh*(ymax-y0)/dy
+         x1 = xo+xw*(x1-xmin)/dx
+         y1 = yo+yh*(ymax-y1)/dy
+         x2 = xo+xw*(x2-xmin)/dx
+         y2 = yo+yh*(ymax-y2)/dy
+         }
+      ctx.moveTo(x0,y0)
+      ctx.lineTo(x1,y1)
+      ctx.lineTo(x2,y2)
+      ctx.lineTo(x0,y0)
+      }
+   ctx.stroke()
+   }
+//
+// update image size
+//
+function update_size() {
+   if (mod.dx == undefined)
+      return
+   if (mod.mx.checked) {
+      var dx = mod.dy
+      var dy = mod.dz
+      }
+   else if (mod.px.checked) {
+      var dx = mod.dy
+      var dy = mod.dz
+      }
+   else if (mod.my.checked) {
+      var dx = mod.dx
+      var dy = mod.dz
+      }
+   else if (mod.py.checked) {
+      var dx = mod.dx
+      var dy = mod.dz
+      }
+   else if (mod.mz.checked) {
+      var dx = mod.dx
+      var dy = mod.dy
+      }
+   else if (mod.pz.checked) {
+      var dx = mod.dx
+      var dy = mod.dy
+      }
+   var dpi = parseFloat(mod.dpi.value)
+   var upi = parseFloat(mod.upi.value)
+   var upmm = parseFloat(mod.upmm.value)
+   mod.pixels.nodeValue = (dpi*dx/upi).toFixed(0)+' x '+(dpi*dy/upi).toFixed(0)+' (pixels)'
+   mod.inches.nodeValue = (dx/upi).toFixed(3)+' x '+(dy/upi).toFixed(3)+' (inches)'
+   mod.mm.nodeValue = (dx/upmm).toFixed(3)+' x '+(dy/upmm).toFixed(3)+' (mm)'
+   }
+//
+// get size
+//
+function get_size() {
+   var i = mod.svg.indexOf("width")
+   if (i == -1) {
+      var width = 1
+      var height = 1
+      var units = 90
+      }
+   else {
+      var i1 = mod.svg.indexOf("\"",i+1)
+      var i2 = mod.svg.indexOf("\"",i1+1)
+      var width = mod.svg.substring(i1+1,i2)
+      i = mod.svg.indexOf("height")
+      i1 = mod.svg.indexOf("\"",i+1)
+      i2 = mod.svg.indexOf("\"",i1+1)
+      var height = mod.svg.substring(i1+1,i2)
+      ih = mod.svg.indexOf("height")
+      if (width.indexOf("px") != -1) {
+         width = width.slice(0,-2)
+         height = height.slice(0,-2)
+         var units = 90
+         }
+      else if (width.indexOf("mm") != -1) {
+         width = width.slice(0,-2)
+         height = height.slice(0,-2)
+         var units = 25.4
+         }
+      else if (width.indexOf("cm") != -1) {
+         width = width.slice(0,-2)
+         height = height.slice(0,-2)
+         var units = 2.54
+         }
+      else if (width.indexOf("in") != -1) {
+         width = width.slice(0,-2)
+         height = height.slice(0,-2)
+         var units = 1
+         }
+      else {
+         var units = 90
+         }
+      }
+   mod.width = parseFloat(width)
+   mod.height = parseFloat(height)
+   mod.units = units
+   mod.unitstext.value = units
+   }
+//
+// draw image
+//
+function draw_image() {
+   var dpi = parseFloat(mod.dpi.value)
+   var units = parseFloat(mod.unitstext.value)
+   var width = parseInt(dpi*mod.width/units)
+   var height = parseInt(dpi*mod.height/units)
+   mod.pixels.nodeValue = width+' x '+height+" (pixels)"
+   mod.inches.nodeValue = (width/dpi).toFixed(3)+' x '+(height/dpi).toFixed(3)+" (inches)"
+   mod.mm.nodeValue = (25.4*width/dpi).toFixed(3)+' x '+(25.4*height/dpi).toFixed(3)+" (mm)"
+   var src = "data:image/svg+xml;base64,"+window.btoa(mod.svg)
+   var img = new Image()
+   img.setAttribute("src",src)
+   img.onload = function() {
+      if (width > height) {
+         var x0 = 0
+         var y0 = mod.canvas.height*.5*(1-height/width)
+         var w = mod.canvas.width
+         var h = mod.canvas.width*height/width
+         }
+      else {
+         var x0 = mod.canvas.width*.5*(1-width/height)
+         var y0 = 0
+         var w = mod.canvas.height*width/height
+         var h = mod.canvas.height
+         }
+      mod.img.width = width
+      mod.img.height = height
+      var ctx = mod.img.getContext("2d")
+         ctx.clearRect(0,0,width,height)
+         ctx.drawImage(img,0,0,width,height)
+      var ctx = mod.canvas.getContext("2d")
+         ctx.clearRect(0,0,mod.canvas.width,mod.canvas.height)
+         ctx.drawImage(mod.img,x0,y0,w,h)
+      outputs.image.event()
+      outputs.imageInfo.event()
+      }
+   }
+//
+// return values
+//
+return ({
+   name:name,
+   init:init,
+   inputs:inputs,
+   outputs:outputs,
+   interface:interface
+   })
+}())

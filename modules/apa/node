@@ -1,0 +1,166 @@
+//
+// APA node module
+//
+// Neil Gershenfeld 
+// (c) Massachusetts Institute of Technology 2016
+// 
+// This work may be reproduced, modified, distributed, performed, and 
+// displayed for any purpose, but must acknowledge the mods
+// project. Copyright is retained and must be preserved. The work is 
+// provided as is; no warranty is provided, and users accept all 
+// liability.
+//
+// closure
+//
+(function(){
+//
+// module globals
+//
+var mod = {}
+//
+// name
+//
+var name = 'APA node (not finished)'
+//
+// initialization
+//
+var init = function() {
+   }
+//
+// inputs
+//
+var inputs = {
+   port1:{type:'packet',
+      label:'port 1',
+      event:function(evt){
+         input_packet(1,evt.detail)
+         }},
+   port2:{type:'packet',
+      label:'port 2',
+      event:function(evt){
+         input_packet(2,evt.detail)
+         }},
+   port3:{type:'packet',
+      label:'port 3',
+      event:function(evt){
+         input_packet(3,evt.detail)
+         }},
+   orig:{type:'packet',
+      event:function(evt){
+         orig_packet(evt.detail)
+         }}}
+//
+// outputs
+//
+var outputs = {
+   port1:{type:'packet',
+      label:'port 1',
+      event:function(data){
+         mods.output(mod,'port1',data)}},
+   port2:{type:'packet',
+      label:'port 2',
+      event:function(data){
+         mods.output(mod,'port2',data)}},
+   port3:{type:'packet',
+      label:'port 3',
+      event:function(data){
+         mods.output(mod,'port3',data)}},
+   dest:{type:'packet',
+      event:function(data){
+         mods.output(mod,'dest',data)}}}
+//
+// interface
+//
+var interface = function(div){
+   mod.div = div
+   mod.in = []
+   mod.out = []
+   div.appendChild(document.createTextNode('\u00a0input port output'))
+   div.appendChild(document.createElement('br'))
+   input = document.createElement('input')
+      input.type = 'text'
+      input.size = 10
+      div.appendChild(input)
+      mod.in[1] = input
+   div.appendChild(document.createTextNode(' 1 '))
+   input = document.createElement('input')
+      input.type = 'text'
+      input.size = 10
+      div.appendChild(input)
+      mod.out[1]= input
+   div.appendChild(document.createElement('br'))
+   input = document.createElement('input')
+      input.type = 'text'
+      input.size = 10
+      div.appendChild(input)
+      mod.in[2] = input
+   div.appendChild(document.createTextNode(' 2 '))
+   input = document.createElement('input')
+      input.type = 'text'
+      input.size = 10
+      div.appendChild(input)
+      mod.out[2] = input
+   div.appendChild(document.createElement('br'))
+   input = document.createElement('input')
+      input.type = 'text'
+      input.size = 10
+      div.appendChild(input)
+      mod.in[3] = input
+   div.appendChild(document.createTextNode(' 3 '))
+   input = document.createElement('input')
+      input.type = 'text'
+      input.size = 10
+      div.appendChild(input)
+      mod.out[3] = input
+   div.appendChild(document.createElement('br'))
+   div.appendChild(document.createTextNode('origination\u00a0\u00a0destination'))
+   div.appendChild(document.createElement('br'))
+   input = document.createElement('input')
+      input.type = 'text'
+      input.size = 10
+      div.appendChild(input)
+      mod.orig= input
+   div.appendChild(document.createTextNode('\u00a0\u00a0\u00a0'))
+   input = document.createElement('input')
+      input.type = 'text'
+      input.size = 10
+      div.appendChild(input)
+      mod.dest = input
+   }
+//
+// local functions
+//
+// input_packet
+//
+function input_packet(port,packet) {
+   mod.in[port].value = packet
+   }
+//
+// orig_packet
+//
+function orig_packet(packet) {
+   mod.orig.value = packet
+   }
+//
+// output_packet
+//
+function output_packet(port,packet) {
+   mod.out[port].value = packet
+   }
+//
+// dest_packet
+//
+function dest_packet(packet) {
+   mod.dest.value = packet
+   }
+//
+// return values
+//
+return ({
+   name:name,
+   init:init,
+   inputs:inputs,
+   outputs:outputs,
+   interface:interface
+   })
+}())

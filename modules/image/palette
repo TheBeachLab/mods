@@ -1,0 +1,577 @@
+//
+// image palette
+//    todo:
+//       linear time palette search
+//
+// Neil Gershenfeld 
+// (c) Massachusetts Institute of Technology 2017
+// 
+// This work may be reproduced, modified, distributed, performed, and 
+// displayed for any purpose, but must acknowledge the mods
+// project. Copyright is retained and must be preserved. The work is 
+// provided as is; no warranty is provided, and users accept all 
+// liability.
+//
+// closure
+//
+(function(){
+//
+// module globals
+//
+var mod = {}
+//
+// name
+//
+var name = 'image palette'
+//
+// initialization
+//
+var init = function() {
+   mod.palette = [
+      [255,0,0],
+      [0,255,0],
+      [0,0,255]]
+   mod.palette = [
+      [0,0,0,'black'],
+      [255,0,0,'red'],
+      [0,255,0,'green'],
+      [0,0,255,'blue'],
+      [255,255,0,'yellow'],
+      [255,0,255,'magenta'],
+      [0,255,255,'cyan'],
+      [255,255,255,'white'],
+      [128,0,0],
+      [0,128,0],
+      [0,0,128],
+      [128,128,0],
+      [128,0,128],
+      [0,128,128]]
+   mod.text.value =
+      JSON.stringify(mod.palette).replace(/]\,/g,'],\n')
+   }
+//
+// inputs
+//
+var inputs = {
+   image:{type:'RGBA',
+      event:function(evt){
+         mod.input = evt.detail
+         var ctx = mod.img.getContext("2d")
+         ctx.canvas.width = mod.input.width
+         ctx.canvas.height = mod.input.height 
+         var ctx = mod.convert.getContext("2d")
+         ctx.canvas.width = mod.input.width
+         ctx.canvas.height = mod.input.height 
+         if (mod.originalspan.style.fontWeight == 'bold')
+            show_original()
+         else
+            show_palette()
+         }}}
+//
+// outputs
+//
+var outputs = {
+   image:{type:'RGBA',
+      event:function(){
+         var ctx = mod.img.getContext("2d")
+         var img = ctx.getImageData(0,0,mod.img.width,mod.img.height)
+         mods.output(mod,'image',img)}}}
+//
+// interface
+//
+var interface = function(div){
+   mod.div = div
+   //
+   // file input control
+   //
+   var file = document.createElement('input')
+      file.setAttribute('type','file')
+      file.setAttribute('id',div.id+'file_input')
+      file.style.position = 'absolute'
+      file.style.left = 0
+      file.style.top = 0
+      file.style.width = 0
+      file.style.height = 0
+      file.style.opacity = 0
+      file.addEventListener('change',function() {
+         load_palette()
+         })
+      div.appendChild(file)
+      mod.file = file
+   //
+   // on-screen drawing canvas
+   //
+   var canvas = document.createElement('canvas')
+      canvas.width = mods.ui.canvas
+      canvas.height = mods.ui.canvas
+      canvas.style.backgroundColor = 'rgb(255,255,255)'
+      div.appendChild(canvas)
+      mod.canvas = canvas
+   div.appendChild(document.createElement('br'))
+   //
+   // off-screen image canvas
+   //
+   var canvas = document.createElement('canvas')
+      mod.img = canvas
+   //
+   // off-screen conversion canvas
+   //
+   var canvas = document.createElement('canvas')
+      mod.convert = canvas
+   //
+   // view
+   //
+   var btn = document.createElement('button')
+      btn.style.padding = mods.ui.padding
+      btn.style.margin = 1
+      btn.appendChild(document.createTextNode('view'))
+      btn.addEventListener('click',function(){
+         var win = window.open('')
+         var btn = document.createElement('button')
+            btn.appendChild(document.createTextNode('close'))
+            btn.style.padding = mods.ui.padding
+            btn.style.margin = 1
+            btn.addEventListener('click',function(){
+               win.close()
+               })
+            win.document.body.appendChild(btn)
+         win.document.body.appendChild(document.createElement('br'))
+         var canvas = document.createElement('canvas')
+            canvas.width = mod.img.width
+            canvas.height = mod.img.height
+            win.document.body.appendChild(canvas)
+         var ctx = canvas.getContext("2d")
+            ctx.drawImage(mod.img,0,0)
+         })
+      div.appendChild(btn)
+   div.appendChild(document.createElement('br'))
+   //
+   // image 
+   //
+   var btn = document.createElement('button')
+      btn.style.padding = mods.ui.padding
+      btn.style.margin = 1
+      var span = document.createElement('span')
+         var text = document.createTextNode('original')
+            span.appendChild(text)
+         span.style.fontWeight = 'normal'
+         btn.appendChild(span)
+         mod.originalspan = span
+      btn.addEventListener('click',function(){
+         mod.originalspan.style.fontWeight = 'bold'
+         mod.palettespan.style.fontWeight = 'normal'
+         show_original()
+         })
+      div.appendChild(btn)
+   div.appendChild(document.createTextNode(' image '))
+   var btn = document.createElement('button')
+      btn.style.padding = mods.ui.padding
+      btn.style.margin = 1
+      var span = document.createElement('span')
+         var text = document.createTextNode('palette')
+            span.appendChild(text)
+         span.style.fontWeight = 'bold'
+         btn.appendChild(span)
+         mod.palettespan = span
+      btn.addEventListener('click',function(){
+         mod.originalspan.style.fontWeight = 'normal'
+         mod.palettespan.style.fontWeight = 'bold'
+         show_palette()
+         })
+      div.appendChild(btn)
+   div.appendChild(document.createElement('br'))
+   //
+   // palette
+   //
+   var btn = document.createElement('button')
+      btn.style.padding = mods.ui.padding
+      btn.style.margin = 1
+      btn.appendChild(document.createTextNode('load'))
+      btn.addEventListener('click',function(){
+         var file = document.getElementById(div.id+'file_input')
+         file.value = null
+         file.click()
+         })
+      div.appendChild(btn)
+   div.appendChild(document.createTextNode(' palette '))
+   var btn = document.createElement('button')
+      btn.style.padding = mods.ui.padding
+      btn.style.margin = 1
+      btn.appendChild(document.createTextNode('save'))
+      btn.addEventListener('click',function(){
+         save_palette()
+         })
+      div.appendChild(btn)
+   div.appendChild(document.createElement('br'))
+   var text = document.createElement('textarea')
+      text.setAttribute('rows',mods.ui.rows)
+      text.setAttribute('cols',mods.ui.cols)
+      div.appendChild(text)
+      mod.text = text
+   div.appendChild(document.createElement('br'))
+   //
+   // save
+   //
+   div.appendChild(document.createTextNode('save'))
+   div.appendChild(document.createElement('br'))
+   var btn = document.createElement('button')
+      btn.style.padding = mods.ui.padding
+      btn.style.margin = 1
+      btn.appendChild(document.createTextNode('image'))
+      btn.addEventListener('click',function(){
+         save_image()
+         })
+      div.appendChild(btn)
+   var btn = document.createElement('button')
+      btn.style.padding = mods.ui.padding
+      btn.style.margin = 1
+      btn.appendChild(document.createTextNode('masks'))
+      btn.addEventListener('click',function(){
+         save_masks()
+         })
+      div.appendChild(btn)
+   var btn = document.createElement('button')
+      btn.style.padding = mods.ui.padding
+      btn.style.margin = 1
+      btn.appendChild(document.createTextNode('colors'))
+      btn.addEventListener('click',function(){
+         save_colors()
+         })
+      div.appendChild(btn)
+   }
+//
+// local functions
+//
+// save_image
+//
+function save_image() {
+   var a = document.createElement('a')
+   a.href = mod.img.toDataURL()
+   a.setAttribute('download','image.png')
+   a.style.display = 'none'
+   document.body.appendChild(a)
+   a.click()
+   document.body.removeChild(a)
+   }
+//
+// save_masks
+//
+function save_masks() {
+   if (mod.originalspan.style.fontWeight == 'bold') {
+      mod.originalspan.style.fontWeight = 'normal'
+      mod.palettespan.style.fontWeight = 'bold'
+      show_palette()
+      }
+   var palette = JSON.parse(mod.text.value)
+   var blob = new Blob(['('+mask_worker.toString()+'())'])
+   var url = window.URL.createObjectURL(blob)
+   save_mask(0)
+   //
+   // save_mask
+   //
+   function save_mask(index) {
+      var webworker = new Worker(url)
+      webworker.addEventListener('message',function(evt) {
+         var h = mod.img.height
+         var w = mod.img.width
+         var buf = new Uint8ClampedArray(evt.data.buffer)
+         var imgdata = new ImageData(buf,w,h)
+         var ctx = mod.convert.getContext("2d")
+         ctx.putImageData(imgdata,0,0)
+         webworker.terminate()
+         var a = document.createElement('a')
+         a.href = mod.convert.toDataURL()
+         var name = 'mask.'+palette[index][0]
+         name += '.'+palette[index][1]
+         name += '.'+palette[index][2]
+         if (palette[index][3] != undefined)
+            name += '.'+palette[index][3]
+         name += '.png'
+         a.setAttribute('download',name)
+         a.style.display = 'none'
+         document.body.appendChild(a)
+         a.click()
+         document.body.removeChild(a)
+         if (index < (palette.length-1))
+            save_mask(index+1)
+         else
+            window.URL.revokeObjectURL(url)
+         })
+      var ctx = mod.img.getContext("2d")
+      var img = ctx.getImageData(0,0,mod.img.width,mod.img.height)
+      var color = palette[index]
+      webworker.postMessage({
+         height:mod.input.height,width:mod.input.width,color:color,
+         buffer:img.data.buffer})
+      }
+   //
+   // mask_worker
+   //
+   function mask_worker() {
+      self.addEventListener('message',function(evt) {
+         var h = evt.data.height
+         var w = evt.data.width
+         var color = evt.data.color
+         var r = color[0]
+         var g = color[1]
+         var b = color[2]
+         var buf = new Uint8ClampedArray(evt.data.buffer)
+         for (var row = 0; row < h; ++row) {
+            for (var col = 0; col < w; ++col) {
+               var rb = buf[(h-1-row)*w*4+col*4+0] 
+               var gb = buf[(h-1-row)*w*4+col*4+1] 
+               var bb = buf[(h-1-row)*w*4+col*4+2] 
+               if ((rb == r) && (gb == g) && (bb == b)) {
+                  buf[(h-1-row)*w*4+col*4+0] = 255
+                  buf[(h-1-row)*w*4+col*4+1] = 255
+                  buf[(h-1-row)*w*4+col*4+2] = 255
+                  buf[(h-1-row)*w*4+col*4+3] = 255
+                  }
+               else {
+                  buf[(h-1-row)*w*4+col*4+0] = 0
+                  buf[(h-1-row)*w*4+col*4+1] = 0
+                  buf[(h-1-row)*w*4+col*4+2] = 0
+                  buf[(h-1-row)*w*4+col*4+3] = 0
+                  }
+               }
+            }
+         self.postMessage({buffer:buf.buffer},[buf.buffer])
+         })
+      }
+   }
+//
+// save_colors
+//
+function save_colors() {
+   if (mod.originalspan.style.fontWeight == 'bold') {
+      mod.originalspan.style.fontWeight = 'normal'
+      mod.palettespan.style.fontWeight = 'bold'
+      show_palette()
+      }
+   var palette = JSON.parse(mod.text.value)
+   var blob = new Blob(['('+color_worker.toString()+'())'])
+   var url = window.URL.createObjectURL(blob)
+   save_color(0)
+   //
+   // save_color
+   //
+   function save_color(index) {
+      var webworker = new Worker(url)
+      webworker.addEventListener('message',function(evt) {
+         var h = mod.img.height
+         var w = mod.img.width
+         var buf = new Uint8ClampedArray(evt.data.buffer)
+         var imgdata = new ImageData(buf,w,h)
+         var ctx = mod.convert.getContext("2d")
+         ctx.putImageData(imgdata,0,0)
+         webworker.terminate()
+         var a = document.createElement('a')
+         a.href = mod.convert.toDataURL()
+         var name = 'color.'+palette[index][0]
+         name += '.'+palette[index][1]
+         name += '.'+palette[index][2]
+         if (palette[index][3] != undefined)
+            name += '.'+palette[index][3]
+         name += '.png'
+         a.setAttribute('download',name)
+         a.setAttribute('download',name)
+         a.style.display = 'none'
+         document.body.appendChild(a)
+         a.click()
+         document.body.removeChild(a)
+         if (index < (palette.length-1))
+            save_color(index+1)
+         else
+            window.URL.revokeObjectURL(url)
+         })
+      var ctx = mod.img.getContext("2d")
+      var img = ctx.getImageData(0,0,mod.img.width,mod.img.height)
+      var color = palette[index]
+      webworker.postMessage({
+         height:mod.input.height,width:mod.input.width,color:color,
+         buffer:img.data.buffer})
+      }
+   //
+   // color_worker
+   //
+   function color_worker() {
+      self.addEventListener('message',function(evt) {
+         var h = evt.data.height
+         var w = evt.data.width
+         var color = evt.data.color
+         var r = color[0]
+         var g = color[1]
+         var b = color[2]
+         var buf = new Uint8ClampedArray(evt.data.buffer)
+         for (var row = 0; row < h; ++row) {
+            for (var col = 0; col < w; ++col) {
+               var rb = buf[(h-1-row)*w*4+col*4+0] 
+               var gb = buf[(h-1-row)*w*4+col*4+1] 
+               var bb = buf[(h-1-row)*w*4+col*4+2] 
+               if ((rb == r) && (gb == g) && (bb == b)) {
+                  buf[(h-1-row)*w*4+col*4+0] = r
+                  buf[(h-1-row)*w*4+col*4+1] = g
+                  buf[(h-1-row)*w*4+col*4+2] = b
+                  buf[(h-1-row)*w*4+col*4+3] = 255
+                  }
+               else {
+                  buf[(h-1-row)*w*4+col*4+0] = 0
+                  buf[(h-1-row)*w*4+col*4+1] = 0
+                  buf[(h-1-row)*w*4+col*4+2] = 0
+                  buf[(h-1-row)*w*4+col*4+3] = 0
+                  }
+               }
+            }
+         self.postMessage({buffer:buf.buffer},[buf.buffer])
+         })
+      }
+   }
+//
+// save_palette
+//
+function save_palette() {
+   var a = document.createElement('a')
+   a.setAttribute('href','data:text/plain;charset=utf-8,'+ 
+      encodeURIComponent(mod.text.value))
+   a.setAttribute('download','palette.txt')
+   a.style.display = 'none'
+   document.body.appendChild(a)
+   a.click()
+   document.body.removeChild(a)
+   }
+//
+// load_palette
+//
+function load_palette(event) {
+   var file_reader = new FileReader()
+   file_reader.onload = load_palette_handler
+   input_file = mod.file.files[0]
+   file_name = input_file.name
+   file_reader.readAsText(input_file)
+   }
+//
+// load_palette_handler
+//
+function load_palette_handler(event) {
+   mod.text.value = event.target.result
+   }
+//
+// show_original
+//
+function show_original() {
+   var h = mod.img.height
+   var w = mod.img.width
+   var ctx = mod.img.getContext("2d")
+   ctx.putImageData(mod.input,0,0)
+   if (w > h) {
+      var x0 = 0
+      var y0 = mod.canvas.height*.5*(1-h/w)
+      var wd = mod.canvas.width
+      var hd = mod.canvas.width*h/w
+      }
+   else {
+      var x0 = mod.canvas.width*.5*(1-w/h)
+      var y0 = 0
+      var wd = mod.canvas.height*w/h
+      var hd = mod.canvas.height
+      }
+   var ctx = mod.canvas.getContext("2d")
+   ctx.clearRect(0,0,mod.canvas.width,mod.canvas.height)
+   ctx.drawImage(mod.img,x0,y0,wd,hd)
+   outputs.image.event()
+   }
+//
+// show palette
+//
+function show_palette() {
+   var blob = new Blob(['('+palette_worker.toString()+'())'])
+   var url = window.URL.createObjectURL(blob)
+   var webworker = new Worker(url)
+   webworker.addEventListener('message',function(evt) {
+      window.URL.revokeObjectURL(url)
+      var h = mod.img.height
+      var w = mod.img.width
+      var buf = new Uint8ClampedArray(evt.data.buffer)
+      var imgdata = new ImageData(buf,w,h)
+      var ctx = mod.img.getContext("2d")
+      ctx.putImageData(imgdata,0,0)
+      if (w > h) {
+         var x0 = 0
+         var y0 = mod.canvas.height*.5*(1-h/w)
+         var wd = mod.canvas.width
+         var hd = mod.canvas.width*h/w
+         }
+      else {
+         var x0 = mod.canvas.width*.5*(1-w/h)
+         var y0 = 0
+         var wd = mod.canvas.height*w/h
+         var hd = mod.canvas.height
+         }
+      var ctx = mod.canvas.getContext("2d")
+      ctx.clearRect(0,0,mod.canvas.width,mod.canvas.height)
+      ctx.drawImage(mod.img,x0,y0,wd,hd)
+      webworker.terminate()
+      outputs.image.event()
+      })
+   var ctx = mod.canvas.getContext("2d")
+   ctx.clearRect(0,0,mod.canvas.width,mod.canvas.height)
+   var ctx = mod.img.getContext("2d")
+   ctx.putImageData(mod.input,0,0)
+   var img = ctx.getImageData(0,0,mod.img.width,mod.img.height)
+   var palette = JSON.parse(mod.text.value)
+   webworker.postMessage({
+      height:mod.input.height,width:mod.input.width,palette:palette,
+      buffer:img.data.buffer},
+      [img.data.buffer])
+   }
+//
+// palette worker
+//
+function palette_worker() {
+   self.addEventListener('message',function(evt) {
+      var h = evt.data.height
+      var w = evt.data.width
+      var palette = evt.data.palette
+      var buf = new Uint8ClampedArray(evt.data.buffer)
+      var r,g,b,a,rc,gc,bc
+      var cmin,dmin,d
+      for (var row = 0; row < h; ++row) {
+         for (var col = 0; col < w; ++col) {
+            r = buf[(h-1-row)*w*4+col*4+0] 
+            g = buf[(h-1-row)*w*4+col*4+1] 
+            b = buf[(h-1-row)*w*4+col*4+2] 
+            a = buf[(h-1-row)*w*4+col*4+3] 
+            dmin = 1e10
+            for (color = 0; color < palette.length; ++color) {
+               rc = palette[color][0]
+               gc = palette[color][1]
+               bc = palette[color][2]
+               d = Math.sqrt(
+                  (rc-r)*(rc-r)+
+                  (gc-g)*(gc-g)+
+                  (bc-b)*(bc-b))
+               if (d < dmin) {
+                  dmin = d
+                  cmin = color
+                  }
+               }
+            buf[(h-1-row)*w*4+col*4+0] = palette[cmin][0]
+            buf[(h-1-row)*w*4+col*4+1] = palette[cmin][1]
+            buf[(h-1-row)*w*4+col*4+2] = palette[cmin][2]
+            buf[(h-1-row)*w*4+col*4+3] = 255
+            }
+         }
+      self.postMessage({buffer:buf.buffer},[buf.buffer])
+      })
+   }
+//
+// return values
+//
+return ({
+   name:name,
+   init:init,
+   inputs:inputs,
+   outputs:outputs,
+   interface:interface
+   })
+}())

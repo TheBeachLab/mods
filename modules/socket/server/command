@@ -1,0 +1,127 @@
+//
+// command module
+//
+// Neil Gershenfeld 
+// (c) Massachusetts Institute of Technology 2016
+// 
+// This work may be reproduced, modified, distributed, performed, and 
+// displayed for any purpose, but must acknowledge the mods
+// project. Copyright is retained and must be preserved. The work is 
+// provided as is; no warranty is provided, and users accept all 
+// liability.
+//
+// closure
+//
+(function(){
+//
+// module globals
+//
+var mod = {}
+//
+// name
+//
+var name = 'command'
+//
+// initialization
+//
+var init = function() {
+   mod.address.value = '127.0.0.1'
+   mod.port.value = 1234
+   }
+//
+// inputs
+//
+var inputs = {
+   command:{type:'String',
+      event:function(evt){
+         mod.cmd.value = evt.detail
+         send_command()}}}
+//
+// outputs
+//
+var outputs = {
+   }
+//
+// interface
+//
+var interface = function(div){
+   mod.div = div
+   div.appendChild(document.createTextNode('address: '))
+   input = document.createElement('input')
+      input.type = 'text'
+      input.size = 10
+      div.appendChild(input)
+      mod.address = input
+   div.appendChild(document.createElement('br'))
+   div.appendChild(document.createTextNode('port: '))
+   input = document.createElement('input')
+      input.type = 'text'
+      input.size = 6
+      div.appendChild(input)
+      mod.port = input
+   div.appendChild(document.createElement('br'))
+   var btn = document.createElement('button')
+      btn.style.margin = 1
+      btn.appendChild(document.createTextNode('connect to server'))
+      btn.addEventListener('click',function() {
+         init_server()
+         })
+      div.appendChild(btn)
+   div.appendChild(document.createElement('br'))
+   div.appendChild(document.createTextNode('command:'))
+   div.appendChild(document.createElement('br'))
+   var input = document.createElement('input')
+      input.type = 'text'
+      input.size = 10
+      input.addEventListener('change',function() {
+         send_command()
+         })
+      div.appendChild(input)
+      mod.cmd = input
+   div.appendChild(document.createElement('br'))
+   div.appendChild(document.createTextNode('response:'))
+   div.appendChild(document.createElement('br'))
+   var text = document.createElement('textarea')
+      text.setAttribute('rows',mods.ui.rows)
+      text.setAttribute('cols',mods.ui.cols)
+      div.appendChild(text)
+      mod.resp = text
+   }
+//
+// local functions
+//
+function init_server() {
+   var url = "ws://"+mod.address.value+':'+mod.port.value
+   var ws = new WebSocket(url)
+   mod.ws = ws
+   ws.onerror = function(event) {
+      mod.resp.value = 'cannot connect to '+mod.address.value+':'+mod.port.value
+      }
+   ws.onopen = function(event) {
+      mod.resp.value = 'connected to '+mod.address.value+':'+mod.port.value
+      ws.send('server.worker = '+worker.toString())
+      }
+   ws.onmessage = function(event) {
+      mod.resp.value = event.data
+      }
+   }
+function send_command() {
+   mod.ws.send('server.worker(ws,"'+mod.cmd.value+'")')
+   }
+function worker(ws,arg) {
+   var child_process = require('child_process')
+   child_process.exec(arg,function(err,stdout,stderr) {
+      ws.send(stdout)
+      })
+   }
+//
+// return values
+//
+return ({
+   name:name,
+   init:init,
+   inputs:inputs,
+   outputs:outputs,
+   interface:interface
+   })
+}())

@@ -1,0 +1,125 @@
+//
+// set object
+//
+// Neil Gershenfeld
+// (c) Massachusetts Institute of Technology 2016
+//
+// This work may be reproduced, modified, distributed, performed, and
+// displayed for any purpose, but must acknowledge the mods
+// project. Copyright is retained and must be preserved. The work is
+// provided as is; no warranty is provided, and users accept all
+// liability.
+//
+// closure
+//
+(function(){
+//
+// module globals
+//
+var mod = {}
+//
+// name
+//
+var name = 'set object'
+//
+// initialization
+//
+var init = function() {
+   add_outputs(2,2)
+   var s = 0
+   var v = 0
+   mod.labels[s].nodeValue = 'settings 1'
+   mod.texts[s][v].nodeValue = 'variable 1'
+   mod.inputs[s][v].value = 'value 11'
+   v += 1
+   mod.texts[s][v].nodeValue = 'variable 2'
+   mod.inputs[s][v].value = 'value 12'
+   s += 1
+   v = 0
+   mod.labels[s].nodeValue = 'settings 2'
+   mod.texts[s][v].nodeValue = 'variable 1'
+   mod.inputs[s][v].value = 'value 21'
+   v += 1
+   mod.texts[s][v].nodeValue = 'variable 2'
+   mod.inputs[s][v].value = 'value 22'
+   }
+//
+// inputs
+//
+var inputs = {}
+//
+// outputs
+//
+var outputs = {
+   settings:{type:'object',
+      event:function(){
+         mods.output(mod,'settings',mod.output)
+         }
+      }
+   }
+//
+// interface
+//
+var interface = function(div){
+   mod.div = div
+   }
+//
+// local functions
+//
+function add_outputs(settings,variables) {
+   mod.labels = []
+   mod.spans = []
+   mod.texts = []
+   mod.inputs = []
+   for (var s = 0; s < settings; ++s) {
+      var texts = []
+      var inputs = []
+      var btn = document.createElement('button')
+         btn.style.padding = mods.ui.padding
+         btn.style.margin = 1
+         var span = document.createElement('span')
+            var text = document.createTextNode('')
+               mod.labels.push(text)
+               span.appendChild(text)
+            mod.spans.push(span)
+            btn.appendChild(span)
+         var f = function(s) { // nest function to pass s to event listener
+            btn.addEventListener('click',function() {
+               mod.output = {}
+               for (var v = 0; v < mod.texts[s].length; ++v)
+                  mod.output[mod.texts[s][v].nodeValue] = mod.inputs[s][v].value
+               outputs.settings.event()
+               for (var i = 0; i < mod.spans.length; ++i)
+                  mod.spans[i].style.fontWeight = 'normal'
+               mod.spans[s].style.fontWeight = 'bold'
+               })
+            }(s)
+         mod.div.appendChild(btn)
+      mod.div.appendChild(document.createElement('br'))
+      for (var v = 0; v < variables; ++v) {
+         var text = document.createTextNode('')
+            texts.push(text)
+            mod.div.appendChild(text)
+         mod.div.appendChild(document.createTextNode(': '))
+         input = document.createElement('input')
+            input.type = 'text'
+            input.size = 10
+            inputs.push(input)
+            mod.div.appendChild(input)
+         mod.div.appendChild(document.createElement('br'))
+         }
+      mod.texts.push(texts)
+      mod.inputs.push(inputs)
+      }
+   }
+//
+// return values
+//
+return ({
+   name:name,
+   init:init,
+   inputs:inputs,
+   outputs:outputs,
+   interface:interface
+   })
+}())
