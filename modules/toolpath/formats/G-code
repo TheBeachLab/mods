@@ -30,7 +30,8 @@ var init = function() {
    mod.jogspeed.value = 75
    mod.jogheight.value = 5
    mod.spindlespeed.value = 10000
-   mod.unitsin.checked = true   
+   mod.tool.value = 1
+   mod.coolanton.checked = true   
    }
 //
 // inputs
@@ -52,7 +53,7 @@ var outputs = {
    file:{type:'object',
       event:function(str){
          obj = {}
-         obj.name = mod.name+".sbp"
+         obj.name = mod.name+".nc"
          obj.contents = str
          mods.output(mod,'file',obj)
          }}}
@@ -117,52 +118,60 @@ var interface = function(div){
    div.appendChild(document.createTextNode(' (RPM)'))
    div.appendChild(document.createElement('br'))
    //
-   // file units
+   // tool
    //
-   div.appendChild(document.createTextNode('file units:'))
+   div.appendChild(document.createTextNode('tool: '))
+   var input = document.createElement('input')
+      input.type = 'text'
+      input.size = 6
+      div.appendChild(input)
+      mod.tool = input
+   div.appendChild(document.createElement('br'))
+   //
+   // coolant
+   //
+   div.appendChild(document.createTextNode('coolant:'))
    var input = document.createElement('input')
       input.type = 'radio'
-      input.name = mod.div.id+'units'
-      input.id = mod.div.id+'unitsin'
+      input.name = mod.div.id+'coolant'
+      input.id = mod.div.id+'coolanton'
       div.appendChild(input)
-      mod.unitsin = input
-   div.appendChild(document.createTextNode('in'))
+      mod.coolanton = input
+   div.appendChild(document.createTextNode('on'))
    var input = document.createElement('input')
       input.type = 'radio'
-      input.name = mod.div.id+'units'
-      input.id = mod.div.id+'unitsmm'
+      input.name = mod.div.id+'coolant'
+      input.id = mod.div.id+'coolantoff'
       div.appendChild(input)
-      mod.unitsmm = input
-   div.appendChild(document.createTextNode('mm'))
+      mod.coolantoff = input
+   div.appendChild(document.createTextNode('off'))
    }
 //
 // local functions
 //
 function make_path() {
-   var dx = units*mod.width/mod.dpi
+   var dx = mod.width/mod.dpi
    var nx = mod.width
    var scale = dx/(nx-1)
-   var jog_speed = parseFloat(mod.jogspeed.value)/25.4
    var cut_speed = parseFloat(mod.cutspeed.value)/25.4
    var plunge_speed = parseFloat(mod.plungespeed.value)/25.4
+   var jog_speed = parseFloat(mod.jogspeed.value)/25.4
    var jog_height = parseFloat(mod.jogheight.value)/25.4
    var spindle_speed = parseFloat(mod.spindlespeed.value)
    var tool = parseInt(mod.tool.value)
    str = "%\n" // tape start
-   // xy plane, inch mode, cancel diameter compensation, cancel length offset
-   // coordinate system 1, cancel motion, non-incremental motion, feed/minute mode
-   str += "G17\n"
-   str += "G20\n"
-   str += "G40\n"
-   str += "G49\n"
-   str += "G54\n"
-   str += "G80\n"
-   str += "G90\n"
-   str += "G94\n"
+   str += "G17\n" // xy plane
+   str += "G20\n" // inches
+   str += "G40\n" // cancel tool radius compensation
+   str += "G49\n" // cancel tool length compensation
+   str += "G54\n" // coordinate system 1
+   str += "G80\n" // cancel canned cycles
+   str += "G90\n" // absolute coordinates
+   str += "G94\n" // feed/minute units
    str += "T"+tool+"M06\n" // tool selection, tool change
    str += "F"+cut_speed.toFixed(4)+"\n" // feed rate
    str += "S"+spindle_speed+"\n" // spindle speed
-   if (mod.coolant.checked)
+   if (mod.coolanton.checked)
       str += "M08\n" // coolant on
    str += "G00Z"+jog_height.toFixed(4)+"\n" // move up before starting spindle
    str += "M03\n" // spindle on clockwise
@@ -199,14 +208,13 @@ function make_path() {
    //
    str += "G00Z"+jog_height.toFixed(4)+"\n" // move up before stopping spindle
    str += "M05\n" // spindle stop
-   if (mod.coolant.checked)
+   if (mod.coolanton.checked)
       str += "M09\n" // coolant off
    str += "M30\n" // program end and reset
    str += "%\n" // tape end
    //
    // output file
    //
-   str += "MZ,"+jog_height.toFixed(4)+"\r\n"
    outputs.file.event(str)
    }
 //

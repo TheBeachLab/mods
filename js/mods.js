@@ -12,7 +12,8 @@
 //
 /*
 todo
-   SopTL view z pan
+   G-code output
+   STL view z pan
    STL up sign flip
    STL height map
    rough cut
@@ -31,7 +32,6 @@ todo
    save and reload program
    SVG path export
    collapse module
-   G-code output
    direct toolpath calculation
    file load
    OBJ
