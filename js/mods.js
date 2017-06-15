@@ -128,7 +128,7 @@ var sel = document.createElement('select')
       evt.target.value = 'programs'
       })
    var opt = document.createElement('option')
-      opt.text = 'programs test'
+      opt.text = 'programs'
       opt.value = opt.text
       sel.add(opt)
    var opt = document.createElement('option')
