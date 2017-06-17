@@ -322,16 +322,16 @@ function save_masks() {
                var gb = buf[(h-1-row)*w*4+col*4+1] 
                var bb = buf[(h-1-row)*w*4+col*4+2] 
                if ((rb == r) && (gb == g) && (bb == b)) {
+                  buf[(h-1-row)*w*4+col*4+0] = 0
+                  buf[(h-1-row)*w*4+col*4+1] = 0
+                  buf[(h-1-row)*w*4+col*4+2] = 0
+                  buf[(h-1-row)*w*4+col*4+3] = 255
+                  }
+               else {
                   buf[(h-1-row)*w*4+col*4+0] = 255
                   buf[(h-1-row)*w*4+col*4+1] = 255
                   buf[(h-1-row)*w*4+col*4+2] = 255
                   buf[(h-1-row)*w*4+col*4+3] = 255
-                  }
-               else {
-                  buf[(h-1-row)*w*4+col*4+0] = 0
-                  buf[(h-1-row)*w*4+col*4+1] = 0
-                  buf[(h-1-row)*w*4+col*4+2] = 0
-                  buf[(h-1-row)*w*4+col*4+3] = 0
                   }
                }
             }
