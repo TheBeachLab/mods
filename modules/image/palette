@@ -66,7 +66,15 @@ var inputs = {
             show_original()
          else
             show_palette()
-         }}}
+         }
+      },
+   imageInfo:{type:'object',
+      event:function(evt){
+         mod.name = evt.detail.name
+         mod.dpi = evt.detail.dpi
+         }
+      }
+   }
 //
 // outputs
 //
@@ -227,7 +235,7 @@ var interface = function(div){
       btn.style.margin = 1
       btn.appendChild(document.createTextNode('masks'))
       btn.addEventListener('click',function(){
-         save_masks()
+         save_svg_masks()
          })
       div.appendChild(btn)
    var btn = document.createElement('button')
@@ -254,22 +262,76 @@ function save_image() {
    document.body.removeChild(a)
    }
 //
-// save_masks
+// save_svg_masks
 //
-function save_masks() {
+function save_svg_masks() {
+   var svgNS = "http://www.w3.org/2000/svg"
+   var svg = document.createElementNS(svgNS,"svg")
+   svg.setAttributeNS("http://www.w3.org/2000/xmlns/",
+      "xmlns:xlink","http://www.w3.org/1999/xlink")
+   svg.setAttribute('width',100)
+   svg.setAttribute('height',100)
+   svg.style.backgroundColor = 'rgb(255,255,255)'
+   var g = document.createElementNS(svgNS,'g')
+   svg.appendChild(g)
+
+   var line = document.createElementNS('http://www.w3.org/2000/svg','line')
+   line.setAttribute('stroke','red')
+   line.setAttribute('stroke-width',1)
+   line.setAttribute('stroke-linecap','round')
+   var x1 = 0
+   var y1 = 0
+   var x2 = 100
+   var y2 = 100
+   line.setAttribute('x1',x1)
+   line.setAttribute('y1',y1)
+   line.setAttribute('x2',x2)
+   line.setAttribute('y2',y2)
+   svg.appendChild(line)
+
+   var text = document.createElementNS('http://www.w3.org/2000/svg','text')
+   text.setAttribute('x','10')
+   text.setAttribute('y','20')
+   text.setAttribute('fill','red')
+   text.textContent = 'palette'
+   svg.appendChild(text)
+
+   var circle = document.createElementNS('http://www.w3.org/2000/svg','circle')
+   circle.setAttribute('cx',25)
+   circle.setAttribute('cy',25)
+   circle.setAttribute('r',20)
+   circle.setAttribute('stroke','red')
+   circle.setAttribute('strokeWidth','red')
+   circle.setAttribute('fill','none')
+   svg.appendChild(circle)
+
+   var html = svg.outerHTML
+   var blob = new Blob([html],{type:"image/svg+xml;charset=utf-8"})
+   var url = URL.createObjectURL(blob)
+   var link = document.createElement('a')
+   link.href = url
+   link.download = "test.svg"
+   document.body.appendChild(link)
+   link.click()
+   document.body.removeChild(link)   
+   }
+//
+// save_raster_masks
+//
+function save_raster_masks() {
    if (mod.originalspan.style.fontWeight == 'bold') {
       mod.originalspan.style.fontWeight = 'normal'
       mod.palettespan.style.fontWeight = 'bold'
       show_palette()
       }
    var palette = JSON.parse(mod.text.value)
-   var blob = new Blob(['('+mask_worker.toString()+'())'])
+   var blob = new Blob(['('+raster_mask_worker.toString()+'())'])
    var url = window.URL.createObjectURL(blob)
-   save_mask(0)
+   save_raster_mask(0)
    //
    // save_mask
    //
-   function save_mask(index) {
+   function save_raster_mask(index) {
       var webworker = new Worker(url)
       webworker.addEventListener('message',function(evt) {
          var h = mod.img.height
@@ -305,9 +367,9 @@ function save_masks() {
          buffer:img.data.buffer})
       }
    //
-   // mask_worker
+   // raster_mask_worker
    //
-   function mask_worker() {
+   function raster_mask_worker() {
       self.addEventListener('message',function(evt) {
          var h = evt.data.height
          var w = evt.data.width
