@@ -269,11 +269,28 @@ function save_svg_masks() {
    var svg = document.createElementNS(svgNS,"svg")
    svg.setAttributeNS("http://www.w3.org/2000/xmlns/",
       "xmlns:xlink","http://www.w3.org/1999/xlink")
-   svg.setAttribute('width',100)
-   svg.setAttribute('height',100)
+   svg.setAttribute('width','10in')
+   svg.setAttribute('height','10in')
    svg.style.backgroundColor = 'rgb(255,255,255)'
    var g = document.createElementNS(svgNS,'g')
    svg.appendChild(g)
+
+   var rect = document.createElementNS('http://www.w3.org/2000/svg','rect')
+   rect.setAttribute('x','0in')
+   rect.setAttribute('y','0in')
+   rect.setAttribute('width','10in')
+   rect.setAttribute('height','10in')
+   rect.setAttribute('stroke','none')
+   rect.setAttribute('fill','white')
+   svg.appendChild(rect)
+
+   var img = document.createElementNS('http://www.w3.org/2000/svg','image')
+   img.setAttribute('x','5in')
+   img.setAttribute('y','5in')
+   img.setAttribute('width','5in')
+   img.setAttribute('height','5in')
+   img.setAttributeNS('http://www.w3.org/1999/xlink','href','hsv.png')
+   svg.appendChild(img)
 
    var line = document.createElementNS('http://www.w3.org/2000/svg','line')
    line.setAttribute('stroke','red')
@@ -281,8 +298,8 @@ function save_svg_masks() {
    line.setAttribute('stroke-linecap','round')
    var x1 = 0
    var y1 = 0
-   var x2 = 100
-   var y2 = 100
+   var x2 = '10in'
+   var y2 = '10in'
    line.setAttribute('x1',x1)
    line.setAttribute('y1',y1)
    line.setAttribute('x2',x2)
@@ -290,18 +307,19 @@ function save_svg_masks() {
    svg.appendChild(line)
 
    var text = document.createElementNS('http://www.w3.org/2000/svg','text')
-   text.setAttribute('x','10')
-   text.setAttribute('y','20')
+   text.setAttribute('x','5in')
+   text.setAttribute('y','5in')
    text.setAttribute('fill','red')
+   text.setAttribute('font-size','1in')
    text.textContent = 'palette'
    svg.appendChild(text)
 
    var circle = document.createElementNS('http://www.w3.org/2000/svg','circle')
-   circle.setAttribute('cx',25)
-   circle.setAttribute('cy',25)
-   circle.setAttribute('r',20)
+   circle.setAttribute('cx','5in')
+   circle.setAttribute('cy','5in')
+   circle.setAttribute('r','2.5in')
    circle.setAttribute('stroke','red')
-   circle.setAttribute('strokeWidth','red')
+   circle.setAttribute('stroke-width',1)
    circle.setAttribute('fill','none')
    svg.appendChild(circle)
 
