@@ -284,12 +284,16 @@ function save_svg_masks() {
    rect.setAttribute('fill','white')
    svg.appendChild(rect)
 
+   var href = mod.img.toDataURL()
+
    var img = document.createElementNS('http://www.w3.org/2000/svg','image')
-   img.setAttribute('x','5in')
-   img.setAttribute('y','5in')
-   img.setAttribute('width','5in')
-   img.setAttribute('height','5in')
-   img.setAttributeNS('http://www.w3.org/1999/xlink','href','hsv.png')
+   img.setAttribute('x','1in')
+   img.setAttribute('y','1in')
+   img.setAttribute('width','8in')
+   img.setAttribute('height','8in')
+   //img.setAttributeNS('http://www.w3.org/1999/xlink','href','hsv.png')
+   img.setAttributeNS('http://www.w3.org/1999/xlink','href',href)
+   
    svg.appendChild(img)
 
    var line = document.createElementNS('http://www.w3.org/2000/svg','line')
