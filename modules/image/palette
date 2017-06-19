@@ -275,10 +275,8 @@ function save_svg_masks() {
    var palette = JSON.parse(mod.text.value)
    var blob = new Blob(['('+svg_mask_worker.toString()+'())'])
    var url = window.URL.createObjectURL(blob)
-   
    var imgwidth = mod.img.width/parseFloat(mod.dpi)
    var imgheight = mod.img.height/parseFloat(mod.dpi)
-
    var svgNS = "http://www.w3.org/2000/svg"
       var svg = document.createElementNS(svgNS,"svg")
       svg.setAttributeNS("http://www.w3.org/2000/xmlns/",
@@ -289,7 +287,6 @@ function save_svg_masks() {
       svg.setAttribute('viewBox','0 0 '+(3+imgwidth)+' '+(3+imgheight))
       var g = document.createElementNS(svgNS,'g')
       svg.appendChild(g)
-
    var rect = document.createElementNS(svgNS,'rect')
       rect.setAttribute('x','0')
       rect.setAttribute('y','0')
@@ -342,38 +339,13 @@ function save_svg_masks() {
       circle.setAttribute('stroke-width','0.01')
       circle.setAttribute('fill','none')
       svg.appendChild(circle)
-
-   //save_svg_mask(0)
-   
-      var text = document.createElementNS(svgNS,'text')
-         text.setAttribute('x',(3+imgwidth)/2)
-         text.setAttribute('y','1')
-         text.setAttribute('fill','red')
-         text.setAttribute('font-size','.5')
-         text.setAttribute('text-anchor','middle')
-         text.setAttribute('dy','.2')
-         text.textContent = 'palette'
-         svg.appendChild(text)
-
-         var href = mod.img.toDataURL()
-         var img = document.createElementNS('http://www.w3.org/2000/svg','image')
-         img.setAttribute('x','1.5')
-         img.setAttribute('y','1.5')
-         img.setAttribute('width',imgwidth)
-         img.setAttribute('height',imgheight)
-         img.setAttributeNS('http://www.w3.org/1999/xlink','href',href)
-         svg.appendChild(img)
-
-         var html = svg.outerHTML
-         var blob = new Blob([html],{type:"image/svg+xml;charset=utf-8"})
-         var url = URL.createObjectURL(blob)
-         var link = document.createElement('a')
-         link.href = url
-         link.download = "test.svg"
-         document.body.appendChild(link)
-         link.click()
-         document.body.removeChild(link)   
-
+   var text = document.createElementNS(svgNS,'text')
+      text.setAttribute('id',mod.div.id+'svgtext')
+      svg.appendChild(text)
+   var img = document.createElementNS(svgNS,'image')
+      img.setAttribute('id',mod.div.id+'svgimg')
+      svg.appendChild(img)
+   save_svg_mask(0)
    //
    // save_svg_mask
    //
@@ -387,24 +359,52 @@ function save_svg_masks() {
          var ctx = mod.convert.getContext("2d")
          ctx.putImageData(imgdata,0,0)
          webworker.terminate()
-
-
-
-         var a = document.createElement('a')
-         a.href = mod.convert.toDataURL()
-         var name = 'mask.'+palette[index][0]
+         var name = mod.name+'.'+palette[index][0]
          name += '.'+palette[index][1]
          name += '.'+palette[index][2]
          if (palette[index][3] != undefined)
             name += '.'+palette[index][3]
-         name += '.png'
+         var text = svg.getElementById(mod.div.id+'svgtext')
+         svg.removeChild(text)
+         var text = document.createElementNS(svgNS,'text')
+            text.setAttribute('id',mod.div.id+'svgtext')
+            text.setAttribute('x',(3+imgwidth)/2)
+            text.setAttribute('y','1')
+            text.setAttribute('fill','red')
+            text.setAttribute('font-size','.5')
+            text.setAttribute('text-anchor','middle')
+            text.setAttribute('dy','.2')
+            text.textContent = name
+            svg.appendChild(text)
+         var href = mod.convert.toDataURL()
+         var img = svg.getElementById(mod.div.id+'svgimg')
+         svg.removeChild(img)
+         var img = document.createElementNS(svgNS,'image')
+            img.setAttribute('id',mod.div.id+'svgimg')
+            img.setAttribute('x','1.5')
+            img.setAttribute('y','1.5')
+            img.setAttribute('width',imgwidth)
+            img.setAttribute('height',imgheight)
+            img.setAttributeNS('http://www.w3.org/1999/xlink','href',href)
+            svg.appendChild(img)
+         var html = svg.outerHTML
+         var blob = new Blob([html],{type:"image/svg+xml;charset=utf-8"})
+         var url = URL.createObjectURL(blob)
+         var a = document.createElement('a')
+         a.href = url
+         var name = mod.name+'.'+palette[index][0]
+         name += '.'+palette[index][1]
+         name += '.'+palette[index][2]
+         if (palette[index][3] != undefined)
+            name += '.'+palette[index][3]
+         name += '.svg'
          a.setAttribute('download',name)
          a.style.display = 'none'
          document.body.appendChild(a)
          a.click()
          document.body.removeChild(a)
          if (index < (palette.length-1))
-            save_mask(index+1)
+            save_svg_mask(index+1)
          else
             window.URL.revokeObjectURL(url)
          })
@@ -491,7 +491,7 @@ function save_raster_masks() {
          a.click()
          document.body.removeChild(a)
          if (index < (palette.length-1))
-            save_mask(index+1)
+            save_raster_mask(index+1)
          else
             window.URL.revokeObjectURL(url)
          })
