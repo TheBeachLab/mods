@@ -151,25 +151,12 @@ var interface = function(div){
 //
 function make_path() {
 
-   int nsegs=0, npts=0;
-   units = 1/25.4;
-   scale = v->dx/(v->nx-1.0);
-   output_file = fopen(output_file_name,"w");
-
-
+   var units = 1/25.4
    var dx = mod.width/mod.dpi
    var nx = mod.width
    var scale = dx/(nx-1)
-   var cut_speed = parseFloat(mod.cutspeed.value)/25.4
-   var plunge_speed = parseFloat(mod.plungespeed.value)/25.4
-   var jog_speed = parseFloat(mod.jogspeed.value)/25.4
-   var jog_height = parseFloat(mod.jogheight.value)/25.4
-   var spindle_speed = parseFloat(mod.spindlespeed.value)
-   var tool = parseInt(mod.tool.value)
    
-   
-   
-   str = "999\nDXF written by fab modules path_dxf\n"
+   str = "999\nDXF written by mods\n"
    str += "0\nSECTION\n"
    str += "2\nHEADER\n"
    str += "9\n$ACADVER\n1\nAC1009\n"
@@ -205,32 +192,11 @@ function make_path() {
    */
    str += "0\nSECTION\n"
    str += "2\nENTITIES\n"
-   
-   
-   str = "%\n" // tape start
-   str += "G17\n" // xy plane
-   str += "G20\n" // inches
-   str += "G40\n" // cancel tool radius compensation
-   str += "G49\n" // cancel tool length compensation
-   str += "G54\n" // coordinate system 1
-   str += "G80\n" // cancel canned cycles
-   str += "G90\n" // absolute coordinates
-   str += "G94\n" // feed/minute units
-   str += "T"+tool+"M06\n" // tool selection, tool change
-   str += "F"+cut_speed.toFixed(4)+"\n" // feed rate
-   str += "S"+spindle_speed+"\n" // spindle speed
-   if (mod.coolanton.checked)
-      str += "M08\n" // coolant on
-   str += "G00Z"+jog_height.toFixed(4)+"\n" // move up before starting spindle
-   str += "M03\n" // spindle on clockwise
-   str += "G04 P1\n" // give spindle 1 second to spin up
-   
-   
-   
-   
+      
    //
    // follow segments
    //
+   for (var seg = 0; seg < mod.path.length; ++seg) {
 
       x = v->path->segment->point->first->value;
       y = v->ny - v->path->segment->point->first->next->value;
@@ -241,8 +207,6 @@ function make_path() {
       if (v->path->dof == 3)
          z0 = units*(v->zmin+scale*z);
 
-
-   for (var seg = 0; seg < mod.path.length; ++seg) {
       //
       // move up to starting point
       //
@@ -257,6 +221,11 @@ function make_path() {
       str += "G01Z"+z.toFixed(4)+" F"+plunge_speed.toFixed(4)+"\n"
       str += "F"+cut_speed.toFixed(4)+"\n" //restore xy feed rate
 
+      //
+      // follow points
+      //
+      for (var pt = 1; pt < mod.path[seg].length; ++pt) {
+      
          x = v->path->segment->point->first->value;
          y = v->ny - v->path->segment->point->first->next->value;
          if (v->path->dof == 3)
@@ -278,9 +247,7 @@ function make_path() {
          y0 = y1;
          if (v->path->dof == 3)
             z0 = z1;
-
-
-      for (var pt = 1; pt < mod.path[seg].length; ++pt) {
+            
          //
          // move to next point
          //
@@ -288,12 +255,9 @@ function make_path() {
          y = scale*mod.path[seg][pt][1]
          z = scale*mod.path[seg][pt][2]
          str += "G01X"+x.toFixed(4)+"Y"+y.toFixed(4)+"Z"+z.toFixed(4)+"\n"
+
          }
       }
-      
-      
-      
-      
    //
    // finish
    //
