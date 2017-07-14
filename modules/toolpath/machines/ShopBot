@@ -156,7 +156,7 @@ function make_path() {
    str = "SA\r\n" // set to absolute distances
    str += "TR,"+spindle_speed+",1\r\n" // set spindle speed
    str += "SO,1,1\r\n" // set output number 1 to on
-   str += "pause,2\r\n" // let spindle come up to speed
+   str += "pause 2\r\n" // let spindle come up to speed
    str += "MS,"+cut_speed.toFixed(4)+","+plunge_speed.toFixed(4)+"\r\n" // set xy,z speed
    str += "JS,"+jog_speed.toFixed(4)+","+jog_speed.toFixed(4)+"\r\n" // set jog xy,z speed
    str += "JZ,"+jog_height.toFixed(4)+"\r\n" // move up
