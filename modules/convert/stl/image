@@ -30,7 +30,6 @@ var init = function() {
    mod.upi.value = 25.4
    mod.upmm.value = 1
    mod.pz.checked = true
-   mod.int24.checked = true
    }
 //
 // inputs
@@ -39,7 +38,7 @@ var inputs = {
    STL:{type:'buffer',
       event:function(evt){
          mod.view = new DataView(evt.detail)
-         show_stl()}}}
+         convert_stl()}}}
 //
 // outputs
 //
@@ -78,17 +77,6 @@ var interface = function(div){
    var canvas = document.createElement('canvas')
       mod.img = canvas
    //
-   // convert button
-   //
-   var btn = document.createElement('button')
-      btn.style.padding = mods.ui.padding
-      btn.style.margin = 1
-      btn.appendChild(document.createTextNode('convert'))
-      btn.addEventListener('click',function(){
-         ;
-         })
-      div.appendChild(btn)
-   //
    // view button
    //
    var btn = document.createElement('button')
@@ -125,7 +113,7 @@ var interface = function(div){
       input.name = mod.div.id+'projection'
       input.id = mod.div.id+'mx'
       input.addEventListener('click',function(){
-         show_stl()
+         convert_stl()
          })
       div.appendChild(input)
       mod.mx = input
@@ -135,7 +123,7 @@ var interface = function(div){
       input.name = mod.div.id+'projection'
       input.id = mod.div.id+'px'
       input.addEventListener('click',function(){
-         show_stl()
+         convert_stl()
          })
       div.appendChild(input)
       mod.px = input
@@ -145,7 +133,7 @@ var interface = function(div){
       input.name = mod.div.id+'projection'
       input.id = mod.div.id+'my'
       input.addEventListener('click',function(){
-         show_stl()
+         convert_stl()
          })
       div.appendChild(input)
       mod.my = input
@@ -155,7 +143,7 @@ var interface = function(div){
       input.name = mod.div.id+'projection'
       input.id = mod.div.id+'py'
       input.addEventListener('click',function(){
-         show_stl()
+         convert_stl()
          })
       div.appendChild(input)
       mod.py = input
@@ -165,7 +153,7 @@ var interface = function(div){
       input.name = mod.div.id+'projection'
       input.id = mod.div.id+'mz'
       input.addEventListener('click',function(){
-         show_stl()
+         convert_stl()
          })
       div.appendChild(input)
       mod.mz = input
@@ -175,38 +163,11 @@ var interface = function(div){
       input.name = mod.div.id+'projection'
       input.id = mod.div.id+'pz'
       input.addEventListener('click',function(){
-         show_stl()
+         convert_stl()
          })
       div.appendChild(input)
       mod.pz = input
    div.appendChild(document.createTextNode(' z'))
-   div.appendChild(document.createElement('br'))
-   //
-   // type format
-   //
-   div.appendChild(document.createTextNode('height map:'))
-   div.appendChild(document.createElement('br'))
-   var input = document.createElement('input')
-      input.type = 'radio'
-      input.name = mod.div.id+'type'
-      input.id = mod.div.id+'int8'
-      div.appendChild(input)
-      mod.int8= input
-   div.appendChild(document.createTextNode('grayscale'))
-   var input = document.createElement('input')
-      input.type = 'radio'
-      input.name = mod.div.id+'type'
-      input.id = mod.div.id+'int24'
-      div.appendChild(input)
-      mod.int24 = input
-   div.appendChild(document.createTextNode('RGB'))
-   var input = document.createElement('input')
-      input.type = 'radio'
-      input.name = mod.div.id+'type'
-      input.id = mod.div.id+'int32'
-      div.appendChild(input)
-      mod.int32 = input
-   div.appendChild(document.createTextNode('RGBA'))
    div.appendChild(document.createElement('br'))
    //
    // dots
@@ -281,9 +242,9 @@ var interface = function(div){
 //
 // local functions
 //
-// show STL
+// convert STL
 //
-function show_stl() {
+function convert_stl() {
    var view = mod.view
    var endian = true
    var triangles = view.getUint32(80,endian)
@@ -513,93 +474,6 @@ function update_size() {
    mod.pixels.nodeValue = (dpi*dx/upi).toFixed(0)+' x '+(dpi*dy/upi).toFixed(0)+' (pixels)'
    mod.inches.nodeValue = (dx/upi).toFixed(3)+' x '+(dy/upi).toFixed(3)+' (inches)'
    mod.mm.nodeValue = (dx/upmm).toFixed(3)+' x '+(dy/upmm).toFixed(3)+' (mm)'
-   }
-//
-// get size
-//
-function get_size() {
-   var i = mod.svg.indexOf("width")
-   if (i == -1) {
-      var width = 1
-      var height = 1
-      var units = 90
-      }
-   else {
-      var i1 = mod.svg.indexOf("\"",i+1)
-      var i2 = mod.svg.indexOf("\"",i1+1)
-      var width = mod.svg.substring(i1+1,i2)
-      i = mod.svg.indexOf("height")
-      i1 = mod.svg.indexOf("\"",i+1)
-      i2 = mod.svg.indexOf("\"",i1+1)
-      var height = mod.svg.substring(i1+1,i2)
-      ih = mod.svg.indexOf("height")
-      if (width.indexOf("px") != -1) {
-         width = width.slice(0,-2)
-         height = height.slice(0,-2)
-         var units = 90
-         }
-      else if (width.indexOf("mm") != -1) {
-         width = width.slice(0,-2)
-         height = height.slice(0,-2)
-         var units = 25.4
-         }
-      else if (width.indexOf("cm") != -1) {
-         width = width.slice(0,-2)
-         height = height.slice(0,-2)
-         var units = 2.54
-         }
-      else if (width.indexOf("in") != -1) {
-         width = width.slice(0,-2)
-         height = height.slice(0,-2)
-         var units = 1
-         }
-      else {
-         var units = 90
-         }
-      }
-   mod.width = parseFloat(width)
-   mod.height = parseFloat(height)
-   mod.units = units
-   mod.unitstext.value = units
-   }
-//
-// draw image
-//
-function draw_image() {
-   var dpi = parseFloat(mod.dpi.value)
-   var units = parseFloat(mod.unitstext.value)
-   var width = parseInt(dpi*mod.width/units)
-   var height = parseInt(dpi*mod.height/units)
-   mod.pixels.nodeValue = width+' x '+height+" (pixels)"
-   mod.inches.nodeValue = (width/dpi).toFixed(3)+' x '+(height/dpi).toFixed(3)+" (inches)"
-   mod.mm.nodeValue = (25.4*width/dpi).toFixed(3)+' x '+(25.4*height/dpi).toFixed(3)+" (mm)"
-   var src = "data:image/svg+xml;base64,"+window.btoa(mod.svg)
-   var img = new Image()
-   img.setAttribute("src",src)
-   img.onload = function() {
-      if (width > height) {
-         var x0 = 0
-         var y0 = mod.canvas.height*.5*(1-height/width)
-         var w = mod.canvas.width
-         var h = mod.canvas.width*height/width
-         }
-      else {
-         var x0 = mod.canvas.width*.5*(1-width/height)
-         var y0 = 0
-         var w = mod.canvas.height*width/height
-         var h = mod.canvas.height
-         }
-      mod.img.width = width
-      mod.img.height = height
-      var ctx = mod.img.getContext("2d")
-         ctx.clearRect(0,0,width,height)
-         ctx.drawImage(img,0,0,width,height)
-      var ctx = mod.canvas.getContext("2d")
-         ctx.clearRect(0,0,mod.canvas.width,mod.canvas.height)
-         ctx.drawImage(mod.img,x0,y0,w,h)
-      outputs.image.event()
-      outputs.imageInfo.event()
-      }
    }
 //
 // return values
