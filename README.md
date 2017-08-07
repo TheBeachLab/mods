@@ -2,7 +2,7 @@
 
 You need to first install [node.js](https://docs.npmjs.com/getting-started/installing-node).
 
-Install the [http-server](https://www.npmjs.com/package/http-server) npm package. Including '-g' sets the installs the package gloabally, allowing you to use it as a command line tool.
+Install the [http-server](https://www.npmjs.com/package/http-server) npm package. Including '-g' sets the installs the package gloabally, allowing you to use it as a command line tool:
 
 <code>npm install http-server -g</code>
 
