@@ -1,8 +1,8 @@
 //
-// Roland GX-24 vinyl cutter
+// Epilog laser cutter
 //
 // Neil Gershenfeld 
-// (c) Massachusetts Institute of Technology 2016
+// (c) Massachusetts Institute of Technology 2017
 // 
 // This work may be reproduced, modified, distributed, performed, and 
 // displayed for any purpose, but must acknowledge the mods
@@ -20,7 +20,7 @@ var mod = {}
 //
 // name
 //
-var name = 'Roland GX-24 vinyl cutter'
+var name = 'Epilog laser cutter'
 //
 // initialization
 //
