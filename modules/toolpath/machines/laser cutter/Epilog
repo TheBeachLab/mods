@@ -40,6 +40,10 @@ var inputs = {
          mod.width = evt.detail.width
          mod.height = evt.detail.height
          make_path()
+         }},
+   settings:{type:'object',
+      event:function(evt){
+         //set_values(evt.detail)
          }}}
 //
 // outputs
@@ -58,12 +62,19 @@ var outputs = {
 //
 var interface = function(div){
    mod.div = div
-   div.appendChild(document.createTextNode('force (g): '))
+   div.appendChild(document.createTextNode('auto focus: '))
+   var input = document.createElement('input')
+      input.type = 'checkbox'
+      input.id = mod.div.id+'sort'
+      div.appendChild(input)
+      mod.focus = input
+   div.appendChild(document.createElement('br'))
+   div.appendChild(document.createTextNode('power (%): '))
    var input = document.createElement('input')
       input.type = 'text'
       input.size = 6
       div.appendChild(input)
-      mod.force = input
+      mod.power = input
    div.appendChild(document.createElement('br'))
    div.appendChild(document.createTextNode('speed (cm/s): '))
    var input = document.createElement('input')
@@ -72,7 +83,30 @@ var interface = function(div){
       div.appendChild(input)
       mod.speed = input
    div.appendChild(document.createElement('br'))
-   div.appendChild(document.createTextNode('origin:'))
+   div.appendChild(document.createTextNode('rate (pps): '))
+   var input = document.createElement('input')
+      input.type = 'text'
+      input.size = 6
+      div.appendChild(input)
+      mod.rate = input
+   div.appendChild(document.createElement('br'))
+   div.appendChild(document.createTextNode('position (mm):'))
+   div.appendChild(document.createElement('br'))
+   div.appendChild(document.createTextNode('x: '))
+   var input = document.createElement('input')
+      input.type = 'text'
+      input.size = 6
+      div.appendChild(input)
+      mod.x = input
+   div.appendChild(document.createElement('br'))
+   div.appendChild(document.createTextNode('y: '))
+   var input = document.createElement('input')
+      input.type = 'text'
+      input.size = 6
+      div.appendChild(input)
+      mod.y = input
+   div.appendChild(document.createElement('br'))
+   div.appendChild(document.createTextNode('alignment:'))
    div.appendChild(document.createElement('br'))
    var input = document.createElement('input')
       input.type = 'radio'
