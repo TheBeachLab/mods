@@ -244,13 +244,7 @@ var sel = document.createElement('select')
             var win = window.open('files.html')
             break
          case 'save all files':
-            var a = document.createElement('a')
-            a.setAttribute('href','files.zip')
-            a.setAttribute('download','files.zip')
-            a.style.display = 'none'
-            document.body.appendChild(a)
-            a.click()
-            document.body.removeChild(a)
+            var win = window.open('https://gitlab.cba.mit.edu/pub/mods')
             break
          }
       evt.target.value = 'options'
@@ -273,7 +267,6 @@ var sel = document.createElement('select')
       opt.text = 'save all files'
       opt.value = opt.text
       sel.add(opt)
-      optest(opt,'files.zip')
    var opt = document.createElement('option')
       opt.text = 'about'
       opt.value = opt.text

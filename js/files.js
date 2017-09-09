@@ -80,10 +80,4 @@ function list_files(path) {
          console.log('unknown file type')
       }
    }
-//
-// make zip archive
-//
-require('child_process').exec('rm files.zip')
-process.chdir('..')
-require('child_process').exec('zip -r mods/files.zip mods')
 
