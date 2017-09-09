@@ -15,7 +15,7 @@ var fs = require('fs')
 //
 // directories to not index
 //
-var ignore = ['./js/node_modules']
+var ignore = ['./js/node_modules','./js/Windows/node_modules','./.git']
 //
 // set up page
 //
@@ -43,10 +43,11 @@ console.log(str)
 //    file tree walker
 //
 function list_files(path) {
-  var files = fs.readdirSync(path)
-   for (var i = 0; i < files.length; ++i) {
-      if (path.indexOf(ignore[0]) != -1)
-         continue
+   var files = fs.readdirSync(path)
+   iloop: for (var i = 0; i < files.length; ++i) {
+      for (var j = 0; j < ignore.length; ++j)
+         if (path.indexOf(ignore[j]) != -1)
+            continue iloop
       var file = files[i]
       var stats = fs.statSync(path+'/'+file)
       if (stats.isFile() == true) {
