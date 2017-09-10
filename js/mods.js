@@ -2,7 +2,7 @@
 // mods.js
 //
 // Neil Gershenfeld
-// (c) Massachusetts Institute of Technology 2015,6
+// (c) Massachusetts Institute of Technology 2015,6,7
 //
 // This work may be reproduced, modified, distributed, performed, and
 // displayed for any purpose, but must acknowledge the mods
@@ -12,6 +12,10 @@
 //
 /*
 todo
+   Epilog output
+   GCC output
+   Trotec output
+   HPGL input
    G-code output
    STL view z pan
    STL up sign flip

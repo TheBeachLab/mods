@@ -139,59 +139,136 @@ var interface = function(div){
 //
 // local functions
 //
+
 function make_path() {
-   var dx = 25.4*mod.width/mod.dpi
-   var dy = 25.4*mod.height/mod.dpi
-   var nx = mod.width
-   var ny = mod.height
-   var force = parseFloat(mod.force.value)
-   var speed = parseFloat(mod.speed.value)
-   var str = "PA;PA;!ST1;!FS"+force+";VS"+speed+";\n"
-   var scale = 40.0*dx/(nx-1.0) // 40/mm
-   var ox = 0
-   var oy = 0
-   if (mod.botleft.checked) {
-      var xoffset = 40.0*ox
-      var yoffset = 40.0*oy
+
+var dx = 25.4*mod.width/mod.dpi
+var dy = 25.4*mod.height/mod.dpi
+var nx = mod.width
+var ny = mod.height
+var force = parseFloat(mod.force.value)
+var speed = parseFloat(mod.speed.value)
+var str = "PA;PA;!ST1;!FS"+force+";VS"+speed+";\n"
+var scale = 40.0*dx/(nx-1.0) // 40/mm
+var ox = 0
+var oy = 0
+if (mod.botleft.checked) {
+   var xoffset = 40.0*ox
+   var yoffset = 40.0*oy
+   }
+else if (mod.botright.checked) {
+   var xoffset = 40.0*(ox-dx)
+   var yoffset = 40.0*oy
+   }
+else if (mod.topleft.checked) {
+   var xoffset = 40.0*ox
+   var yoffset = 40.0*(oy-dy)
+   }
+else if (mod.topright.checked) {
+   var xoffset = 40.0*(ox-dx)
+   var yoffset = 40.0*(oy-dy)
+   }
+
+   var dx = globals.width/globals.dpi
+   var dy = globals.height/globals.dpi
+   var nx = globals.width
+   var ny = globals.height
+   var power = parseFloat(findEl("mod_power").value)
+   var speed = parseFloat(findEl("mod_speed").value)
+   var rate = parseFloat(findEl("mod_rate").value)
+   var ox = parseFloat(findEl("mod_x_origin").value)/25.4
+   var oy = parseFloat(findEl("mod_y_origin").value)/25.4
+   var scale = 600.0*dx/(nx-1) // 600 DPI
+   if (findEl("mod_bottom_left").checked) {
+      var xoffset = 600.0*ox
+      var yoffset = 600.0*(oy-dy)
+   } else if (findEl("mod_bottom_right").checked) {
+      var xoffset = 600.0*(ox-dx)
+      var yoffset = 600.0*(oy-dy)
+   } else if (findEl("mod_top_left").checked) {
+      var xoffset = 600.0*ox
+      var yoffset = 600.0*oy
+   } else if (findEl("mod_top_right").checked) {
+      var xoffset = 600.0*(ox-dx)
+      var yoffset = 600.0*oy
+   }
+
+   var str = "%-12345X@PJL JOB NAME=" + globals.input_basename + "\r\n"
+   str += "E@PJL ENTER LANGUAGE=PCL\r\n"
+   if (findEl("mod_autofocus").checked)
+   //
+   // init with autofocus on
+   //
+      str += "&y1A"
+   else
+   // 
+   // init with autofocus off
+   //
+      str += "&y0A"
+   str += "&l0U&l0Z&u600D*p0X*p0Y*t600R*r0F&y50P&z50S*r6600T*r5100S*r1A*rC%1BIN;"
+   str += "XR"+rate+";YP"+power+";ZS"+speed+";\n"
+
+//
+// loop over segments
+//
+
+for (var seg = 0; seg < mod.path.length; ++seg) {
+   x = xoffset+scale*mod.path[seg][0][0]
+   y = yoffset+scale*mod.path[seg][0][1]
+   str += "PU"+x.toFixed(0)+","+y.toFixed(0)+";\n" // move up to start point
+   //str += "PU"+x.toFixed(0)+","+y.toFixed(0)+";\n" // hack: repeat in case comm dropped
+   str += "PD"+x.toFixed(0)+","+y.toFixed(0)+";\n" // move down
+   //str += "PD"+x.toFixed(0)+","+y.toFixed(0)+";\n" // hack: repeat in case comm dropped
+   //
+   // loop over points
+   //
+   for (var pt = 1; pt < mod.path[seg].length; ++pt) {
+      x = xoffset+scale*mod.path[seg][pt][0]
+      y = yoffset+scale*mod.path[seg][pt][1]
+      str += "PD"+x.toFixed(0)+","+y.toFixed(0)+";\n" // move down
+      //str += "PD"+x.toFixed(0)+","+y.toFixed(0)+";\n" // hack: repeat in case comm dropped
       }
-   else if (mod.botright.checked) {
-      var xoffset = 40.0*(ox-dx)
-      var yoffset = 40.0*oy
-      }
-   else if (mod.topleft.checked) {
-      var xoffset = 40.0*ox
-      var yoffset = 40.0*(oy-dy)
-      }
-   else if (mod.topright.checked) {
-      var xoffset = 40.0*(ox-dx)
-      var yoffset = 40.0*(oy-dy)
-      }
+   str += "PU"+x.toFixed(0)+","+y.toFixed(0)+";\n" // move up at last point
+   //str += "PU"+x.toFixed(0)+","+y.toFixed(0)+";\n" // hack: repeat in case comm dropped
+   }
+
+
    //
    // loop over segments
    //
-   for (var seg = 0; seg < mod.path.length; ++seg) {
-      x = xoffset+scale*mod.path[seg][0][0]
-      y = yoffset+scale*mod.path[seg][0][1]
-      str += "PU"+x.toFixed(0)+","+y.toFixed(0)+";\n" // move up to start point
-      //str += "PU"+x.toFixed(0)+","+y.toFixed(0)+";\n" // hack: repeat in case comm dropped
-      str += "PD"+x.toFixed(0)+","+y.toFixed(0)+";\n" // move down
-      //str += "PD"+x.toFixed(0)+","+y.toFixed(0)+";\n" // hack: repeat in case comm dropped
+
+   for (var seg = 0; seg < path.length; ++seg) {
       //
       // loop over points
       //
-      for (var pt = 1; pt < mod.path[seg].length; ++pt) {
-         x = xoffset+scale*mod.path[seg][pt][0]
-         y = yoffset+scale*mod.path[seg][pt][1]
-         str += "PD"+x.toFixed(0)+","+y.toFixed(0)+";\n" // move down
-         //str += "PD"+x.toFixed(0)+","+y.toFixed(0)+";\n" // hack: repeat in case comm dropped
-         }
-      str += "PU"+x.toFixed(0)+","+y.toFixed(0)+";\n" // move up at last point
-      //str += "PU"+x.toFixed(0)+","+y.toFixed(0)+";\n" // hack: repeat in case comm dropped
+      x = xoffset+scale*path[seg][0][0]
+      y = yoffset+scale*(ny-path[seg][0][1])
+      if (x < 0) x = 0
+      if (y < 0) y = 0
+      str += "PU"+x.toFixed(0)+","+y.toFixed(0)+";" // move up to start point
+      for (var pt = 1; pt < path[seg].length; ++pt) {
+         x = xoffset+scale*path[seg][pt][0]
+         y = yoffset+scale*(ny-path[seg][pt][1])
+         if (x < 0) x = 0
+         if (y < 0) y = 0
+         str += "PD"+x.toFixed(0)+","+y.toFixed(0)+";" // move down
       }
-   str += "PU0,0;\n" // pen up to origin
-   //str += "PU0,0;\n" // hack: repeat in case comm dropped
-   outputs.file.event(str)
+      str += "\n"
    }
+   str += "%0B%1BPUE%-12345X@PJL EOJ \r\n"
+
+str += "PU0,0;\n" // pen up to origin
+outputs.file.event(str)
+
+
+   //
+   // end-of-file padding hack from Epilog print driver
+   //
+   for (var i = 0; i < 10000; ++i)
+      str += " "
+
+   return str
+}
 
 //
 // return values
