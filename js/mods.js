@@ -772,9 +772,11 @@ function add_module(args) {
       for (var v in args.inputs) {
          var div = document.createElement('div')
          if (args.inputs[v].label != undefined)
-            div.innerHTML += args.inputs[v].label+' ('+args.inputs[v].type+')'
+            div.innerHTML += args.inputs[v].label
          else
-            div.innerHTML += v+' ('+args.inputs[v].type+')'
+            div.innerHTML += v
+         if (args.inputs[v].type != '')
+            div.innerHTML += '('+args.inputs[v].type+')'
          div.setAttribute('id',JSON.stringify({id:idnumber,type:'inputs',name:v}))
          div.addEventListener('mouseover',input_over)
          div.addEventListener('mouseout',input_out)
@@ -824,9 +826,11 @@ function add_module(args) {
       for (var v in args.outputs) {
          var div = document.createElement('div')
          if (args.outputs[v].label != undefined)
-            div.innerHTML += args.outputs[v].label+' ('+args.outputs[v].type+')'
+            div.innerHTML += args.outputs[v].label
          else
-            div.innerHTML += v+' ('+args.outputs[v].type+')'
+            div.innerHTML += v
+         if (args.outputs[v].type != '')
+            div.innerHTML += '('+args.outputs[v].type+')'
          div.setAttribute('id',JSON.stringify({id:idnumber,type:'outputs',name:v}))
          div.addEventListener('mouseover',output_over)
          div.addEventListener('mouseout',output_out)

@@ -25,14 +25,13 @@ var name = 'Epilog laser cutter'
 // initialization
 //
 var init = function() {
-   mod.force.value = 50
    mod.speed.value = 2
    }
 //
 // inputs
 //
 var inputs = {
-   toolpath:{type:'object',
+   toolpath:{type:'',
       event:function(evt){
          mod.name = evt.detail.name
          mod.path = evt.detail.path
@@ -41,21 +40,21 @@ var inputs = {
          mod.height = evt.detail.height
          make_path()
          }},
-   settings:{type:'object',
+   settings:{type:'',
       event:function(evt){
-         //set_values(evt.detail)
+         set_values(evt.detail)
          }}}
 //
 // outputs
 //
 var outputs = {
-   file:{type:'object',
+   file:{type:'',
       event:function(str){
-         obj = {}
-         obj.type = 'file'
-         obj.name = mod.name+'.camm'
-         obj.contents = str
-         mods.output(mod,'file',obj)
+         //obj = {}
+         //obj.type = 'file'
+         //obj.name = mod.name+'.camm'
+         //obj.contents = str
+         //mods.output(mod,'file',obj)
          }}}
 //
 // interface
