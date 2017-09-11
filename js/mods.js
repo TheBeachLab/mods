@@ -780,7 +780,7 @@ function add_module(args) {
          else
             div.innerHTML += v
          if (args.inputs[v].type != '')
-            div.innerHTML += '('+args.inputs[v].type+')'
+            div.innerHTML += ' ('+args.inputs[v].type+')'
          div.setAttribute('id',JSON.stringify({id:idnumber,type:'inputs',name:v}))
          div.addEventListener('mouseover',input_over)
          div.addEventListener('mouseout',input_out)
@@ -834,7 +834,7 @@ function add_module(args) {
          else
             div.innerHTML += v
          if (args.outputs[v].type != '')
-            div.innerHTML += '('+args.outputs[v].type+')'
+            div.innerHTML += ' ('+args.outputs[v].type+')'
          div.setAttribute('id',JSON.stringify({id:idnumber,type:'outputs',name:v}))
          div.addEventListener('mouseover',output_over)
          div.addEventListener('mouseout',output_out)
