@@ -51,7 +51,7 @@ wss.on('connection',function(ws) {
          // send file to printer
          //
          console.log('writing '+job.name+' (length '+job.contents.length+') to '+job.printer+' printer')
-         lpr = spawn('lpr',['-P'+job.printer])
+         lpr = spawn('lpr',['-P'+job.printer,'-T'+job.name])
          lpr.stdout.pipe(process.stdout)
          lpr.stderr.pipe(process.stdout)
          lpr.stdin.write(job.contents)
