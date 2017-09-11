@@ -25,7 +25,7 @@ var name = 'convert SVG image'
 // initialization
 //
 var init = function() {
-   mod.dpi.value = 300
+   mod.dpi.value = 100
    }
 //
 // inputs
