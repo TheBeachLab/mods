@@ -28,8 +28,9 @@ var init = function() {
    mod.power.value = 25
    mod.speed.value = 75
    mod.rate.value = 100
-   mod.xpos.value = 0
-   mod.ypos.value = 0
+   mod.xpos.value = 10
+   mod.ypos.value = 10
+   mod.topleft.checked = true
    }
 //
 // inputs
@@ -129,7 +130,6 @@ var interface = function(div){
       input.type = 'radio'
       input.name = mod.div.id+'origin'
       input.id = mod.div.id+'botleft'
-      input.checked = true
       div.appendChild(input)
       mod.botleft = input
    div.appendChild(document.createTextNode(' left bottom right '))
