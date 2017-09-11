@@ -30,7 +30,7 @@ var init = function() {
 // inputs
 //
 var inputs = {
-   input:{type:'object',
+   input:{type:'',
       event:function(evt){
          mod.text.value = JSON.stringify(evt.detail)
          outputs.output.event(evt.detail)

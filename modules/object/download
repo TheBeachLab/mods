@@ -31,8 +31,9 @@ var init = function() {
 // inputs
 //
 var inputs = {
-   input:{type:'object',
+   input:{type:'',
       event:function(evt){
+         mod.file.value = evt.detail.name
          download(evt.detail)
          }}}
 //

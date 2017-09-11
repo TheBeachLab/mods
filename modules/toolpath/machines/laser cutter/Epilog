@@ -28,8 +28,8 @@ var init = function() {
    mod.power.value = 25
    mod.speed.value = 75
    mod.rate.value = 100
-   mod.x = 0
-   mod.y = 0
+   mod.xpos.value = 0
+   mod.ypos.value = 0
    }
 //
 // inputs
@@ -46,7 +46,7 @@ var inputs = {
          }},
    settings:{type:'',
       event:function(evt){
-         set_values(evt.detail)
+         //set_values(evt.detail) // todo
          }}}
 //
 // outputs
@@ -54,11 +54,11 @@ var inputs = {
 var outputs = {
    file:{type:'',
       event:function(str){
-         //obj = {}
-         //obj.type = 'file'
-         //obj.name = mod.name+'.camm'
-         //obj.contents = str
-         //mods.output(mod,'file',obj)
+         obj = {}
+         obj.type = 'file'
+         obj.name = mod.name+'.epi'
+         obj.contents = str
+         mods.output(mod,'file',obj)
          }}}
 //
 // interface
@@ -100,14 +100,14 @@ var interface = function(div){
       input.type = 'text'
       input.size = 6
       div.appendChild(input)
-      mod.x = input
+      mod.xpos = input
    div.appendChild(document.createElement('br'))
    div.appendChild(document.createTextNode('y: '))
    var input = document.createElement('input')
       input.type = 'text'
       input.size = 6
       div.appendChild(input)
-      mod.y = input
+      mod.ypos = input
    div.appendChild(document.createElement('br'))
    div.appendChild(document.createTextNode('alignment:'))
    div.appendChild(document.createElement('br'))
@@ -143,18 +143,17 @@ var interface = function(div){
 //
 // local functions
 //
-
 function make_path() {
-   var dx = mod.width/globals.dpi
-   var dy = mod.height/globals.dpi
+   var dx = mod.width/mod.dpi
+   var dy = mod.height/mod.dpi
    var nx = mod.width
    var ny = mod.height
    var scale = 600.0*dx/(nx-1) // 600 DPI
    var power = parseFloat(mod.power.value)
    var speed = parseFloat(mod.speed.value)
    var rate = parseFloat(mod.rate.value)
-   var ox = parseFloat(mod.x.value)/25.4
-   var oy = parseFloat(mod.y.value)/25.4
+   var ox = parseFloat(mod.xpos.value)/25.4
+   var oy = parseFloat(mod.ypos.value)/25.4
    if (mod.botleft.checked) {
       var xoffset = 600.0*ox
       var yoffset = 600.0*(oy-dy)

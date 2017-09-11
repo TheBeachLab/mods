@@ -35,7 +35,7 @@ var init = function() {
 // inputs
 //
 var inputs = {
-   file:{type:'object',
+   file:{type:'',
       event:function(evt){
          if (evt.detail.type == 'command') {
             mod.command = evt.detail

@@ -51,7 +51,7 @@ var inputs = {}
 // outputs
 //
 var outputs = {
-   settings:{type:'object',
+   settings:{type:'',
       event:function(){
          mods.output(mod,'settings',mod.output)
          }
