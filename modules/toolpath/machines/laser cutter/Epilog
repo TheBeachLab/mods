@@ -47,7 +47,7 @@ var inputs = {
          }},
    settings:{type:'',
       event:function(evt){
-         //set_values(evt.detail) // todo
+         set_values(evt.detail)
          }}}
 //
 // outputs
@@ -142,6 +142,26 @@ var interface = function(div){
    }
 //
 // local functions
+//
+// set_values
+//
+function set_values(settings) {
+   for (var s in settings) {
+      switch(s) {
+         case 'power (%)':
+            mod.power.value = settings[s]
+            break
+         case 'speed (%)':
+            mod.speed.value = settings[s]
+            break
+         case 'rate (pps)':
+            mod.rate.value = settings[s]
+            break
+         }
+      }
+   }
+//
+// make_path
 //
 function make_path() {
    var dx = mod.width/mod.dpi
