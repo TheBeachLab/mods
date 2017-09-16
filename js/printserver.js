@@ -35,7 +35,6 @@ console.log("listening for connection from client address "+client_address+" on 
 // requires
 //
 var printer = require("printer")
-//var util = require('util')
 var WebSocketServer = require('ws').Server
 //
 // start WebSocket server
@@ -62,6 +61,7 @@ wss.on('connection',function(ws) {
    var cancel
    var pagesPrinted
    ws.on("message",function(msg) {
+      console.log(msg)
       //
       // cancel job
       //
@@ -72,70 +72,68 @@ wss.on('connection',function(ws) {
       // start job
       //
       else {
-         pagesPrinted = 0
-         var printerName = printer.getDefaultPrinterName()
+         //pagesPrinted = 0
+         //var printerName = printer.getDefaultPrinterName()
          var job = JSON.parse(msg)
-         console.log('writing ' + job.name + ' (length ' + job.contents.length + ') to printer ' + printerName)
-         console.log(job.contents)
+         console.log('writing '+job.name+' (length '+job.contents.length+') to printer '+job.printer)
          cancel = false
          print()
          //
          // print all
          //
          function print() {
-            printer.printDirect({data:job.contents
-	            //, printer:'Roland GS-24' // printer name, if missing then will print to default printer
-                //, printer: job.device
-	            , type: 'RAW' // type: RAW, TEXT, PDF, JPEG, .. depends on platform
-	            , success: function (jobID) {
-	                console.log("sent to printer with ID: " + jobID)
-	                check_process()
-	                //
-	                // Check process
-	                //
-	                function check_process() {
-	                    var jobInfo
-		                try {
-		                    jobInfo = printer.getJob(printerName, jobID)
-		                } catch (err) {
-		                    ws.send('done')
-		                    return
-		                }
+            printer.printDirect({data:job.contents,type:'RAW',
+             printer:job.printer,success: function (jobID) {
+               console.log("sent to printer with ID: "+jobID)
+               check_process()
+               //
+               // Check process
+               //
+               function check_process() {
+                  var jobInfo
+                  try {
+                     jobInfo = printer.getJob(job.printer,jobID)
+                     }
+                  catch (err) {
+                     ws.send('done')
+                     return
+                     }
+                  console.log("current job info:"+
+                     JSON.stringify(jobInfo))
+                  if (jobInfo.status.indexOf('PRINTED') !== -1) {
 
-		                pagesPrinted = jobInfo.pagesPrinted
-		                console.log("current job info:" + util.inspect(jobInfo, { depth: 10, colors: true }))
-		                if (jobInfo.status.indexOf('PRINTED') !== -1) {
-		                    ws.send('done')
-		                    return
-		                }
+                     var ret = printer.setJob(job.printer,
+                        jobID,'CANCEL')
 
-		                //
-		                // cancel
-		                //
-		                if (cancel) {
-		                    console.log('cancelling...')
-		                    ws.send('cancel')
-		                    var is_ok = printer.setJob(printerName, jobID, 'CANCEL')
-		                    console.log("cancelled: " + is_ok)
-		                }
-		                    //
-		                    // continue
-		                    //
-		                else {
-		                    ws.send(jobInfo.status[0])
-		                    setTimeout(check_process, 1000)
-		                }
-		            }
-	            }
-	            , error:function(err){
-                    console.log(err)
-                    ws.send('error '+err+' 0 '+ 0)
+                     ws.send('done')
+                     return
+                     }
+                  //
+                  // cancel
+                  //
+                  if (cancel) {
+                     console.log('cancelling...')
+                     ws.send('cancel')
+                     var ret = printer.setJob(job.printer,
+                        jobID,'CANCEL')
+                     console.log("cancelled: "+ret)
+                     }
+                  //
+                  // continue
+                  //
+                  else {
+                     ws.send(jobInfo.status[0])
+                     setTimeout(check_process,1000)
+                     }
                   }
-            })
-
+               }, error: function(err) {
+                  console.log(err)
+                  ws.send('error '+err)
+                  }
+               })
+            }
          }
-       }
-    })
+      })
    //
    // close
    //
