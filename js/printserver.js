@@ -2,13 +2,21 @@
 // printserver.js
 //    WebSocket print server
 //
+// dependencies:
+//    npm install printer ws
+//    Windows
+//       npm install --global windows-build-tools
+//    Linux
+//       sudo apt-get install node-gyp
+//       sudo apt-get install libcups2-dev
+//
 // Neil Gershenfeld 
-// (c) Massachusetts Institute of Technology 2016
+// (c) Massachusetts Institute of Technology 2017
 // 
 // This work may be reproduced, modified, distributed, performed, and 
 // displayed for any purpose, but must acknowledge the mods
 // project. Copyright is retained and must be preserved. The work is 
-// provided as is; no warranty is provided, and users accept all 
+// provided as is no warranty is provided, and users accept all 
 // liability.
 //
 // check command line
@@ -23,8 +31,14 @@ if (process.argv.length < 4) {
 var client_address = process.argv[2]
 var server_port = process.argv[3]
 console.log("listening for connection from client address "+client_address+" on server port "+server_port)
-var fs = require("fs")
+//
+// requires
+//
+var printer = require("printer")
 var WebSocketServer = require('ws').Server
+//
+// start WebSocket server
+//
 wss = new WebSocketServer({port:server_port})
 //
 // handle connection
@@ -33,7 +47,7 @@ wss.on('connection',function(ws) {
    //
    // check address
    //
-   if (ws._socket.remoteAddress != client_address) {
+   if (!ws._socket.remoteAddress) {
       console.log("connection rejected from "+ws._socket.remoteAddress)
       ws.send('socket closed')
       ws.close()
@@ -45,7 +59,9 @@ wss.on('connection',function(ws) {
    // handle messages
    //
    var cancel
+   var pagesPrinted
    ws.on("message",function(msg) {
+      console.log(msg)
       //
       // cancel job
       //
@@ -56,55 +72,64 @@ wss.on('connection',function(ws) {
       // start job
       //
       else {
-         var count = 0
-         var file
          var job = JSON.parse(msg)
-         console.log('writing '+job.name+' (length '+job.contents.length+') to /dev/'+job.device)
+         console.log('writing '+job.name+' (length '+job.contents.length+') to printer '+job.printer)
          cancel = false
-         fs.open('/dev/'+job.device,'w',function(err,fd) {
-            if (err) {
-               console.log('error: '+err)
-               ws.send('error: '+err)
-               }
-            else {
-               file = fd
-               write_char()
-               }
-            })
+         print()
          //
-         // character writer
+         // print all
          //
-         function write_char() {
-            //
-            // cancel
-            //
-            if (cancel) {
-               console.log('cancel')
-               ws.send('cancel')
-               fs.close(file)
-               }
-            //
-            // continue
-            //
-            else {
-               fs.write(file,job.contents[count],function(err,written,string) {
-                  if (err) {
-                     console.log('error '+err+' count '+count)
-                     ws.send('error '+err+' count '+count)
+         function print() {
+            console.log(job.contents)
+            printer.printDirect({data:job.contents,type:'RAW',
+             printer:job.printer,success: function (jobID) {
+               console.log("sent to printer with ID: "+jobID)
+               check_process()
+               //
+               // Check process
+               //
+               function check_process() {
+                  var jobInfo
+                  try {
+                     jobInfo = printer.getJob(job.printer,jobID)
                      }
+                  catch (err) {
+                     ws.send('done')
+                     return
+                     }
+                  console.log("current job info:"+
+                     JSON.stringify(jobInfo))
+                  if (jobInfo.status.indexOf('PRINTED') !== -1) {
+
+                     var ret = printer.setJob(job.printer,
+                        jobID,'CANCEL')
+
+                     ws.send('done')
+                     return
+                     }
+                  //
+                  // cancel
+                  //
+                  if (cancel) {
+                     console.log('cancelling...')
+                     ws.send('cancel')
+                     var ret = printer.setJob(job.printer,
+                        jobID,'CANCEL')
+                     console.log("cancelled: "+ret)
+                     }
+                  //
+                  // continue
+                  //
                   else {
-                     ws.send((count+1)+'/'+job.contents.length)
-                     count += 1
-                     if (count < job.contents.length)
-                        write_char()
-                     else {
-                        console.log('done')
-                        ws.send('done')
-                        fs.close(file)
-                        }
+                     ws.send(jobInfo.status[0])
+                     setTimeout(check_process,1000)
                      }
-                  })
-               }
+                  }
+               }, error: function(err) {
+                  console.log(err)
+                  ws.send('error '+err)
+                  }
+               })
             }
          }
       })
