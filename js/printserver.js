@@ -72,8 +72,6 @@ wss.on('connection',function(ws) {
       // start job
       //
       else {
-         //pagesPrinted = 0
-         //var printerName = printer.getDefaultPrinterName()
          var job = JSON.parse(msg)
          console.log('writing '+job.name+' (length '+job.contents.length+') to printer '+job.printer)
          cancel = false
@@ -82,6 +80,7 @@ wss.on('connection',function(ws) {
          // print all
          //
          function print() {
+            console.log(job.contents)
             printer.printDirect({data:job.contents,type:'RAW',
              printer:job.printer,success: function (jobID) {
                console.log("sent to printer with ID: "+jobID)

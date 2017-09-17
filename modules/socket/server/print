@@ -43,9 +43,9 @@ var inputs = {
             mod.labelspan.style.fontWeight = 'bold'
             }
          else if (evt.detail.type == 'command') {
-            mod.job = evt.detail
-            mod.job.printer = mod.printer.value
-            socket_send(JSON.stringify(mod.job))
+            mod.command = evt.detail
+            mod.command.printer = mod.printer.value
+            socket_send(JSON.stringify(mod.command))
             }
          }}}
 //

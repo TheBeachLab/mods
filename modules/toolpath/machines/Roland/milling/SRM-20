@@ -12,8 +12,19 @@
 //
 // closure
 //
-
-
+/*
+G-codes:
+G00X10.0
+G90 (absolute positioning)
+G21 (mm units)
+#.0 numbers
+G00 (positioning rapid move)
+G01 (linear motion)
+M03 (start spindle)
+M05 (stop spindle)
+F (feed rate mm/min, 6-1800)
+203.2 (X) x 152.4 (Y) x 60.5 (Z) mm         
+*/
 (function(){
 //
 // module globals
@@ -41,7 +52,7 @@ var init = function() {
 // inputs
 //
 var inputs = {
-   toolpath:{type:'object',
+   toolpath:{type:'',
       event:function(evt){
          mod.name = evt.detail.name
          mod.path = evt.detail.path
@@ -54,7 +65,7 @@ var inputs = {
 // outputs
 //
 var outputs = {
-   file:{type:'object',
+   file:{type:'',
       event:function(obj){
          mods.output(mod,'file',obj)
          }}}
@@ -115,7 +126,23 @@ var interface = function(div){
          var y0 = mod.units*parseFloat(mod.oy.value);
          var z0 = mod.units*parseFloat(mod.oz.value);
          var zjog = z0+mod.units*parseFloat(mod.jz.value);
-         var str = "PA;PA;VS10;!VZ10;!PZ0,"+zjog+";PU"+x0+","+y0+";Z"+x0+","+y0+","+z0+";!MC0;"
+         //
+         // G-code version
+         //
+         /*
+         str = '%\n' // data start
+         str += 'G90\n' // absolute units
+         str += 'G21\n' // mm units
+         str += 'G00Z30.0\n' // move z
+         str += 'M02\n' // end of program
+         */
+         //
+         // RML version
+         //
+         var str = "PA;PA;VS10;!VZ10;!PZ0,"+zjog+";PU"+x0+","+y0+";Z"+x0+","+y0+","+z0+";!MC0;"+"\u0004"
+         //
+         // send command
+         //
          var obj = {}
          obj.type = 'command'
          obj.name = mod.name+'.rml'
@@ -177,7 +204,23 @@ var interface = function(div){
          var xhome = mod.units*parseFloat(mod.hx.value);
          var yhome = mod.units*parseFloat(mod.hy.value);
          var zhome = mod.units*parseFloat(mod.hz.value);
-         var str = "PA;PA;!PZ0,"+zhome+";PU"+xhome+","+yhome+";!MC0;";
+         //
+         // G-code version
+         //
+         /*
+         str = '%\n' // data start
+         str += 'G90\n' // absolute units
+         str += 'G21\n' // mm units
+         str += 'G00Z50.0\n' // move z
+         str += 'M02\n' // end of program
+         */
+         //
+         // RML version
+         //
+         var str = "PA;PA;!PZ0,"+zhome+";PU"+xhome+","+yhome+";!MC0;"+"\u0004"
+         //
+         // send command
+         //
          var obj = {}
          obj.type = 'command'
          obj.name = mod.name+'.rml'

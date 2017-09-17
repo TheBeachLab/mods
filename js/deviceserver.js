@@ -1,9 +1,9 @@
 //
-// printserver.js
-//    WebSocket print server
+// deviceserver.js
+//    WebSocket device server
 //
 // Neil Gershenfeld 
-// (c) Massachusetts Institute of Technology 2016
+// (c) Massachusetts Institute of Technology 2017
 // 
 // This work may be reproduced, modified, distributed, performed, and 
 // displayed for any purpose, but must acknowledge the mods
@@ -14,7 +14,7 @@
 // check command line
 //
 if (process.argv.length < 4) {
-   console.log("command line: node printserver.js client_address server_port")
+   console.log("command line: node deviceserver.js client_address server_port")
    process.exit(-1)
    }
 //
