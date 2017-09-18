@@ -57,9 +57,9 @@ wss.on('connection',function(ws) {
          var flow = msg.flow
          console.log('open '+device+' at '+baud+' flow '+flow)
          if (flow == 'none')
-            port = new SerialPort(device,{baudRate:baud,parser:SerialPort.parsers.byteLength(1)})
+            port = new SerialPort(device,{baudRate:baud})
          else if (flow == 'rtscts')
-            port = new SerialPort(device,{baudRate:baud,parser:SerialPort.parsers.byteLength(1),rtscts:true})
+            port = new SerialPort(device,{baudRate:baud,rtscts:true})
          port.on('open',function() {
             ws.send('serial port opened')
             if (flow == 'dsrdtr') {
