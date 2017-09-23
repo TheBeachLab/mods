@@ -10,52 +10,6 @@
 // provided as is; no warranty is provided, and users accept all
 // liability.
 //
-/*
-todo
-   Epilog output
-   GCC output
-   Trotec output
-   HPGL input
-   G-code output
-   STL view z pan
-   STL up sign flip
-   STL height map
-   rough cut
-   height transform
-   finish cut
-   program download link to page redirect
-   file save module
-   mods.fit move links
-   delete WebGL context on close
-   print, serial server time estimates
-   SVG parser from nesting
-   div script scope
-   wheel scroll step size
-   module link mouseover highlight
-   menu shortcuts/right-click
-   save and reload program
-   SVG path export
-   collapse module
-   direct toolpath calculation
-   file load
-   OBJ
-   APA
-   CT
-   AR
-   https video
-   controls to iframe
-   raster CAD
-      layers
-      PCB library
-   global variable object
-   program annotation layer
-   message object transfer
-   nest module
-   SVG read vector
-   options preferences
-   options about
-*/
-//
 // closure
 //
 (function(){
