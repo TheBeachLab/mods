@@ -26,6 +26,8 @@ Depending on how to need to use mods you can start local servers located in <cod
 
 <code>node printserver.js</code>
 
+serial port permission: <code>chmod a+rwx /dev/ttyUSB0</code>
+
 
 
 
