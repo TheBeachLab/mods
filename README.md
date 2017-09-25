@@ -26,11 +26,14 @@ Depending on how to need to use mods you can start local servers located in <cod
 
 <code>node printserver.js</code>
 
-serial port permission: <code>chmod a+rwx /dev/ttyUSB0</code>
+#Mods Connection Debugging
 
-start serialserver: <code>node serialserver.js ::ffff:127.0.0.1 1234</code>
+set correct serial port permission (do this each time you reboot the machine): <code>chmod a+rwx /dev/ttyUSB0</code>
 
-check serialserver: <code>ps aux | grep node</code>
+start serialserver in the terminal so you can see the logs as it tries to connect.
+Navigate to the mods/js folder in the terminal (probably use <code>cd ~/mods/js</code>) and type: <code>node serialserver.js ::ffff:127.0.0.1 1234</code>
+
+check serialserver is running with: <code>ps aux | grep node</code>
 
 
 
