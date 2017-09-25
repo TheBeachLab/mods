@@ -28,6 +28,8 @@ Depending on how to need to use mods you can start local servers located in <cod
 
 serial port permission: <code>chmod a+rwx /dev/ttyUSB0</code>
 
+start serialserver: <code>node serialserver.js ::ffff:127.0.0.1 1234</code>
+
 
 
 
