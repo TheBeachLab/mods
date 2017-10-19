@@ -34,6 +34,11 @@ start serialserver in the terminal so you can see the logs as it tries to connec
 
 check serialserver is running with: <code>ps aux | grep node</code>
 
+# Common Issues
+
+1. *Help! My SRM-20 will only run a single job and then go dead!* Chances are you are using printserver.js instead of deviceserver.js to connect to the machine.  For now, we need to treat the SRM-20 as a device instead of a printer.
+2. *Argg... why do I need to reset permissions on /dev/usb/lp0 every restart?*  You can use `sudo add_user username lp` and `sudo add_user username lpadmin` to make persistent permissions.
+3. *Why is my web socket connection refused when the addresses are the same?* This can happen due to a difference between IPV4 and IPV6 addresses.  In your start mods server script, try changing 127.0.0.1 to ::ffff:127.0.0.1 and see if it helps.
 
 
 
