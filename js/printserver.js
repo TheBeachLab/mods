@@ -54,6 +54,25 @@ wss.on('connection',function(ws) {
       }
    else {
       console.log("connection accepted from "+ws._socket.remoteAddress)
+      // get printer list
+      function getPrinterList() {
+         var printerList = []
+         var printers = printer.getPrinters()
+         if (printers && printers.length) {
+            var i = printers.length
+            for (i in printers) {
+               var pr = printers[i]
+               printerList.push(pr.name)
+               }
+            }
+         var printerListObj = {}
+         printerListObj['printerList'] = printerList
+         printerListObj['default'] = printer.getDefaultPrinterName()
+         return printerListObj
+         }
+
+       ws.send(JSON.stringify(getPrinterList()))
+       ws.send('socket opened')
       }
    //
    // handle messages
