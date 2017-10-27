@@ -27,7 +27,7 @@ var name = 'WebSocket print'
 var init = function() {
    mod.address.value = '127.0.0.1'
    mod.port.value = 1234
-   mod.printer.value = 'laser'
+   mod.printers.value = 'Printer not found'
    mod.socket = null
    socket_open()
    }
@@ -43,9 +43,9 @@ var inputs = {
             mod.labelspan.style.fontWeight = 'bold'
             }
          else if (evt.detail.type == 'command') {
-            mod.command = evt.detail
-            mod.command.printer = mod.printer.value
-            socket_send(JSON.stringify(mod.command))
+            mod.job = evt.detail
+            mod.job.printer = mod.printers.value
+            socket_send(JSON.stringify(mod.job))
             }
          }}}
 //
@@ -110,12 +110,15 @@ var interface = function(div){
    // printer
    //
    div.appendChild(document.createTextNode('printer:'))
-   div.appendChild(document.createElement('br'))
-   var input = document.createElement('input')
-      input.type = 'text'
-      input.size = 10
-      div.appendChild(input)
-      mod.printer = input
+       div.appendChild(document.createElement('br'))
+       var select = document.createElement('select')
+       select.setAttribute('style', 'width:150px');
+	   var el = document.createElement('option')
+          el.textContent = 'Printer not found'
+          el.value = 'Printer not found'
+          select.appendChild(el)
+       div.appendChild(select)
+       mod.printers = select 
    div.appendChild(document.createElement('br'))   
    var btn = document.createElement('button')
       btn.style.padding = mods.ui.padding
@@ -131,7 +134,7 @@ var interface = function(div){
             mod.status.value = "can't send, not open"
             }
          else if (mod.label.nodeValue == 'send file to printer') {
-            mod.job.printer = mod.printer.value
+            mod.job.printer = mod.printers.value
             socket_send(JSON.stringify(mod.job))
             mod.label.nodeValue = 'cancel'
             }
@@ -160,6 +163,27 @@ function socket_open() {
          || (event.data.slice(0,5) == 'error')) {
          mod.label.nodeValue = 'waiting for file'
          mod.labelspan.style.fontWeight = 'normal'
+         }
+       else if (event.data[0] === '{'){
+         var printerInfo = JSON.parse(event.data)
+         var printerList = printerInfo['printerList']
+         if (printerList) {
+            while (mod.printers.hasChildNodes()) {
+               mod.printers.removeChild(mod.printers.lastChild);
+               }
+
+         for(var i = 0; i < printerList.length; i++){
+            var printer = printerList[i];
+            var el = document.createElement('option')
+            el.textContent = printer
+            el.value = printer
+            mod.printers.appendChild(el)
+            }
+            var defaultPrinter = printerInfo['default']
+            if(defaultPrinter && defaultPrinter.length>0){
+               mod.printers.value = defaultPrinter
+               }
+            }
          }
       }
    }
