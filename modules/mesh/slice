@@ -20,22 +20,18 @@ var mod = {}
 //
 // name
 //
-var name = 'convert STL image'
+var name = 'mesh slice'
 //
 // initialization
 //
 var init = function() {
-   mod.dpi.value = 100
-   mod.dpmm.value = 100/25.4
-   mod.upi.value = 25.4
-   mod.upmm.value = 1
-   mod.pz.checked = true
+   mod.dpu.value = 100
    }
 //
 // inputs
 //
 var inputs = {
-   STL:{type:'buffer',
+   mesh:{type:'',
       event:function(evt){
          mod.view = new DataView(evt.detail)
          convert_stl()}}}
@@ -48,7 +44,7 @@ var outputs = {
          var ctx = mod.img.getContext("2d")
          var img = ctx.getImageData(0,0,mod.img.width,mod.img.height)
          mods.output(mod,'image',img)}},
-   imageInfo:{type:'object',
+   imageInfo:{type:'',
       event:function(){
          var obj = {}
          obj.name = "SVG image"
@@ -104,124 +100,25 @@ var interface = function(div){
       div.appendChild(btn)
    div.appendChild(document.createElement('br'))
    //
-   // projection
+   // rotation
    //
-   div.appendChild(document.createTextNode('projection: '))
-   div.appendChild(document.createElement('br'))
-   var input = document.createElement('input')
-      input.type = 'radio'
-      input.name = mod.div.id+'projection'
-      input.id = mod.div.id+'mx'
-      input.addEventListener('click',function(){
-         convert_stl()
-         })
-      div.appendChild(input)
-      mod.mx = input
-   div.appendChild(document.createTextNode('-x'))
-   var input = document.createElement('input')
-      input.type = 'radio'
-      input.name = mod.div.id+'projection'
-      input.id = mod.div.id+'px'
-      input.addEventListener('click',function(){
-         convert_stl()
-         })
-      div.appendChild(input)
-      mod.px = input
-   div.appendChild(document.createTextNode(' x'))
-   var input = document.createElement('input')
-      input.type = 'radio'
-      input.name = mod.div.id+'projection'
-      input.id = mod.div.id+'my'
-      input.addEventListener('click',function(){
-         convert_stl()
-         })
-      div.appendChild(input)
-      mod.my = input
-   div.appendChild(document.createTextNode('-y'))
-   var input = document.createElement('input')
-      input.type = 'radio'
-      input.name = mod.div.id+'projection'
-      input.id = mod.div.id+'py'
-      input.addEventListener('click',function(){
-         convert_stl()
-         })
-      div.appendChild(input)
-      mod.py = input
-   div.appendChild(document.createTextNode(' y'))
-   var input = document.createElement('input')
-      input.type = 'radio'
-      input.name = mod.div.id+'projection'
-      input.id = mod.div.id+'mz'
-      input.addEventListener('click',function(){
-         convert_stl()
-         })
-      div.appendChild(input)
-      mod.mz = input
-   div.appendChild(document.createTextNode('-z'))
-   var input = document.createElement('input')
-      input.type = 'radio'
-      input.name = mod.div.id+'projection'
-      input.id = mod.div.id+'pz'
-      input.addEventListener('click',function(){
-         convert_stl()
-         })
-      div.appendChild(input)
-      mod.pz = input
-   div.appendChild(document.createTextNode(' z'))
+   div.appendChild(document.createTextNode('rotation: '))
    div.appendChild(document.createElement('br'))
    //
    // dots
    //
-   div.appendChild(document.createTextNode('dots per:'))
+   div.appendChild(document.createTextNode('dots per unit:'))
    div.appendChild(document.createElement('br'))
-   div.appendChild(document.createTextNode('inch '))
    var input = document.createElement('input')
       input.type = 'text'
       input.size = 6
       input.addEventListener('input',function(){
-         mod.dpmm.value = parseFloat(mod.dpi.value)/25.4
          update_size()
          })
       div.appendChild(input)
-      mod.dpi = input
-   div.appendChild(document.createTextNode(' mm '))
-   var input = document.createElement('input')
-      input.type = 'text'
-      input.size = 6
-      input.addEventListener('input',function(){
-         mod.dpi.value = parseFloat(mod.dpmm.value)*25.4
-         update_size()
-         })
-      div.appendChild(input)
-      mod.dpmm = input
+      mod.dpu = input
    //
-   // units
-   //
-   div.appendChild(document.createElement('br'))
-   div.appendChild(document.createTextNode('units per:'))
-   div.appendChild(document.createElement('br'))
-   div.appendChild(document.createTextNode('inch '))
-   var input = document.createElement('input')
-      input.type = 'text'
-      input.size = 6
-      input.addEventListener('input',function(){
-         mod.upmm.value = parseFloat(mod.upi.value)/25.4
-         update_size()
-         })
-      div.appendChild(input)
-      mod.upi = input
-   div.appendChild(document.createTextNode(' mm '))
-   var input = document.createElement('input')
-      input.type = 'text'
-      input.size = 6
-      input.addEventListener('input',function(){
-         mod.upi.value = parseFloat(mod.upmm.value)*25.4
-         update_size()
-         })
-      div.appendChild(input)
-      mod.upmm = input
-   //
-   // size
+   // image size
    //
    div.appendChild(document.createElement('br'))
    var text = document.createTextNode('image size:')
@@ -231,13 +128,6 @@ var interface = function(div){
       div.appendChild(text)
       mod.pixels = text
    div.appendChild(document.createElement('br'))
-   var text = document.createTextNode('(inches)')
-      div.appendChild(text)
-      mod.inches = text
-   div.appendChild(document.createElement('br'))
-   var text = document.createTextNode('(mm)')
-      div.appendChild(text)
-      mod.mm = text
    }
 //
 // local functions
