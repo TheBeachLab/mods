@@ -45,9 +45,6 @@ var inputs = {
 var outputs = {
    image:{type:'RGBA',
       event:function(){
-         }},
-   imageInfo:{type:'',
-      event:function(){
          }}}
 //
 // interface
@@ -115,10 +112,9 @@ var interface = function(div){
    // mesh size
    //
    div.appendChild(document.createElement('br'))
-   div.appendChild(document.createTextNode('mesh size:'))
-   div.appendChild(document.createTextNode(' dz:'))
-   div.appendChild(document.createTextNode(' dx:'))
-   div.appendChild(document.createTextNode(' dy:'))
+   var text = document.createTextNode('mesh size:')
+      div.appendChild(text)
+      mod.meshsize = text
    //
    // slide depth
    //
@@ -242,6 +238,10 @@ function draw_mesh() {
    mod.xmax = xmax
    mod.ymax = ymax
    mod.zmax = zmax
+   mod.meshsize.nodeValue = 'mesh size: '+
+      mod.dx.toFixed(3)+' x '+
+      mod.dy.toFixed(3)+' x '+
+      mod.dz.toFixed(3)
    //
    // draw projection
    //
