@@ -1,8 +1,8 @@
 //
-// convert STL image
+// mesh slice
 //
 // Neil Gershenfeld
-// (c) Massachusetts Institute of Technology 2016
+// (c) Massachusetts Institute of Technology 2017
 //
 // This work may be reproduced, modified, distributed, performed, and
 // displayed for any purpose, but must acknowledge the mods
@@ -44,6 +44,9 @@ var inputs = {
 //
 var outputs = {
    image:{type:'RGBA',
+      event:function(){
+         }},
+   sliceInfo:{type:'',
       event:function(){
          }}}
 //
@@ -124,7 +127,7 @@ var interface = function(div){
       input.type = 'text'
       input.size = 6
       input.addEventListener('change',function(){
-         alert('depth')
+         slice_mesh()
          })
       div.appendChild(input)
       mod.depth = input
@@ -136,7 +139,7 @@ var interface = function(div){
       input.type = 'text'
       input.size = 6
       input.addEventListener('change',function(){
-         alert('size')
+         slice_mesh()
          })
       div.appendChild(input)
       mod.size = input
@@ -303,41 +306,105 @@ function draw_mesh() {
    ctx.stroke()
    }
 //
-// update image size
+// slice mesh
 //
-function update_size() {
-   if (mod.dx == undefined)
-      return
-   if (mod.mx.checked) {
-      var dx = mod.dy
-      var dy = mod.dz
-      }
-   else if (mod.px.checked) {
-      var dx = mod.dy
-      var dy = mod.dz
-      }
-   else if (mod.my.checked) {
-      var dx = mod.dx
-      var dy = mod.dz
-      }
-   else if (mod.py.checked) {
-      var dx = mod.dx
-      var dy = mod.dz
-      }
-   else if (mod.mz.checked) {
-      var dx = mod.dx
-      var dy = mod.dy
-      }
-   else if (mod.pz.checked) {
-      var dx = mod.dx
-      var dy = mod.dy
-      }
-   var dpi = parseFloat(mod.dpi.value)
-   var upi = parseFloat(mod.upi.value)
-   var upmm = parseFloat(mod.upmm.value)
-   mod.pixels.nodeValue = (dpi*dx/upi).toFixed(0)+' x '+(dpi*dy/upi).toFixed(0)+' (pixels)'
-   mod.inches.nodeValue = (dx/upi).toFixed(3)+' x '+(dy/upi).toFixed(3)+' (inches)'
-   mod.mm.nodeValue = (dx/upmm).toFixed(3)+' x '+(dy/upmm).toFixed(3)+' (mm)'
+   //
+   // initialize slice image
+   //
+
+   //
+   // find triangles crossing the slice
+   //
+
+   //
+   // loop over scan lines
+   //
+
+   //
+   // find scan line intersections with segments
+   //
+
+   //
+   // perturb vertex intersections
+   //
+
+   //
+   // sort and stroke intersections
+   //
+
+   //
+   // output the slice
+   //
+   
+function slice_mesh() {
+   var blob = new Blob(['('+worker.toString()+'())'])
+   var url = window.URL.createObjectURL(blob)
+   var webworker = new Worker(url)
+   webworker.addEventListener('message',function(evt) {
+      window.URL.revokeObjectURL(url)
+      var h = mod.img.height
+      var w = mod.img.width
+      var buf = new Uint8ClampedArray(evt.data.buffer)
+      var imgdata = new ImageData(buf,w,h)
+      var ctx = mod.img.getContext("2d")
+      ctx.putImageData(imgdata,0,0)
+      if (w > h) {
+         var x0 = 0
+         var y0 = mod.canvas.height*.5*(1-h/w)
+         var wd = mod.canvas.width
+         var hd = mod.canvas.width*h/w
+         }
+      else {
+         var x0 = mod.canvas.width*.5*(1-w/h)
+         var y0 = 0
+         var wd = mod.canvas.height*w/h
+         var hd = mod.canvas.height
+         }
+      var ctx = mod.canvas.getContext("2d")
+      ctx.clearRect(0,0,mod.canvas.width,mod.canvas.height)
+      ctx.drawImage(mod.img,x0,y0,wd,hd)
+      webworker.terminate()
+      //outputs.image.event()
+      })
+   var ctx = mod.canvas.getContext("2d")
+   ctx.clearRect(0,0,mod.canvas.width,mod.canvas.height)
+   var t = parseFloat(mod.threshold.value)
+   var ctx = mod.img.getContext("2d")
+   ctx.putImageData(mod.input,0,0)
+   var img = ctx.getImageData(0,0,mod.img.width,mod.img.height)
+   webworker.postMessage({
+      height:mod.input.height,width:mod.input.width,threshold:t,
+      buffer:img.data.buffer},
+      [img.data.buffer])
+   }
+function worker() {
+   self.addEventListener('message',function(evt) {
+      var h = evt.data.height
+      var w = evt.data.width
+      var t = evt.data.threshold
+      var buf = new Uint8ClampedArray(evt.data.buffer)
+      var r,g,b,a,i
+      for (var row = 0; row < h; ++row) {
+         for (var col = 0; col < w; ++col) {
+            r = buf[(h-1-row)*w*4+col*4+0] 
+            g = buf[(h-1-row)*w*4+col*4+1] 
+            b = buf[(h-1-row)*w*4+col*4+2] 
+            a = buf[(h-1-row)*w*4+col*4+3] 
+            i = (r+g+b)/(3*255)
+            if (a == 0)
+               val = 255
+            else if (i > t)
+               var val = 255
+            else
+               var val = 0
+            buf[(h-1-row)*w*4+col*4+0] = val
+            buf[(h-1-row)*w*4+col*4+1] = val
+            buf[(h-1-row)*w*4+col*4+2] = val
+            buf[(h-1-row)*w*4+col*4+3] = 255
+            }
+         }
+      self.postMessage({buffer:buf.buffer},[buf.buffer])
+      })
    }
 //
 // return values
