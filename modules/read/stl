@@ -40,7 +40,7 @@ var inputs = {
 var outputs = {
    mesh:{type:'',
       event:function(buffer){
-         mods.output(mod,'STL',buffer)}},
+         mods.output(mod,'mesh',buffer)}},
    meshInfo:{type:'',
       event:function(buffer){
          mods.output(mod,'STL',buffer)}}}
@@ -311,7 +311,7 @@ function stl_load_handler(event) {
    //
    // output STL
    //
-   outputs.STL.event(event.target.result)
+   outputs.mesh.event(event.target.result)
    }
 //
 // show STL

@@ -25,7 +25,11 @@ var name = 'mesh slice'
 // initialization
 //
 var init = function() {
-   mod.dpu.value = 100
+   mod.rx.value = 0
+   mod.ry.value = 0
+   mod.rz.value = 0
+   mod.depth.value = 0
+   mod.size.value = 1000
    }
 //
 // inputs
@@ -34,38 +38,41 @@ var inputs = {
    mesh:{type:'',
       event:function(evt){
          mod.view = new DataView(evt.detail)
-         convert_stl()}}}
+         draw_mesh()}}}
 //
 // outputs
 //
 var outputs = {
    image:{type:'RGBA',
       event:function(){
-         var ctx = mod.img.getContext("2d")
-         var img = ctx.getImageData(0,0,mod.img.width,mod.img.height)
-         mods.output(mod,'image',img)}},
+         }},
    imageInfo:{type:'',
       event:function(){
-         var obj = {}
-         obj.name = "SVG image"
-         obj.dpi = parseFloat(mod.dpi.value)
-         obj.width = mod.img.width
-         obj.height = mod.img.height
-         mods.output(mod,'imageInfo',obj)}}}
+         }}}
 //
 // interface
 //
 var interface = function(div){
    mod.div = div
    //
-   // on-screen drawing canvas
+   // mesh canvas
    //
    var canvas = document.createElement('canvas')
       canvas.width = mods.ui.canvas
       canvas.height = mods.ui.canvas
       canvas.style.backgroundColor = 'rgb(255,255,255)'
       div.appendChild(canvas)
-      mod.canvas = canvas
+      mod.meshcanvas = canvas
+   //
+   // slice canvas
+   //
+   div.appendChild(document.createTextNode(' '))
+   var canvas = document.createElement('canvas')
+      canvas.width = mods.ui.canvas
+      canvas.height = mods.ui.canvas
+      canvas.style.backgroundColor = 'rgb(255,255,255)'
+      div.appendChild(canvas)
+      mod.slicecanvas = canvas
    div.appendChild(document.createElement('br'))
    //
    // off-screen image canvas
@@ -73,68 +80,79 @@ var interface = function(div){
    var canvas = document.createElement('canvas')
       mod.img = canvas
    //
-   // view button
+   // mesh rotation
    //
-   var btn = document.createElement('button')
-      btn.style.padding = mods.ui.padding
-      btn.style.margin = 1
-      btn.appendChild(document.createTextNode('view'))
-      btn.addEventListener('click',function(){
-         var win = window.open('')
-         var btn = document.createElement('button')
-            btn.appendChild(document.createTextNode('close'))
-            btn.style.padding = mods.ui.padding
-            btn.style.margin = 1
-            btn.addEventListener('click',function(){
-               win.close()
-               })
-            win.document.body.appendChild(btn)
-         win.document.body.appendChild(document.createElement('br'))
-         var canvas = document.createElement('canvas')
-            canvas.width = mod.img.width
-            canvas.height = mod.img.height
-            win.document.body.appendChild(canvas)
-         var ctx = canvas.getContext("2d")
-            ctx.drawImage(mod.img,0,0)
-         })
-      div.appendChild(btn)
+   div.appendChild(document.createTextNode('mesh rotation (degrees): '))
    div.appendChild(document.createElement('br'))
-   //
-   // rotation
-   //
-   div.appendChild(document.createTextNode('rotation: '))
-   div.appendChild(document.createElement('br'))
-   //
-   // dots
-   //
-   div.appendChild(document.createTextNode('dots per unit:'))
-   div.appendChild(document.createElement('br'))
+   div.appendChild(document.createTextNode(' x: '))
    var input = document.createElement('input')
       input.type = 'text'
       input.size = 6
-      input.addEventListener('input',function(){
-         update_size()
+      input.addEventListener('change',function(){
+         alert('x')
          })
       div.appendChild(input)
-      mod.dpu = input
+      mod.rx = input
+   div.appendChild(document.createTextNode(' y: '))
+   var input = document.createElement('input')
+      input.type = 'text'
+      input.size = 6
+      input.addEventListener('change',function(){
+         alert('y')
+         })
+      div.appendChild(input)
+      mod.ry = input
+   div.appendChild(document.createTextNode(' z: '))
+   var input = document.createElement('input')
+      input.type = 'text'
+      input.size = 6
+      input.addEventListener('change',function(){
+         alert('z')
+         })
+      div.appendChild(input)
+      mod.rz = input
    //
-   // image size
+   // mesh size
    //
    div.appendChild(document.createElement('br'))
-   var text = document.createTextNode('image size:')
-      div.appendChild(text)
+   div.appendChild(document.createTextNode('mesh size:'))
+   div.appendChild(document.createTextNode(' dz:'))
+   div.appendChild(document.createTextNode(' dx:'))
+   div.appendChild(document.createTextNode(' dy:'))
+   //
+   // slide depth
+   //
    div.appendChild(document.createElement('br'))
-   var text = document.createTextNode('(pixels)')
-      div.appendChild(text)
-      mod.pixels = text
+   div.appendChild(document.createTextNode('slice depth: '))
+   var input = document.createElement('input')
+      input.type = 'text'
+      input.size = 6
+      input.addEventListener('change',function(){
+         alert('depth')
+         })
+      div.appendChild(input)
+      mod.depth = input
+   //
+   // slice size
+   //
+   div.appendChild(document.createTextNode(' size: '))
+   var input = document.createElement('input')
+      input.type = 'text'
+      input.size = 6
+      input.addEventListener('change',function(){
+         alert('size')
+         })
+      div.appendChild(input)
+      mod.size = input
+   div.appendChild(document.createTextNode(' (pixels)'))
    div.appendChild(document.createElement('br'))
    }
 //
 // local functions
 //
-// convert STL
+// draw mesh
 //
-function convert_stl() {
+function draw_mesh() {
    var view = mod.view
    var endian = true
    var triangles = view.getUint32(80,endian)
@@ -206,38 +224,15 @@ function convert_stl() {
    mod.xmax = xmax
    mod.ymax = ymax
    mod.zmax = zmax
-   update_size()
    //
    // draw projection
    //
-   var ctx = mod.canvas.getContext('2d')
-   var w = mod.canvas.width
-   var h = mod.canvas.height
+   var ctx = mod.meshcanvas.getContext('2d')
+   var w = mod.meshcanvas.width
+   var h = mod.meshcanvas.height
    ctx.clearRect(0,0,w,h)
-   if (mod.mx.checked) {
-      var dx = mod.dy
-      var dy = mod.dz
-      }
-   else if (mod.px.checked) {
-      var dx = mod.dy
-      var dy = mod.dz
-      }
-   else if (mod.my.checked) {
-      var dx = mod.dx
-      var dy = mod.dz
-      }
-   else if (mod.py.checked) {
-      var dx = mod.dx
-      var dy = mod.dz
-      }
-   else if (mod.mz.checked) {
-      var dx = mod.dx
-      var dy = mod.dy
-      }
-   else if (mod.pz.checked) {
-      var dx = mod.dx
-      var dy = mod.dy
-      }
+   var dx = mod.dx
+   var dy = mod.dy
    if (dx > dy) {
       var xo = 0
       var yo = h*.5*(1-dy/dx)
@@ -273,54 +268,12 @@ function convert_stl() {
       z2 = view.getFloat32(offset,endian)
       offset += 4
       offset += 2
-      if (mod.mx.checked) {
-         x0 = xo+xw*(ymax-y0)/dx
-         y0 = yo+yh*(zmax-z0)/dy
-         x1 = xo+xw*(ymax-y1)/dx
-         y1 = yo+yh*(zmax-z1)/dy
-         x2 = xo+xw*(ymax-y2)/dx
-         y2 = yo+yh*(zmax-z2)/dy
-         }
-      else if (mod.px.checked) {
-         x0 = xo+xw*(y0-ymin)/dx
-         y0 = yo+yh*(zmax-z0)/dy
-         x1 = xo+xw*(y1-ymin)/dx
-         y1 = yo+yh*(zmax-z1)/dy
-         x2 = xo+xw*(y2-ymin)/dx
-         y2 = yo+yh*(zmax-z2)/dy
-         }
-      else if (mod.my.checked) {
-         x0 = xo+xw*(xmax-x0)/dx
-         y0 = yo+yh*(zmax-z0)/dy
-         x1 = xo+xw*(xmax-x1)/dx
-         y1 = yo+yh*(zmax-z1)/dy
-         x2 = xo+xw*(xmax-x2)/dx
-         y2 = yo+yh*(zmax-z2)/dy
-         }
-      else if (mod.py.checked) {
-         x0 = xo+xw*(x0-xmin)/dx
-         y0 = yo+yh*(zmax-z0)/dy
-         x1 = xo+xw*(x1-xmin)/dx
-         y1 = yo+yh*(zmax-z1)/dy
-         x2 = xo+xw*(x2-xmin)/dx
-         y2 = yo+yh*(zmax-z2)/dy
-         }
-      else if (mod.mz.checked) {
-         x0 = xo+xw*(xmax-x0)/dx
-         y0 = yo+yh*(ymax-y0)/dy
-         x1 = xo+xw*(xmax-x1)/dx
-         y1 = yo+yh*(ymax-y1)/dy
-         x2 = xo+xw*(xmax-x2)/dx
-         y2 = yo+yh*(ymax-y2)/dy
-         }
-      else if (mod.pz.checked) {
-         x0 = xo+xw*(x0-xmin)/dx
-         y0 = yo+yh*(ymax-y0)/dy
-         x1 = xo+xw*(x1-xmin)/dx
-         y1 = yo+yh*(ymax-y1)/dy
-         x2 = xo+xw*(x2-xmin)/dx
-         y2 = yo+yh*(ymax-y2)/dy
-         }
+      x0 = xo+xw*(x0-xmin)/dx
+      y0 = yo+yh*(ymax-y0)/dy
+      x1 = xo+xw*(x1-xmin)/dx
+      y1 = yo+yh*(ymax-y1)/dy
+      x2 = xo+xw*(x2-xmin)/dx
+      y2 = yo+yh*(ymax-y2)/dy
       ctx.moveTo(x0,y0)
       ctx.lineTo(x1,y1)
       ctx.lineTo(x2,y2)
