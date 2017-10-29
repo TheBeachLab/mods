@@ -309,7 +309,7 @@ function stl_load_handler(event) {
       }
    ctx.stroke()
    //
-   // output STL
+   // output mesh
    //
    outputs.mesh.event(event.target.result)
    }

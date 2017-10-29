@@ -37,7 +37,7 @@ var init = function() {
 var inputs = {
    mesh:{type:'',
       event:function(evt){
-         mod.view = new DataView(evt.detail)
+         mod.mesh = new DataView(evt.detail)
          draw_mesh()}}}
 //
 // outputs
@@ -89,7 +89,7 @@ var interface = function(div){
       input.type = 'text'
       input.size = 6
       input.addEventListener('change',function(){
-         alert('x')
+         draw_mesh()
          })
       div.appendChild(input)
       mod.rx = input
@@ -98,7 +98,7 @@ var interface = function(div){
       input.type = 'text'
       input.size = 6
       input.addEventListener('change',function(){
-         alert('y')
+         draw_mesh()
          })
       div.appendChild(input)
       mod.ry = input
@@ -107,7 +107,7 @@ var interface = function(div){
       input.type = 'text'
       input.size = 6
       input.addEventListener('change',function(){
-         alert('z')
+         draw_mesh()
          })
       div.appendChild(input)
       mod.rz = input
@@ -153,17 +153,32 @@ var interface = function(div){
 // draw mesh
 //
 function draw_mesh() {
-   var view = mod.view
+   //
+   // rotate point
+   //
+   function rotate(x,y,z) {
+      var x1 = x
+      var y1 = Math.cos(rx)*y-Math.sin(rx)*z
+      var z1 = Math.sin(rx)*y+Math.cos(rx)*z
+      var x2 = Math.cos(ry)*x1-Math.sin(ry)*z1
+      var y2 = y1
+      var z2 = Math.sin(ry)*x1+Math.cos(ry)*z1
+      var x3 = Math.cos(rz)*x2-Math.sin(rz)*y2
+      var y3 = Math.sin(rz)*x2+Math.cos(rz)*y2
+      var z3 = z2
+      return([x3,y3,z3])
+      }
+   //
+   // get vars
+   //
+   var view = mod.mesh
    var endian = true
    var triangles = view.getUint32(80,endian)
    mod.triangles = triangles
    var size = 80+4+triangles*(4*12+2)
-   //
-   // check for binary STL
-   //
-   if (size != view.byteLength) {
-      return
-      }
+   var rx = parseFloat(mod.rx.value)*Math.PI/180
+   var ry = parseFloat(mod.ry.value)*Math.PI/180
+   var rz = parseFloat(mod.rz.value)*Math.PI/180
    //
    // find limits
    //
@@ -179,41 +194,44 @@ function draw_mesh() {
       offset += 3*4
       x0 = view.getFloat32(offset,endian)
       offset += 4
-      if (x0 > xmax) xmax = x0
-      if (x0 < xmin) xmin = x0
       y0 = view.getFloat32(offset,endian)
       offset += 4
-      if (y0 > ymax) ymax = y0
-      if (y0 < ymin) ymin = y0
       z0 = view.getFloat32(offset,endian)
       offset += 4
-      if (z0 > zmax) zmax = z0
-      if (z0 < zmin) zmin = z0
       x1 = view.getFloat32(offset,endian)
       offset += 4
-      if (x1 > xmax) xmax = x1
-      if (x1 < xmin) xmin = x1
       y1 = view.getFloat32(offset,endian)
       offset += 4
-      if (y1 > ymax) ymax = y1
-      if (y1 < ymin) ymin = y1
       z1 = view.getFloat32(offset,endian)
       offset += 4
-      if (z1 > zmax) zmax = z1
-      if (z1 < zmin) zmin = z1
       x2 = view.getFloat32(offset,endian)
       offset += 4
-      if (x2 > xmax) xmax = x2
-      if (x2 < xmin) xmin = x2
-      y3 = view.getFloat32(offset,endian)
+      y2 = view.getFloat32(offset,endian)
       offset += 4
-      if (y2 > ymax) ymax = y2
-      if (y2 < ymin) ymin = y2
       z2 = view.getFloat32(offset,endian)
       offset += 4
-      if (z2 > zmax) zmax = z2
-      if (z2 < zmin) zmin = z2
       offset += 2
+      var p0 = rotate(x0,y0,z0)
+      if (p0[0] > xmax) xmax = p0[0]
+      if (p0[0] < xmin) xmin = p0[0]
+      if (p0[1] > ymax) ymax = p0[1]
+      if (p0[1] < ymin) ymin = p0[1]
+      if (p0[2] > zmax) zmax = p0[2]
+      if (p0[2] < zmin) zmin = p0[2]
+      var p1 = rotate(x1,y1,z1)
+      if (p1[0] > xmax) xmax = p1[0]
+      if (p1[0] < xmin) xmin = p1[0]
+      if (p1[1] > ymax) ymax = p1[1]
+      if (p1[1] < ymin) ymin = p1[1]
+      if (p1[2] > zmax) zmax = p1[2]
+      if (p1[2] < zmin) zmin = p1[2]
+      var p2 = rotate(x2,y2,z2)
+      if (p2[0] > xmax) xmax = p2[0]
+      if (p2[0] < xmin) xmin = p2[0]
+      if (p2[1] > ymax) ymax = p2[1]
+      if (p2[1] < ymin) ymin = p2[1]
+      if (p2[2] > zmax) zmax = p2[2]
+      if (p2[2] < zmin) zmin = p2[2]
       }
    mod.dx = xmax-xmin
    mod.dy = ymax-ymin
@@ -268,12 +286,15 @@ function draw_mesh() {
       z2 = view.getFloat32(offset,endian)
       offset += 4
       offset += 2
-      x0 = xo+xw*(x0-xmin)/dx
-      y0 = yo+yh*(ymax-y0)/dy
-      x1 = xo+xw*(x1-xmin)/dx
-      y1 = yo+yh*(ymax-y1)/dy
-      x2 = xo+xw*(x2-xmin)/dx
-      y2 = yo+yh*(ymax-y2)/dy
+      var p0 = rotate(x0,y0,z0)
+      var p1 = rotate(x1,y1,z1)
+      var p2 = rotate(x2,y2,z2)
+      x0 = xo+xw*(p0[0]-xmin)/dx
+      y0 = yo+yh*(ymax-p0[1])/dy
+      x1 = xo+xw*(p1[0]-xmin)/dx
+      y1 = yo+yh*(ymax-p1[1])/dy
+      x2 = xo+xw*(p2[0]-xmin)/dx
+      y2 = yo+yh*(ymax-p2[1])/dy
       ctx.moveTo(x0,y0)
       ctx.lineTo(x1,y1)
       ctx.lineTo(x2,y2)
