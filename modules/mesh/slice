@@ -350,30 +350,31 @@ function slice_mesh() {
       ctx.putImageData(imgdata,0,0)
       if (w > h) {
          var x0 = 0
-         var y0 = mod.canvas.height*.5*(1-h/w)
-         var wd = mod.canvas.width
-         var hd = mod.canvas.width*h/w
+         var y0 = mod.slicecanvas.height*.5*(1-h/w)
+         var wd = mod.slicecanvas.width
+         var hd = mod.slicecanvas.width*h/w
          }
       else {
-         var x0 = mod.canvas.width*.5*(1-w/h)
+         var x0 = mod.slicecanvas.width*.5*(1-w/h)
          var y0 = 0
-         var wd = mod.canvas.height*w/h
-         var hd = mod.canvas.height
+         var wd = mod.slicecanvas.height*w/h
+         var hd = mod.slicecanvas.height
          }
-      var ctx = mod.canvas.getContext("2d")
-      ctx.clearRect(0,0,mod.canvas.width,mod.canvas.height)
+      var ctx = mod.slicecanvas.getContext("2d")
+      ctx.clearRect(0,0,mod.slicecanvas.width,mod.slicecanvas.height)
       ctx.drawImage(mod.img,x0,y0,wd,hd)
       webworker.terminate()
       //outputs.image.event()
       })
-   var ctx = mod.canvas.getContext("2d")
-   ctx.clearRect(0,0,mod.canvas.width,mod.canvas.height)
-   var t = parseFloat(mod.threshold.value)
+   var ctx = mod.slicecanvas.getContext("2d")
+   ctx.clearRect(0,0,mod.slicecanvas.width,mod.slicecanvas.height)
+   var d = parseFloat(mod.depth.value)
+   mod.img.width = 1000
+   mod.img.height = 1000
    var ctx = mod.img.getContext("2d")
-   ctx.putImageData(mod.input,0,0)
    var img = ctx.getImageData(0,0,mod.img.width,mod.img.height)
    webworker.postMessage({
-      height:mod.input.height,width:mod.input.width,threshold:t,
+      height:mod.img.height,width:mod.img.width,depth:d,
       buffer:img.data.buffer},
       [img.data.buffer])
    }
@@ -381,7 +382,7 @@ function worker() {
    self.addEventListener('message',function(evt) {
       var h = evt.data.height
       var w = evt.data.width
-      var t = evt.data.threshold
+      var d = evt.data.depth
       var buf = new Uint8ClampedArray(evt.data.buffer)
       var r,g,b,a,i
       for (var row = 0; row < h; ++row) {
@@ -390,16 +391,9 @@ function worker() {
             g = buf[(h-1-row)*w*4+col*4+1] 
             b = buf[(h-1-row)*w*4+col*4+2] 
             a = buf[(h-1-row)*w*4+col*4+3] 
-            i = (r+g+b)/(3*255)
-            if (a == 0)
-               val = 255
-            else if (i > t)
-               var val = 255
-            else
-               var val = 0
-            buf[(h-1-row)*w*4+col*4+0] = val
-            buf[(h-1-row)*w*4+col*4+1] = val
-            buf[(h-1-row)*w*4+col*4+2] = val
+            buf[(h-1-row)*w*4+col*4+0] = row
+            buf[(h-1-row)*w*4+col*4+1] = col
+            buf[(h-1-row)*w*4+col*4+2] = row+col
             buf[(h-1-row)*w*4+col*4+3] = 255
             }
          }
