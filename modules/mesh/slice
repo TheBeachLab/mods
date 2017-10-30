@@ -29,7 +29,7 @@ var init = function() {
    mod.ry.value = 0
    mod.rz.value = 0
    mod.depth.value = 0
-   mod.size.value = 1000
+   mod.width.value = 1000
    }
 //
 // inputs
@@ -131,10 +131,12 @@ var interface = function(div){
          })
       div.appendChild(input)
       mod.depth = input
+   div.appendChild(document.createTextNode(' (mesh units)'))
    //
-   // slice size
+   // slice width
    //
-   div.appendChild(document.createTextNode(' size: '))
+   div.appendChild(document.createElement('br'))
+   div.appendChild(document.createTextNode('slice width: '))
    var input = document.createElement('input')
       input.type = 'text'
       input.size = 6
@@ -142,9 +144,8 @@ var interface = function(div){
          slice_mesh()
          })
       div.appendChild(input)
-      mod.size = input
+      mod.width = input
    div.appendChild(document.createTextNode(' (pixels)'))
-   div.appendChild(document.createElement('br'))
    }
 //
 // local functions
@@ -369,13 +370,13 @@ function slice_mesh() {
    var ctx = mod.slicecanvas.getContext("2d")
    ctx.clearRect(0,0,mod.slicecanvas.width,mod.slicecanvas.height)
    var d = parseFloat(mod.depth.value)
-   mod.img.width = 1000
-   mod.img.height = 1000
+   mod.img.width = parseInt(mod.width.value)
+   mod.img.height = Math.round(mod.img.width*mod.dy/mod.dx)
    var ctx = mod.img.getContext("2d")
    var img = ctx.getImageData(0,0,mod.img.width,mod.img.height)
    webworker.postMessage({
       height:mod.img.height,width:mod.img.width,depth:d,
-      buffer:img.data.buffer},
+      imgbuffer:img.data.buffer},
       [img.data.buffer])
    }
 function worker() {
@@ -383,7 +384,7 @@ function worker() {
       var h = evt.data.height
       var w = evt.data.width
       var d = evt.data.depth
-      var buf = new Uint8ClampedArray(evt.data.buffer)
+      var buf = new Uint8ClampedArray(evt.data.imgbuffer)
       var r,g,b,a,i
       for (var row = 0; row < h; ++row) {
          for (var col = 0; col < w; ++col) {
