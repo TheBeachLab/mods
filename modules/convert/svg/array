@@ -160,9 +160,10 @@ function nest(sw_json){
    //stocksize is an array [width,height] of stock dimensions
    //we scale so the stock size takes up the %75 of screen
    //padding is an amount to leave between each piece
-   var stocksize = [mod.stock_width.value/39.3, mod.stock_height.value/39.3]; //convert to meters
+   var unitScale = sw_json[0].unit === "mm"?1000:1;
+   var stocksize = [mod.stock_width.value/39.3*unitScale, mod.stock_height.value/39.3*unitScale]; //convert to meters
    //TODO: handle units more gracefully!
-   var padding = mod.padding.value/39.3;
+   var padding = mod.padding.value/39.3*unitScale;
    var draw_grid = false;
 
    //make sure first dimension is longer
