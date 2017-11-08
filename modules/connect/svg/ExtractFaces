@@ -1,5 +1,5 @@
 //
-// SWExtractFaces module extracts top faces of the same thickness from Tools/FabLab Connect command of SolidWorks products
+// ExtractFaces module extracts top faces of the same thickness from Tools/FabLab Connect command of SolidWorks products
 // 
 // Shawn Liu @ Dassault Systemes SolidWorks Corporation
 // (c) Massachusetts Institute of Technology 2016
@@ -20,7 +20,7 @@ var mod = {}
 //
 // name
 //
-var name = 'SWExtractFaces'
+var name = 'ExtractFaces connect'
 //
 // initialization
 //

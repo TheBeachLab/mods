@@ -1,5 +1,5 @@
 //
-// SWSelectFace module receives a selected face from Tools/FabLab Connect command of SolidWorks products
+// SelectFace module receives a selected face from Tools/FabLab Connect command of SolidWorks products
 //
 // Shawn Liu @ Dassault Systemes SolidWorks Corporation
 // (c) Massachusetts Institute of Technology 2017
@@ -19,7 +19,7 @@ var mod = {}
 //
 // name
 //
-var name = 'SWSelectFace'
+var name = 'SelectFace connect'
 //
 // initialization
 //

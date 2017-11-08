@@ -1,5 +1,5 @@
 //
-// SWPCB module extracts PCB profiles from Tools/FabLab Connect command of SolidWorks products
+// PCB module extracts PCB profiles from Tools/FabLab Connect command of SolidWorks products
 //
 // Shawn Liu @ Dassault Systemes SolidWorks Corporation
 // (c) Massachusetts Institute of Technology 2017
@@ -20,7 +20,7 @@ var mod = {}
 //
 // name
 //
-var name = 'SWPCB'
+var name = 'PCB connect'
 //
 // initialization
 //
