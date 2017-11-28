@@ -26,10 +26,7 @@ var name = 'image palette'
 // initialization
 //
 var init = function() {
-   mod.input = null
    mod.palette.value = '[[255,255,255],\n[0,0,0],\n[255,0,0],\n[0,255,0],\n[0,0,255]]'
-   //mod.text.value =
-   //   JSON.stringify(mod.palette).replace(/]\,/g,'],\n')
    }
 //
 // inputs
