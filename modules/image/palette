@@ -378,7 +378,6 @@ function show_original() {
    var ctx = mod.canvas.getContext("2d")
    ctx.clearRect(0,0,mod.canvas.width,mod.canvas.height)
    ctx.drawImage(mod.img,x0,y0,wd,hd)
-   outputs.image.event()
    }
 //
 // show palette
