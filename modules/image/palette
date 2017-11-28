@@ -27,29 +27,10 @@ var name = 'image palette'
 // initialization
 //
 var init = function() {
-   mod.dpi = 72
-   mod.name = 'palette'
-   mod.palette = [
-      [255,0,0],
-      [0,255,0],
-      [0,0,255]]
-   mod.palette = [
-      [0,0,0,'black'],
-      [255,0,0,'red'],
-      [0,255,0,'green'],
-      [0,0,255,'blue'],
-      [255,255,0,'yellow'],
-      [255,0,255,'magenta'],
-      [0,255,255,'cyan'],
-      [255,255,255,'white'],
-      [128,0,0],
-      [0,128,0],
-      [0,0,128],
-      [128,128,0],
-      [128,0,128],
-      [0,128,128]]
-   mod.text.value =
-      JSON.stringify(mod.palette).replace(/]\,/g,'],\n')
+   mod.input = null
+   mod.palette.value = '[[255,0,0],\n[0,255,0],\n[0,0,255]]'
+   //mod.text.value =
+   //   JSON.stringify(mod.palette).replace(/]\,/g,'],\n')
    }
 //
 // inputs
@@ -70,10 +51,9 @@ var inputs = {
             show_palette()
          }
       },
-   imageInfo:{type:'object',
+   palette:{type:'text',
       event:function(evt){
-         mod.name = evt.detail.name
-         mod.dpi = evt.detail.dpi
+         mod.palette.value = evt.detail
          }
       }
    }
@@ -91,23 +71,6 @@ var outputs = {
 //
 var interface = function(div){
    mod.div = div
-   //
-   // file input control
-   //
-   var file = document.createElement('input')
-      file.setAttribute('type','file')
-      file.setAttribute('id',div.id+'file_input')
-      file.style.position = 'absolute'
-      file.style.left = 0
-      file.style.top = 0
-      file.style.width = 0
-      file.style.height = 0
-      file.style.opacity = 0
-      file.addEventListener('change',function() {
-         load_palette()
-         })
-      div.appendChild(file)
-      mod.file = file
    //
    // on-screen drawing canvas
    //
@@ -193,76 +156,17 @@ var interface = function(div){
    //
    // palette
    //
-   var btn = document.createElement('button')
-      btn.style.padding = mods.ui.padding
-      btn.style.margin = 1
-      btn.appendChild(document.createTextNode('load'))
-      btn.addEventListener('click',function(){
-         var file = document.getElementById(div.id+'file_input')
-         file.value = null
-         file.click()
-         })
-      div.appendChild(btn)
-   div.appendChild(document.createTextNode(' palette '))
-   var btn = document.createElement('button')
-      btn.style.padding = mods.ui.padding
-      btn.style.margin = 1
-      btn.appendChild(document.createTextNode('save'))
-      btn.addEventListener('click',function(){
-         save_palette()
-         })
-      div.appendChild(btn)
+   div.appendChild(document.createTextNode('palette'))
    div.appendChild(document.createElement('br'))
    var text = document.createElement('textarea')
       text.setAttribute('rows',mods.ui.rows)
       text.setAttribute('cols',mods.ui.cols)
       div.appendChild(text)
-      mod.text = text
+      mod.palette = text
    div.appendChild(document.createElement('br'))
-   //
-   // save
-   //
-   div.appendChild(document.createTextNode('save'))
-   div.appendChild(document.createElement('br'))
-   var btn = document.createElement('button')
-      btn.style.padding = mods.ui.padding
-      btn.style.margin = 1
-      btn.appendChild(document.createTextNode('image'))
-      btn.addEventListener('click',function(){
-         save_image()
-         })
-      div.appendChild(btn)
-   var btn = document.createElement('button')
-      btn.style.padding = mods.ui.padding
-      btn.style.margin = 1
-      btn.appendChild(document.createTextNode('masks'))
-      btn.addEventListener('click',function(){
-         save_svg_masks()
-         })
-      div.appendChild(btn)
-   var btn = document.createElement('button')
-      btn.style.padding = mods.ui.padding
-      btn.style.margin = 1
-      btn.appendChild(document.createTextNode('colors'))
-      btn.addEventListener('click',function(){
-         save_colors()
-         })
-      div.appendChild(btn)
    }
 //
 // local functions
-//
-// save_image
-//
-function save_image() {
-   var a = document.createElement('a')
-   a.href = mod.img.toDataURL()
-   a.setAttribute('download','image.png')
-   a.style.display = 'none'
-   document.body.appendChild(a)
-   a.click()
-   document.body.removeChild(a)
-   }
 //
 // save_svg_masks
 //
@@ -452,35 +356,6 @@ function save_svg_masks() {
       }
    }
 //
-// save_palette
-//
-function save_palette() {
-   var a = document.createElement('a')
-   a.setAttribute('href','data:text/plain;charset=utf-8,'+ 
-      encodeURIComponent(mod.text.value))
-   a.setAttribute('download','palette.txt')
-   a.style.display = 'none'
-   document.body.appendChild(a)
-   a.click()
-   document.body.removeChild(a)
-   }
-//
-// load_palette
-//
-function load_palette(event) {
-   var file_reader = new FileReader()
-   file_reader.onload = load_palette_handler
-   input_file = mod.file.files[0]
-   file_name = input_file.name
-   file_reader.readAsText(input_file)
-   }
-//
-// load_palette_handler
-//
-function load_palette_handler(event) {
-   mod.text.value = event.target.result
-   }
-//
 // show_original
 //
 function show_original() {
@@ -543,7 +418,7 @@ function show_palette() {
    var ctx = mod.img.getContext("2d")
    ctx.putImageData(mod.input,0,0)
    var img = ctx.getImageData(0,0,mod.img.width,mod.img.height)
-   var palette = JSON.parse(mod.text.value)
+   var palette = JSON.parse(mod.palette.value)
    webworker.postMessage({
       height:mod.input.height,width:mod.input.width,palette:palette,
       buffer:img.data.buffer},
