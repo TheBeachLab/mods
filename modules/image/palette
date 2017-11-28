@@ -1,7 +1,6 @@
 //
 // image palette
-//    todo:
-//       linear time palette search
+//    todo: linear time palette search
 //
 // Neil Gershenfeld 
 // (c) Massachusetts Institute of Technology 2017
@@ -28,7 +27,7 @@ var name = 'image palette'
 //
 var init = function() {
    mod.input = null
-   mod.palette.value = '[[255,0,0],\n[0,255,0],\n[0,0,255]]'
+   mod.palette.value = '[[255,255,255],\n[0,0,0],\n[255,0,0],\n[0,255,0],\n[0,0,255]]'
    //mod.text.value =
    //   JSON.stringify(mod.palette).replace(/]\,/g,'],\n')
    }
@@ -425,6 +424,7 @@ function show_palette() {
    }
 //
 // palette worker
+//    todo: sort palette
 //
 function palette_worker() {
    self.addEventListener('message',function(evt) {
@@ -440,7 +440,7 @@ function palette_worker() {
             g = buf[(h-1-row)*w*4+col*4+1] 
             b = buf[(h-1-row)*w*4+col*4+2] 
             a = buf[(h-1-row)*w*4+col*4+3] 
-            dmin = 1e10
+            dmin = Number.MAX_VALUE
             for (color = 0; color < palette.length; ++color) {
                rc = palette[color][0]
                gc = palette[color][1]
