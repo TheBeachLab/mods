@@ -20,7 +20,7 @@ var mod = {}
 //
 // name
 //
-var name = 'mesh slice'
+var name = 'mesh slice (under development)'
 //
 // initialization
 //
