@@ -1178,7 +1178,7 @@ function draw_link(id,color) {
    path.setAttribute('stroke',color)
    }
 //
-// fit module interface
+// module fit call
 //
 mods.fit = function(div) {
    div.style.left = div.dataset.divNameSize/2-div.clientWidth/2
@@ -1192,7 +1192,7 @@ mods.fit = function(div) {
    divout.style.left = div.dataset.divNameSize/2+div.clientWidth/2
    }
 //
-// module variable handlers
+// module output call
 //
 mods.output = function(mod,varname,val) {
    var div = mod.div
@@ -1210,6 +1210,13 @@ mods.output = function(mod,varname,val) {
       var evt = new CustomEvent(evtid,{detail:val})
       window.dispatchEvent(evt)
       }
+   }
+//
+// module create call
+//
+mods.create = function(args) {
+   var event = {target:{result:args}}
+   mod_load_handler(event)
    }
 //
 // input event handlers
