@@ -49,17 +49,68 @@ var interface = function(div){
       btn.style.margin = 1
       btn.appendChild(document.createTextNode('create module'))
       btn.addEventListener('click',function(){
-         mods.create("{\
-            name:'asd',\
-            init:function(){},\
-            inputs:{},\
-            outputs:{},\
-            interface:function(){}\
-            }")
-            //interface:function(div){\
-            //  mod.div = div\
-            //   div.appendChild(document.createTextNode(' image '))\
-            //   }\
+         mods.create(`
+//
+// created module
+//
+// Neil Gershenfeld 
+// (c) Massachusetts Institute of Technology 2017
+// 
+// This work may be reproduced, modified, distributed, performed, and 
+// displayed for any purpose, but must acknowledge the mods
+// project. Copyright is retained and must be preserved. The work is 
+// provided as is; no warranty is provided, and users accept all 
+// liability.
+//
+// closure
+//
+(function(){
+//
+// module globals
+//
+var mod = {}
+//
+// name
+//
+var name = 'created'
+//
+// initialization
+//
+var init = function() {
+   }
+//
+// inputs
+//
+var inputs = {
+   }
+//
+// outputs
+//
+var outputs = {
+   }
+//
+// interface
+//
+var interface = function(div){
+   mod.div = div
+   div.appendChild(document.createTextNode('hello world'))
+   }
+//
+// local functions
+//
+
+//
+// return values
+//
+return ({
+   name:name,
+   init:init,
+   inputs:inputs,
+   outputs:outputs,
+   interface:interface
+   })
+}())
+            `)
          })
       div.appendChild(btn)
    }
