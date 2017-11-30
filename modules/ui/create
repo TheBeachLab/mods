@@ -49,6 +49,8 @@ var interface = function(div){
       btn.style.margin = 1
       btn.appendChild(document.createTextNode('create module'))
       btn.addEventListener('click',function(){
+         var top = div.parentNode.dataset.top
+         var left = parseInt(div.parentNode.dataset.left)+parseInt(div.parentNode.clientWidth)/2
          mods.create(`
 //
 // created module
@@ -77,6 +79,10 @@ var name = 'created'
 // initialization
 //
 var init = function() {
+   mod.div.parentNode.style.left = ${left}
+   mod.div.parentNode.style.top = ${top}
+   mod.div.parentNode.dataset.left = ${left}
+   mod.div.parentNode.dataset.top = ${top}
    }
 //
 // inputs
