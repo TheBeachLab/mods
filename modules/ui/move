@@ -38,25 +38,25 @@ var inputs = {
                var top = parseInt(mod.div.parentNode.style.top)
                mod.div.parentNode.style.top = top-mod.step
                mod.div.parentNode.dataset.top = top-mod.step
-               draw_links(mods.id,mods.ui.link)
+               draw_links(mod.div.parentNode.id,mods.ui.link)
                break
             case 'down':
                var top = parseInt(mod.div.parentNode.style.top)
                mod.div.parentNode.style.top = top+mod.step
                mod.div.parentNode.dataset.top = top+mod.step
-               draw_links(mods.id,mods.ui.link)
+               draw_links(mod.div.parentNode.id,mods.ui.link)
                break
             case 'left':
                var left = parseInt(mod.div.parentNode.style.left)
                mod.div.parentNode.style.left = left-mod.step
                mod.div.parentNode.dataset.left = left-mod.step
-               draw_links(mods.id,mods.ui.link)
+               draw_links(mod.div.parentNode.id,mods.ui.link)
                break
             case 'right':
                var left = parseInt(mod.div.parentNode.style.left)
                mod.div.parentNode.style.left = left+mod.step
                mod.div.parentNode.dataset.left = left+mod.step
-               draw_links(mods.id,mods.ui.link)
+               draw_links(mod.div.parentNode.id,mods.ui.link)
                break
             }
          }}}
