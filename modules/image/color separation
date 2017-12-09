@@ -49,7 +49,7 @@ var inputs = {
       },
    color:{type:'RGB',
       event:function(evt){
-         mod.color.value = evt.detail
+         mod.color.value = JSON.stringify(evt.detail)
          }
       }
    }

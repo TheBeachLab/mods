@@ -30,14 +30,17 @@ var init = function() {
 // inputs
 //
 var inputs = {
-   palette:{type:'text',
-      event:function(evt){
-         }},
    imageInfo:{type:'object',
       event:function(evt){
+         mod.imageInfo = evt.detail
          }},
-   path:{type:'(array)',
+   palette:{type:'text',
       event:function(evt){
+         mod.palette = JSON.parse(evt.detail)
+         }},
+   path:{type:'array',
+      event:function(evt){
+         mod.path = evt.detail
          }}}
 //
 // outputs
@@ -45,6 +48,7 @@ var inputs = {
 var outputs = {
    color:{type:'RGB',
       event:function(evt){
+         mods.output(mod,'color',evt)
          }},
    SVG:{type:'file',
       event:function(evt){
@@ -64,12 +68,21 @@ var interface = function(div){
          mod.labelspan = span
          btn.appendChild(span)
       btn.addEventListener('click',function(){
+         calculate_masks()
          })
       div.appendChild(btn)
    div.appendChild(document.createElement('br'))
    }
 //
 // local functions
+//
+// calculate_masks
+//
+function calculate_masks() {
+   for (var i = 0; i < mod.palette.length; ++i) {
+      outputs.color.event(mod.palette[i])
+      }
+   }
 //
 // save_svg_masks
 //
