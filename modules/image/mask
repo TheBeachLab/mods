@@ -118,6 +118,9 @@ function make_mask(path) {
 // save_mask
 //
 function save_mask(path) {
+   //
+   // create SVG
+   //
    var imgwidth = mod.image.width/parseFloat(mod.imageInfo.dpi)
    var imgheight = mod.image.height/parseFloat(mod.imageInfo.dpi)
    var svgNS = "http://www.w3.org/2000/svg"
@@ -128,6 +131,9 @@ function save_mask(path) {
       svg.setAttribute('height',(3+imgheight)+'in')
       svg.style.backgroundColor = 'rgb(255,255,255)'
       svg.setAttribute('viewBox','0 0 '+(3+imgwidth)+' '+(3+imgheight))
+   //
+   // background
+   //
    var rect = document.createElementNS(svgNS,'rect')
       rect.setAttribute('x','0')
       rect.setAttribute('y','0')
@@ -136,8 +142,14 @@ function save_mask(path) {
       rect.setAttribute('stroke','none')
       rect.setAttribute('fill','white')
       svg.appendChild(rect)
+   //
+   // graphical element
+   //
    var g = document.createElementNS(svgNS,'g')
       svg.appendChild(g)
+   //
+   // frame
+   //
    var polyline = document.createElementNS(svgNS,'polyline')
       polyline.setAttribute('stroke','red')
       polyline.setAttribute('stroke-width','0.01')
@@ -150,6 +162,9 @@ function save_mask(path) {
          (imgwidth+2.1)+',0.5 '+
          '0.5,0.5')
       g.appendChild(polyline)
+   //
+   // registration circles
+   //
    var circle = document.createElementNS(svgNS,'circle')
       circle.setAttribute('cx','1')
       circle.setAttribute('cy','1')
@@ -182,6 +197,9 @@ function save_mask(path) {
       circle.setAttribute('stroke-width','0.01')
       circle.setAttribute('fill','none')
       g.appendChild(circle)
+   //
+   // name
+   //
    var name = mod.imageInfo.name+'.'+mod.palette[mod.index][0]
    name += '.'+mod.palette[mod.index][1]
    name += '.'+mod.palette[mod.index][2]
@@ -197,43 +215,34 @@ function save_mask(path) {
       text.setAttribute('dy','.2')
       text.textContent = name
       svg.appendChild(text)
+   //
+   // mask
+   //
+   for (var seg = 0; seg < path.length; ++seg) {
+      var points = ''
+      for (var pt = 0; pt < path[seg].length; ++ pt) {
+         var x = 1.5+imgwidth*path[seg][pt][0]/(mod.image.width-1)
+         var y = 1.5+imgheight*path[seg][pt][1]/(mod.image.height-1)
+         points += x+','+y+' '
+         }
+      var x = 1.5+imgwidth*path[seg][0][0]/(mod.image.width-1)
+      var y = 1.5+imgheight*path[seg][0][1]/(mod.image.height-1)
+      points += x+','+y+' '
+      var polyline = document.createElementNS(svgNS,'polyline')
+         polyline.setAttribute('stroke','none')
+         polyline.setAttribute('fill','black')
+         polyline.setAttribute('points',points)
+         g.appendChild(polyline)
+      }
+   //
+   // file
+   //
    var obj = {}
    obj.type = 'file'
    obj.name = name+'.svg'
    var xml = new XMLSerializer().serializeToString(svg)
    obj.contents = xml
    outputs.SVG.event(obj)
-
-   /*
-   var html = svg.outerHTML
-   var blob = new Blob([html],{type:"image/svg+xml;charset=utf-8"})
-   var url = URL.createObjectURL(blob)
-
-<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="20.775555833298615in" height="17.22044466663889in" viewBox="0 0 20.775555833298615 17.22044466663889" style="background-color: rgb(255, 255, 255);">
-
-<rect x="0" y="0" width="20.775555833298615" height="17.22044466663889" stroke="none" fill="white">
-</rect>
-
-<g>
-<polyline stroke="red" stroke-width="0.01" stroke-linecap="round" fill="none" points="0.5,0.5 0.5,16.72044466663889 20.275555833298615,16.72044466663889 20.275555833298615,0.9 19.875555833298616,0.5 0.5,0.5"></polyline>
-<circle cx="1" cy="1" r="0.125" stroke="red" stroke-width="0.01" fill="none"></circle>
-<circle cx="1" cy="16.22044466663889" r="0.125" stroke="red" stroke-width="0.01" fill="none"></circle>
-<circle cx="19.775555833298615" cy="16.22044466663889" r="0.125" stroke="red" stroke-width="0.01" fill="none"></circle>
-<circle cx="19.775555833298615" cy="1" r="0.125" stroke="red" stroke-width="0.01" fill="none"></circle>
-</g>
-
-<text id="{&quot;id&quot;:&quot;0.5742729124908725&quot;,&quot;type&quot;:&quot;interface&quot;}svgtext" x="10.387777916649307" y="1" fill="red" font-size=".5" text-anchor="middle" dy=".2">vector
-</text>
-
-<polyline stroke="none" fill="black" points="3,12 6,7 9,12 3,12">
-</polyline>
-
-<polyline stroke="none" fill="black" points="12,12 12,7 18,7 18,12 12,12">
-</polyline>
-
-</svg>
-
-   */
    }
 //
 // return values
