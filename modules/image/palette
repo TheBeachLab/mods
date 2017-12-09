@@ -41,15 +41,13 @@ var inputs = {
          var ctx = mod.convert.getContext("2d")
          ctx.canvas.width = mod.input.width
          ctx.canvas.height = mod.input.height 
-         if (mod.originalspan.style.fontWeight == 'bold')
-            show_original()
-         else
-            show_palette()
+         show_palette()
          }
       },
    palette:{type:'text',
       event:function(evt){
          mod.palette.value = evt.detail
+         show_palette()
          }
       }
    }
