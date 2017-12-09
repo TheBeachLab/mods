@@ -41,10 +41,7 @@ var inputs = {
          var ctx = mod.convert.getContext("2d")
          ctx.canvas.width = mod.input.width
          ctx.canvas.height = mod.input.height 
-         if (mod.originalspan.style.fontWeight == 'bold')
-            show_original()
-         else
-            show_separation()
+         show_separation()
          }
       },
    color:{type:'RGB',

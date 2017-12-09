@@ -30,6 +30,11 @@ var init = function() {
 // inputs
 //
 var inputs = {
+   image:{type:'RGBA',
+      event:function(evt){
+         mod.image = evt.detail
+         mod.labelspan.style.fontWeight = 'bold'         
+         }},
    imageInfo:{type:'object',
       event:function(evt){
          mod.imageInfo = evt.detail
@@ -40,12 +45,17 @@ var inputs = {
          }},
    path:{type:'array',
       event:function(evt){
-         mod.path = evt.detail
+console.log('got path')
+         make_mask(evt.detail)
          }}}
 //
 // outputs
 //
 var outputs = {
+   image:{type:'RGBA',
+      event:function(){
+         mods.output(mod,'image',mod.image)
+         }},
    color:{type:'RGB',
       event:function(evt){
          mods.output(mod,'color',evt)
@@ -68,7 +78,9 @@ var interface = function(div){
          mod.labelspan = span
          btn.appendChild(span)
       btn.addEventListener('click',function(){
-         calculate_masks()
+         mod.index = 0
+         outputs.color.event(mod.palette[mod.index])
+         outputs.image.event()
          })
       div.appendChild(btn)
    div.appendChild(document.createElement('br'))
@@ -76,11 +88,15 @@ var interface = function(div){
 //
 // local functions
 //
-// calculate_masks
 //
-function calculate_masks() {
-   for (var i = 0; i < mod.palette.length; ++i) {
-      outputs.color.event(mod.palette[i])
+// make_mask
+//
+function make_mask(path) {
+console.log('making mask')
+   if (mod.index < (mod.palette.length-1)) {
+      mod.index += 1
+      outputs.color.event(mod.palette[mod.index])
+      outputs.image.event()
       }
    }
 //
