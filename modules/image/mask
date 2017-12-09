@@ -182,7 +182,6 @@ function save_mask(path) {
       circle.setAttribute('stroke-width','0.01')
       circle.setAttribute('fill','none')
       g.appendChild(circle)
-
    var name = mod.imageInfo.name+'.'+mod.palette[mod.index][0]
    name += '.'+mod.palette[mod.index][1]
    name += '.'+mod.palette[mod.index][2]
@@ -198,20 +197,17 @@ function save_mask(path) {
       text.setAttribute('dy','.2')
       text.textContent = name
       svg.appendChild(text)
-
    var obj = {}
    obj.type = 'file'
-   obj.name = 'my.svg'
+   obj.name = name+'.svg'
    var xml = new XMLSerializer().serializeToString(svg)
    obj.contents = xml
    outputs.SVG.event(obj)
-
    /*
    var html = svg.outerHTML
    var blob = new Blob([html],{type:"image/svg+xml;charset=utf-8"})
    var url = URL.createObjectURL(blob)
    */
-
    }
 //
 // return values
