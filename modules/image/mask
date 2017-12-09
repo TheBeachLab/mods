@@ -45,7 +45,6 @@ var inputs = {
          }},
    path:{type:'array',
       event:function(evt){
-console.log('got path')
          make_mask(evt.detail)
          }}}
 //
@@ -92,12 +91,13 @@ var interface = function(div){
 // make_mask
 //
 function make_mask(path) {
-console.log('making mask')
    if (mod.index < (mod.palette.length-1)) {
       mod.index += 1
       outputs.color.event(mod.palette[mod.index])
       outputs.image.event()
       }
+   else
+      mod.labelspan.style.fontWeight = 'normal'         
    }
 //
 // save_svg_masks
