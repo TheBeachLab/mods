@@ -27,6 +27,7 @@ var name = 'color separation'
 var init = function() {
    mod.input = null
    mod.color.value = '[255,0,0]'
+   mod.fill.checked = false
    }
 //
 // inputs
@@ -152,9 +153,19 @@ var interface = function(div){
    div.appendChild(document.createTextNode('color: '))
    var input = document.createElement('input')
       input.type = 'text'
-      input.size = 6
+      input.size = 10
       div.appendChild(input)
       mod.color = input
+   div.appendChild(document.createElement('br'))
+   //
+   // edges
+   //
+   div.appendChild(document.createTextNode('fill edges: '))
+   var input = document.createElement('input')
+      input.type = 'checkbox'
+      input.id = mod.div.id+'fill'
+      div.appendChild(input)
+      mod.fill = input
    div.appendChild(document.createElement('br'))
    }
 //
@@ -224,7 +235,7 @@ function show_separation() {
    var color = JSON.parse(mod.color.value)
    webworker.postMessage({
       height:mod.input.height,width:mod.input.width,color:color,
-      buffer:img.data.buffer},
+      fill:mod.fill.checked,buffer:img.data.buffer},
       [img.data.buffer])
    }
 //
@@ -235,6 +246,7 @@ function separation_worker() {
       var h = evt.data.height
       var w = evt.data.width
       var color = evt.data.color
+      var fill = evt.data.fill
       var buf = new Uint8ClampedArray(evt.data.buffer)
       var r,g,b,a,rc,gc,bc
       var cmin,dmin,d
@@ -259,6 +271,32 @@ function separation_worker() {
                buf[(h-1-row)*w*4+col*4+2] = 0
                buf[(h-1-row)*w*4+col*4+3] = 255
                }
+            }
+         }
+      if (fill == true) {
+         for (var row = 0; row < h; ++row) {
+            col = 0
+            buf[(h-1-row)*w*4+col*4+0] = 0
+            buf[(h-1-row)*w*4+col*4+1] = 0
+            buf[(h-1-row)*w*4+col*4+2] = 0
+            buf[(h-1-row)*w*4+col*4+3] = 255
+            col = w-1
+            buf[(h-1-row)*w*4+col*4+0] = 0
+            buf[(h-1-row)*w*4+col*4+1] = 0
+            buf[(h-1-row)*w*4+col*4+2] = 0
+            buf[(h-1-row)*w*4+col*4+3] = 255
+            }
+         for (var col = 0; col < w; ++col) {
+            row = 0
+            buf[(h-1-row)*w*4+col*4+0] = 0
+            buf[(h-1-row)*w*4+col*4+1] = 0
+            buf[(h-1-row)*w*4+col*4+2] = 0
+            buf[(h-1-row)*w*4+col*4+3] = 255
+            row = h-1
+            buf[(h-1-row)*w*4+col*4+0] = 0
+            buf[(h-1-row)*w*4+col*4+1] = 0
+            buf[(h-1-row)*w*4+col*4+2] = 0
+            buf[(h-1-row)*w*4+col*4+3] = 255
             }
          }
       self.postMessage({buffer:buf.buffer},[buf.buffer])

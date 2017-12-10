@@ -25,6 +25,7 @@ var name = 'image mask'
 // initialization
 //
 var init = function() {
+   mod.fill.checked = true
    }
 //
 // inputs
@@ -68,6 +69,9 @@ var outputs = {
 //
 var interface = function(div){
    mod.div = div
+   //
+   // button
+   //
    var btn = document.createElement('button')
       btn.style.padding = mods.ui.padding
       btn.style.margin = 1
@@ -83,6 +87,16 @@ var interface = function(div){
          outputs.image.event()
          })
       div.appendChild(btn)
+   div.appendChild(document.createElement('br'))
+   //
+   // fill
+   //
+   div.appendChild(document.createTextNode('fill masks: '))
+   var input = document.createElement('input')
+      input.type = 'checkbox'
+      input.id = mod.div.id+'fill'
+      div.appendChild(input)
+      mod.fill = input
    div.appendChild(document.createElement('br'))
    }
 //
@@ -143,13 +157,10 @@ function save_mask(path) {
       rect.setAttribute('fill','white')
       svg.appendChild(rect)
    //
-   // graphical element
+   // registration
    //
    var g = document.createElementNS(svgNS,'g')
       svg.appendChild(g)
-   //
-   // frame
-   //
    var polyline = document.createElementNS(svgNS,'polyline')
       polyline.setAttribute('stroke','red')
       polyline.setAttribute('stroke-width','0.01')
@@ -162,9 +173,6 @@ function save_mask(path) {
          (imgwidth+2.1)+',0.5 '+
          '0.5,0.5')
       g.appendChild(polyline)
-   //
-   // registration circles
-   //
    var circle = document.createElementNS(svgNS,'circle')
       circle.setAttribute('cx','1')
       circle.setAttribute('cy','1')
@@ -218,21 +226,35 @@ function save_mask(path) {
    //
    // mask
    //
+   var g = document.createElementNS(svgNS,'g')
+      svg.appendChild(g)
    for (var seg = 0; seg < path.length; ++seg) {
       var points = ''
       for (var pt = 0; pt < path[seg].length; ++ pt) {
          var x = 1.5+imgwidth*path[seg][pt][0]/(mod.image.width-1)
-         var y = 1.5+imgheight*path[seg][pt][1]/(mod.image.height-1)
+         var y = 1.5+imgheight*(1-path[seg][pt][1]/(mod.image.height-1))
          points += x+','+y+' '
          }
       var x = 1.5+imgwidth*path[seg][0][0]/(mod.image.width-1)
-      var y = 1.5+imgheight*path[seg][0][1]/(mod.image.height-1)
+      var y = 1.5+imgheight*(1-path[seg][0][1]/(mod.image.height-1))
       points += x+','+y+' '
-      var polyline = document.createElementNS(svgNS,'polyline')
-         polyline.setAttribute('stroke','none')
-         polyline.setAttribute('fill','black')
-         polyline.setAttribute('points',points)
-         g.appendChild(polyline)
+      if (mod.fill.checked == true) {
+         var polyline = document.createElementNS(svgNS,'polyline')
+            polyline.setAttribute('stroke','none')
+            polyline.setAttribute('fill','black')
+            polyline.setAttribute('fill-rule','evenodd')
+            polyline.setAttribute('points',points)
+            g.appendChild(polyline)
+         }
+      else {
+         var polyline = document.createElementNS(svgNS,'polyline')
+            polyline.setAttribute('stroke','black')
+            polyline.setAttribute('stroke-width','0.01')
+            polyline.setAttribute('stroke-linecap','round')
+            polyline.setAttribute('fill','none')
+            polyline.setAttribute('points',points)
+            g.appendChild(polyline)
+         }
       }
    //
    // file
