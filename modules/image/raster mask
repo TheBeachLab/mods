@@ -1,5 +1,5 @@
 //
-// image mask
+// raster mask
 //
 // Neil Gershenfeld 
 // (c) Massachusetts Institute of Technology 2017
@@ -20,7 +20,7 @@ var mod = {}
 //
 // name
 //
-var name = 'image mask'
+var name = 'raster mask'
 //
 // initialization
 //
@@ -39,12 +39,15 @@ var inputs = {
       event:function(evt){
          mod.image = evt.detail
          mod.labelspan.style.fontWeight = 'bold'         
+         var ctx = mod.convert.getContext("2d")
+         ctx.canvas.width = mod.image.width
+         ctx.canvas.height = mod.image.height 
          }},
    palette:{type:'text',
       event:function(evt){
          mod.palette = JSON.parse(evt.detail)
          }},
-   path:{type:'array',
+   mask:{type:'RGBA',
       event:function(evt){
          make_mask(evt.detail)
          }}}
@@ -69,6 +72,11 @@ var outputs = {
 //
 var interface = function(div){
    mod.div = div
+   //
+   // off-screen conversion canvas
+   //
+   var canvas = document.createElement('canvas')
+      mod.convert = canvas
    //
    // button
    //
@@ -223,8 +231,24 @@ function save_mask(path) {
       text.setAttribute('dy','.2')
       text.textContent = name
       svg.appendChild(text)
+      
    //
-   // mask
+   // raster mask
+   //
+   var ctx = mod.convert.getContext("2d")
+   ctx.putImageData(imgdata,0,0)
+   var href = mod.convert.toDataURL()
+   var img = document.createElementNS(svgNS,'image')
+      img.setAttribute('id',mod.div.id+'svgimg')
+      img.setAttribute('x','1.5')
+      img.setAttribute('y','1.5')
+      img.setAttribute('width',imgwidth)
+      img.setAttribute('height',imgheight)
+      img.setAttributeNS('http://www.w3.org/1999/xlink','href',href)
+      svg.appendChild(img)
+
+   //
+   // vector mask
    //
    var g = document.createElementNS(svgNS,'g')
       svg.appendChild(g)
@@ -256,6 +280,7 @@ function save_mask(path) {
             g.appendChild(polyline)
          }
       }
+
    //
    // file
    //
