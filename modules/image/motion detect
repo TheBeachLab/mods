@@ -20,11 +20,14 @@ var mod = {}
 //
 // name
 //
-var name = 'image motion detect'
+var name = 'motion detect'
 //
 // initialization
 //
 var init = function() {
+   mod.threshold.value = 0.1
+   mod.time.value = 15
+   timeout()
    }
 //
 // inputs
@@ -56,7 +59,7 @@ var outputs = {
          mods.output(mod,'imageInfo',obj)}},
    trigger:{type:'event',
       event:function(){
-         mods.output(mod,'image',img)}}}
+         mods.output(mod,'trigger',null)}}}
 //
 // interface
 //
@@ -108,28 +111,34 @@ var interface = function(div){
    // info div
    //
    var info = document.createElement('div')
-      info.appendChild(document.createElement('br'))
-      var text = document.createTextNode('change (0-1): ')
+      var text = document.createTextNode('relative change: ')
          info.appendChild(text)
          mod.change = text
-      info.appendChild(document.createTextNode('threshold (0-1): '))
+      info.appendChild(document.createElement('br'))
+      info.appendChild(document.createTextNode('threshold: '))
       var input = document.createElement('input')
          input.type = 'text'
          input.size = 6
          info.appendChild(input)
          mod.threshold = input
+      info.appendChild(document.createTextNode(' (0-1)'))
       info.appendChild(document.createElement('br'))
-      info.appendChild(document.createTextNode('latency (s): '))
+      info.appendChild(document.createTextNode('latency: '))
       var input = document.createElement('input')
          input.type = 'text'
          input.size = 6
          info.appendChild(input)
          mod.time = input
+      info.appendChild(document.createTextNode(' (s)'))
       div.appendChild(info)
    }
 //
 // local functions
 //
+function timeout() {
+   outputs.trigger.event()
+   setTimeout(timeout,parseFloat(mod.time.value)*1000)
+   }
 function convert_image() {
    //
    // preview
