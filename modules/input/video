@@ -146,26 +146,20 @@ function start_video() {
    var ctx = mod.img.getContext("2d")
    ctx.canvas.width = w
    ctx.canvas.height = h
-   navigator.getMedia = (
-      navigator.getUserMedia ||
-      navigator.webkitGetUserMedia ||
-      navigator.mozGetUserMedia ||
-      navigator.msGetUserMedia)
-   navigator.getMedia(
-      {video:true,audio:false},
-      function(stream) {
-         var vendorURL = window.URL || window.webkitURL
-         mod.video.src = vendorURL.createObjectURL(stream)
-         mod.video.play()
-         },
-      function(err) {console.log("video startup error")}
-      )
-    mod.video.addEventListener('canplay',
-       function(evt) {
-          mod.video.setAttribute('width',w)
-          mod.video.setAttribute('height',h)
-          capture_video()
-          })
+   var constraints = {
+      audio:false,
+      video:{width:w,height:h}
+      }
+   navigator.mediaDevices.getUserMedia(constraints)
+      .then(function(stream) {
+         mod.video.srcObject = stream
+         mod.video.onloadedmetadata = function(e) {
+            mod.video.play()
+            }
+         })
+      .catch(function(err) {
+         console.log(err.name + ": "+err.message)
+         })
    }
 function update_video() {
    var w = parseInt(mod.width.value)
