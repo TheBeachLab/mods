@@ -1,5 +1,5 @@
 //
-// convert rgba png
+// motion detect
 //
 // Neil Gershenfeld 
 // (c) Massachusetts Institute of Technology 2017
@@ -20,13 +20,11 @@ var mod = {}
 //
 // name
 //
-var name = 'convert RGBA to PNG'
+var name = 'image motion detect'
 //
 // initialization
 //
 var init = function() {
-   mod.nametext.value = "file.png"
-   mod.dpitext.value = 100
    }
 //
 // inputs
@@ -40,19 +38,25 @@ var inputs = {
          ctx.putImageData(evt.detail,0,0)
          mod.pxtext.nodeValue = evt.detail.width+' x '+evt.detail.height+' px'
          convert_image()
-         }},
-   imageInfo:{type:'object',
-      event:function(evt){
-         mod.nametext.value = evt.detail.name
-         mod.dpitext.value = evt.detail.dpi
-         update_info()
-         }}
-   }
+         }}}
 //
 // outputs
 //
 var outputs = {
-   }
+   image:{type:'RGBA',
+      event:function(){
+         mods.output(mod,'image',img)}},
+   imageInfo:{type:'object',
+      event:function(){
+         var obj = {}
+         obj.name = mod.name.nodeValue
+         obj.dpi = parseFloat(mod.dpitext.value)
+         obj.width = mod.img.width
+         obj.height = mod.img.height
+         mods.output(mod,'imageInfo',obj)}},
+   trigger:{type:'event',
+      event:function(){
+         mods.output(mod,'image',img)}}}
 //
 // interface
 //
@@ -104,40 +108,23 @@ var interface = function(div){
    // info div
    //
    var info = document.createElement('div')
-      info.appendChild(document.createTextNode('file name: '))
+      info.appendChild(document.createElement('br'))
+      var text = document.createTextNode('change (0-1): ')
+         info.appendChild(text)
+         mod.change = text
+      info.appendChild(document.createTextNode('threshold (0-1): '))
       var input = document.createElement('input')
          input.type = 'text'
          input.size = 6
          info.appendChild(input)
-         mod.nametext = input
+         mod.threshold = input
       info.appendChild(document.createElement('br'))
-      info.appendChild(document.createTextNode('dpi: '))
+      info.appendChild(document.createTextNode('latency (s): '))
       var input = document.createElement('input')
          input.type = 'text'
          input.size = 6
-         input.addEventListener('input',function(){
-            mod.dpi = parseFloat(mod.dpitext.value)
-            mod.mmtext.nodeValue = (25.4*mod.img.width/mod.dpi).toFixed(3)
-               +' x '+(25.4*mod.img.height/mod.dpi).toFixed(3)+' mm'
-            mod.intext.nodeValue = (mod.img.width/mod.dpi).toFixed(3)
-               +' x '+(mod.img.height/mod.dpi).toFixed(3)+' in'
-            outputs.imageInfo.event()
-            })
          info.appendChild(input)
-         mod.dpitext = input
-      info.appendChild(document.createElement('br'))
-      var text = document.createTextNode('px: ')
-         info.appendChild(text)
-         mod.pxtext = text
-      info.appendChild(document.createElement('br'))
-      var text = document.createTextNode('mm: ')
-         info.appendChild(text)
-         mod.mmtext = text
-      info.appendChild(document.createElement('br'))
-      var text = document.createTextNode('in: ')
-         info.appendChild(text)
-         mod.intext = text
-      info.appendChild(document.createElement('br'))
+         mod.time = input
       div.appendChild(info)
    }
 //
