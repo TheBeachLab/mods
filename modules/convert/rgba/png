@@ -32,15 +32,18 @@ var init = function() {
 var inputs = {
    image:{type:'RGBA',
       event:function(evt){
-         mod.input = evt.detail
          var ctx = mod.img.getContext("2d")
-         ctx.canvas.width = mod.input.width
-         ctx.canvas.height = mod.input.height 
-         ctx.putImageData(mod.input,0,0)
+         ctx.canvas.width = evt.detail.width
+         ctx.canvas.height = evt.detail.height 
+         ctx.putImageData(evt.detail,0,0)
+         mod.pxtext.nodeValue = evt.detail.width+' x '+evt.detail.height+' px'
          convert_image()
          }},
    imageInfo:{type:'object',
-      event:function(){
+      event:function(evt){
+         mod.nametext.value = evt.detail.name
+         mod.dpitext.value = evt.detail.dpi
+         update_info()
          }}
    }
 //
@@ -103,6 +106,15 @@ var interface = function(div){
    //
    var info = document.createElement('div')
       info.setAttribute('id',div.id+'info')
+      info.appendChild(document.createTextNode('file name: '))
+      var input = document.createElement('input')
+         input.type = 'text'
+         input.size = 6
+         input.addEventListener('input',function(){
+            })
+         info.appendChild(input)
+         mod.nametext = input
+      info.appendChild(document.createElement('br'))
       info.appendChild(document.createTextNode('dpi: '))
       var input = document.createElement('input')
          input.type = 'text'
@@ -130,9 +142,6 @@ var interface = function(div){
          info.appendChild(text)
          mod.intext = text
       info.appendChild(document.createElement('br'))
-      var text = document.createTextNode('')
-         info.appendChild(text)
-         mod.name = text
       div.appendChild(info)
    }
 //
@@ -156,6 +165,13 @@ function convert_image() {
    var ctx = mod.canvas.getContext("2d")
    ctx.clearRect(0,0,mod.canvas.width,mod.canvas.height)
    ctx.drawImage(mod.img,x0,y0,wd,hd)
+   }
+function update_info() {
+   mod.dpi = parseFloat(mod.dpitext.value)
+   mod.mmtext.nodeValue = (25.4*mod.img.width/mod.dpi).toFixed(3)
+      +' x '+(25.4*mod.img.height/mod.dpi).toFixed(3)+' mm'
+   mod.intext.nodeValue = (mod.img.width/mod.dpi).toFixed(3)
+      +' x '+(mod.img.height/mod.dpi).toFixed(3)+' in'
    }
 // return values
 //
