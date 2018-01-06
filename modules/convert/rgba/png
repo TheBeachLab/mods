@@ -25,6 +25,8 @@ var name = 'convert RGBA to PNG'
 // initialization
 //
 var init = function() {
+   mod.nametext.value = "file.png"
+   mod.dpitext.value = 100
    }
 //
 // inputs
@@ -50,9 +52,6 @@ var inputs = {
 // outputs
 //
 var outputs = {
-   PNG:{type:'file',
-      event:function(){
-         }}
    }
 //
 // interface
@@ -148,6 +147,9 @@ var interface = function(div){
 // local functions
 //
 function convert_image() {
+   //
+   // preview
+   //
    var h = mod.img.height
    var w = mod.img.width
    if (w > h) {
@@ -165,6 +167,19 @@ function convert_image() {
    var ctx = mod.canvas.getContext("2d")
    ctx.clearRect(0,0,mod.canvas.width,mod.canvas.height)
    ctx.drawImage(mod.img,x0,y0,wd,hd)
+   //
+   // convert
+   //
+   var URL = mod.img.toDataURL('image/png')
+   //
+   // save
+   //
+   var link = document.createElement('a')
+   link.download = mod.nametext.value
+   link.href = URL
+   document.body.appendChild(link)
+   link.click()
+   document.body.removeChild(link)
    }
 function update_info() {
    mod.dpi = parseFloat(mod.dpitext.value)
