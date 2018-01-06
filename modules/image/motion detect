@@ -179,9 +179,6 @@ function compare_images() {
    var ctx = mod.lastimg.getContext("2d")
    var lastimg = ctx.getImageData(0,0,mod.img.width,mod.img.height)
    var t = parseFloat(mod.threshold.value)
-   //
-   // transfer?
-   //
    webworker.postMessage({
       height:mod.img.height,width:mod.img.width,threshold:t,
       buffer:img.data.buffer,lastbuffer:lastimg.data.buffer})
