@@ -148,7 +148,7 @@ function timeout() {
    setTimeout(timeout,parseFloat(mod.time.value)*1000)
    }
 function compare_images() {
-   mod.change.nodeValue = Date.now()
+   //mod.change.nodeValue = Date.now()
    var blob = new Blob(['('+worker.toString()+'())'])
    var url = window.URL.createObjectURL(blob)
    var webworker = new Worker(url)
@@ -156,12 +156,7 @@ function compare_images() {
       window.URL.revokeObjectURL(url)
       var h = mod.img.height
       var w = mod.img.width
-      /*
-      var buf = new Uint8ClampedArray(evt.data.buffer)
-      var imgdata = new ImageData(buf,w,h)
-      var ctx = mod.img.getContext("2d")
-      ctx.putImageData(imgdata,0,0)
-      */
+      mod.change.nodeValue = 'relative change: '+evt.data.change.toFixed(3)
       if (w > h) {
          var x0 = 0
          var y0 = mod.canvas.height*.5*(1-h/w)
@@ -198,7 +193,22 @@ function worker() {
       var t = evt.data.threshold
       var buf = new Uint8ClampedArray(evt.data.buffer)
       var lastbuf = new Uint8ClampedArray(evt.data.lastbuffer)
-      self.postMessage({buffer:buf.buffer})
+      var change = 0
+      for (var row = 0; row < h; ++row) {
+         for (var col = 0; col < w; ++col) {
+            r = buf[(h-1-row)*w*4+col*4+0] 
+            g = buf[(h-1-row)*w*4+col*4+1] 
+            b = buf[(h-1-row)*w*4+col*4+2] 
+            rl = lastbuf[(h-1-row)*w*4+col*4+0] 
+            gl = lastbuf[(h-1-row)*w*4+col*4+1] 
+            bl = lastbuf[(h-1-row)*w*4+col*4+2] 
+            change += (Math.abs(r-rl)/255 
+               +Math.abs(g-gl)/255
+               +Math.abs(b-bl)/255)/3
+            }
+         }
+      change = change/(w*h)
+      self.postMessage({change:change})
       })
    }
 // return values
