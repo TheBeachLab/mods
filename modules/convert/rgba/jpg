@@ -1,5 +1,5 @@
 //
-// convert rgba png
+// convert rgba jpg
 //
 // Neil Gershenfeld 
 // (c) Massachusetts Institute of Technology 2017
@@ -20,12 +20,13 @@ var mod = {}
 //
 // name
 //
-var name = 'convert RGBA to PNG'
+var name = 'convert RGBA to JPG'
 //
 // initialization
 //
 var init = function() {
-   mod.name.value = "file.png"
+   mod.name.value = "file.jpg"
+   mod.compress.value = .75
    }
 //
 // inputs
@@ -42,7 +43,7 @@ var inputs = {
          }},
    imageInfo:{type:'object',
       event:function(evt){
-         mod.name.value = evt.detail.name+'.png'
+         mod.name.value = evt.detail.name+'.jpg'
          }}
    }
 //
@@ -108,6 +109,14 @@ var interface = function(div){
          info.appendChild(input)
          mod.name = input
       info.appendChild(document.createElement('br'))
+      info.appendChild(document.createTextNode('compression: '))
+      var input = document.createElement('input')
+         input.type = 'text'
+         input.size = 6
+         info.appendChild(input)
+         mod.compress = input
+      info.appendChild(document.createTextNode(' (0-1)'))
+      info.appendChild(document.createElement('br'))
       var text = document.createTextNode('px: ')
          info.appendChild(text)
          mod.pxtext = text
@@ -149,7 +158,7 @@ function convert_image() {
       link.click()
       document.body.removeChild(link)
       URL.revokeObjectURL(url)
-      },'image/png')
+      },'image/jpeg',parseFloat(mod.compress.value))
    }
 //
 // return values

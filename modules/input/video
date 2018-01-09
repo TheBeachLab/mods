@@ -131,10 +131,18 @@ var interface = function(div){
       mod.height = input
    div.appendChild(document.createElement('br'))
    //
+   // flip
+   //
+   div.appendChild(document.createTextNode('flip image: '))
+   var input = document.createElement('input')
+      input.type = 'checkbox'
+      div.appendChild(input)
+      mod.flip = input
+   div.appendChild(document.createElement('br'))
+   //
    // video element
    //
    var video = document.createElement('video')
-      //div.appendChild(video)
       mod.video = video
    }
 //
@@ -175,22 +183,67 @@ function capture_video() {
    var h = parseInt(mod.height.value)
    var ctx = mod.img.getContext("2d")
    ctx.drawImage(mod.video,0,0,w,h)
-   if (w > h) {
-      var x0 = 0
-      var y0 = mod.canvas.height*.5*(1-h/w)
-      var wd = mod.canvas.width
-      var hd = mod.canvas.width*h/w
-      }
-   else {
-      var x0 = mod.canvas.width*.5*(1-w/h)
-      var y0 = 0
-      var wd = mod.canvas.height*w/h
-      var hd = mod.canvas.height
-      }
-   var ctx = mod.canvas.getContext("2d")
-   ctx.clearRect(0,0,mod.canvas.width,mod.canvas.height)
-   ctx.drawImage(mod.img,x0,y0,wd,hd)
-   outputs.image.event()
+   var blob = new Blob(['('+worker.toString()+'())'])
+   var url = window.URL.createObjectURL(blob)
+   var webworker = new Worker(url)
+   webworker.addEventListener('message',function(evt) {
+      window.URL.revokeObjectURL(url)
+      var h = mod.img.height
+      var w = mod.img.width
+      var buf = new Uint8ClampedArray(evt.data.buffer)
+      var imgdata = new ImageData(buf,w,h)
+      var ctx = mod.img.getContext("2d")
+      ctx.putImageData(imgdata,0,0)
+      if (w > h) {
+         var x0 = 0
+         var y0 = mod.canvas.height*.5*(1-h/w)
+         var wd = mod.canvas.width
+         var hd = mod.canvas.width*h/w
+         }
+      else {
+         var x0 = mod.canvas.width*.5*(1-w/h)
+         var y0 = 0
+         var wd = mod.canvas.height*w/h
+         var hd = mod.canvas.height
+         }
+      var ctx = mod.canvas.getContext("2d")
+      ctx.clearRect(0,0,mod.canvas.width,mod.canvas.height)
+      ctx.drawImage(mod.img,x0,y0,wd,hd)
+      outputs.image.event()
+      webworker.terminate()
+      })
+   var ctx = mod.img.getContext("2d")
+   var img = ctx.getImageData(0,0,mod.img.width,mod.img.height)
+   webworker.postMessage({
+      height:mod.img.height,width:mod.img.width,
+      checked:mod.flip.checked,
+      buffer:img.data.buffer},[img.data.buffer])
+   }
+function worker() {
+   self.addEventListener('message',function(evt) {
+      var h = evt.data.height
+      var w = evt.data.width
+      var checked = evt.data.checked
+      var buf = new Uint8ClampedArray(evt.data.buffer)
+      if (checked == true) {
+         var newbuf = new Uint8ClampedArray(buf.length)
+         for (var row = 0; row < h; ++row) {
+            for (var col = 0; col < w; ++col) {
+               newbuf[(h-1-row)*w*4+col*4+0] = 
+                  buf[row*w*4+(w-1-col)*4+0] 
+               newbuf[(h-1-row)*w*4+col*4+1] = 
+                  buf[row*w*4+(w-1-col)*4+1]
+               newbuf[(h-1-row)*w*4+col*4+2] = 
+                  buf[row*w*4+(w-1-col)*4+2]
+               newbuf[(h-1-row)*w*4+col*4+3] = 
+                  buf[row*w*4+(w-1-col)*4+3]
+               }
+            }
+         self.postMessage({buffer:newbuf.buffer},[newbuf.buffer])
+         }
+      else
+         self.postMessage({buffer:buf.buffer},[buf.buffer])
+      })
    }
 //
 // return values
