@@ -86,16 +86,12 @@ var interface = function(div){
       mod.canvas = canvas
    div.appendChild(document.createElement('br'))
    //
-   // off-screen image canvas
+   // off-screen image canvases
    //
    var canvas = document.createElement('canvas')
       mod.img = canvas
-   //
-   // off-screen last image canvas
-   //
    var canvas = document.createElement('canvas')
       mod.lastimg = canvas
-   div.appendChild(document.createElement('br'))
    //
    // view button
    //
