@@ -105,7 +105,7 @@ var interface = function(div){
       btn.appendChild(document.createTextNode('view last image'))
       btn.addEventListener('click',function(){
          mod.win = window.open('')
-         mod.win.document.title = 'motion detect last image'
+         mod.win.document.title = 'last image'
          mod.win.document.body.style.overflow = 'hidden'
          mod.win.document.body.style.border = 0
          mod.win.document.body.style.padding = 0
