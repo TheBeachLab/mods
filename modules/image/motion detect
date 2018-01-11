@@ -33,6 +33,7 @@ var init = function() {
    mod.delay.value = 1
    mod.dpi = 100
    mod.win = null
+   mod.time = 0
    //
    // trigger image after latency (for start-up)
    //
@@ -182,13 +183,13 @@ function compare_images() {
       window.URL.revokeObjectURL(url)
       mod.changetext.nodeValue = 'relative change: '+evt.data.change.toFixed(3)
       mod.change = evt.data.change
+      var time = Date.now()
+      var dt = (time-mod.time)/1000
       //
-      // check if change > threshold
+      // check whether to save image
       //
-      if (mod.change > parseFloat(mod.threshold.value)) {
-         //
-         // yes, output image
-         //
+      if ((mod.change > parseFloat(mod.threshold.value))
+         && (dt > parseFloat(mod.latency.value))) {
          var obj = {}
          var date = new Date()
          var year = date.getFullYear()
@@ -204,18 +205,7 @@ function compare_images() {
          obj.height = mod.img.height
          outputs.imageInfo.event(obj)
          outputs.image.event()
-         //
-         // trigger next image after latency
-         //
-         setTimeout(outputs.trigger.event,
-            parseFloat(mod.latency.value)*1000)
-         }
-      else {
-         //
-         // no, trigger next image after delay
-         //
-         setTimeout(outputs.trigger.event,
-            parseFloat(mod.delay.value)*1000)
+         mod.time = time
          }
       //
       // update canvas
@@ -252,6 +242,11 @@ function compare_images() {
       // terminate worker
       //
       webworker.terminate()
+      //
+      // trigger next image
+      //
+      setTimeout(outputs.trigger.event,
+         parseFloat(mod.delay.value)*1000)
       })
    //
    // call worker
