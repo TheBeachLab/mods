@@ -29,17 +29,18 @@ var init = function() {
    // UI settings
    //
    mod.threshold.value = 0.025
-   mod.time.value = 15
+   mod.latency.value = 15
+   mod.delay.value = 1
    mod.dpi = 100
    //
    // open window for last image
    //
    open_window()
    //
-   // trigger image after initial delay
+   // trigger image after latency (for start-up)
    //
    setTimeout(outputs.trigger.event,
-      parseFloat(mod.time.value)*1000)
+      parseFloat(mod.latency.value)*1000)
    }
 //
 // inputs
@@ -118,7 +119,16 @@ var interface = function(div){
          input.type = 'text'
          input.size = 6
          info.appendChild(input)
-         mod.time = input
+         mod.latency = input
+      info.appendChild(document.createTextNode(' (s)'))
+      div.appendChild(info)
+      info.appendChild(document.createElement('br'))
+      info.appendChild(document.createTextNode('delay: '))
+      var input = document.createElement('input')
+         input.type = 'text'
+         input.size = 6
+         info.appendChild(input)
+         mod.delay = input
       info.appendChild(document.createTextNode(' (s)'))
       div.appendChild(info)
    }
@@ -175,16 +185,17 @@ function compare_images() {
          outputs.imageInfo.event(obj)
          outputs.image.event()
          //
-         // trigger next image after delay
+         // trigger next image after latency
          //
          setTimeout(outputs.trigger.event,
-            parseFloat(mod.time.value)*1000)
+            parseFloat(mod.latency.value)*1000)
          }
       else {
          //
-         // no, trigger next image immediately
+         // no, trigger next image after delay
          //
-         outputs.trigger.event()
+         setTimeout(outputs.trigger.event,
+            parseFloat(mod.delay.value)*1000)
          }
       //
       // update canvas
