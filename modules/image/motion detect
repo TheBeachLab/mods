@@ -163,11 +163,24 @@ function open_window() {
    mod.win.document.body.style.border = 0
    mod.win.document.body.style.padding = 0
    mod.win.document.body.style.margin = 0
+   var div = document.createElement('div')
+      div.style.position = "absolute"
+      div.style.top = "5%"
+      div.style.height = "95%"
+      div.style.left = "5%"
+      div.style.width = "90%"
+      div.style.textAlign = "center"
+      //div.setAttribute('id',mod.div.id+'div')
+      mod.win.document.body.appendChild(div)
+      mod.div.div = div
    var canvas = document.createElement('canvas')
-      canvas.width = mod.img.width
-      canvas.height = mod.img.height
-      canvas.setAttribute('id',mod.div.id+'canvas')
-      mod.win.document.body.appendChild(canvas)
+      canvas.style.width = "auto"
+      canvas.style.height = "auto"
+      canvas.style.maxWidth = "100%"
+      canvas.style.maxHeight = "100%"
+      //canvas.setAttribute('id',mod.div.id+'canvas')
+      div.appendChild(canvas)
+      mod.div.canvas = canvas
    }
 function compare_images() {
    //
@@ -231,9 +244,20 @@ function compare_images() {
       // update view window
       //
       if (mod.win != null) {
-         var canvas = mod.win.document.getElementById(mod.div.id+'canvas')
-         canvas.width = mod.img.width
-         canvas.height = mod.img.height
+         //var div = mod.win.document.getElementById(mod.div.id+'div')
+         var div = mod.div.div
+            div.style.position = "absolute"
+            div.style.top = "5%"
+            div.style.height = "95%"
+            div.style.left = "5%"
+            div.style.width = "90%"
+            div.style.textAlign = "center"
+         //var canvas = mod.win.document.getElementById(mod.div.id+'canvas')
+         var canvas = mod.div.canvas
+            canvas.style.width = "auto"
+            canvas.style.height = "auto"
+            canvas.style.maxWidth = "100%"
+            canvas.style.maxHeight = "100%"
          var ctx = canvas.getContext("2d")
          ctx.clearRect(0,0,mod.img.width,mod.img.height)
          ctx.drawImage(mod.img,0,0)
