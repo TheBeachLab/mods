@@ -2,7 +2,7 @@
 // mods.js
 //
 // Neil Gershenfeld
-// (c) Massachusetts Institute of Technology 2015,6,7
+// (c) Massachusetts Institute of Technology 2015,6,7,8
 //
 // This work may be reproduced, modified, distributed, performed, and
 // displayed for any purpose, but must acknowledge the mods
@@ -1064,6 +1064,11 @@ function nothing(evt) {
 //
 // link routines
 //
+mods.add_link = function(div) {
+   console.log(div)
+   console.log(div.id)
+   console.log(div.parentNode.id)
+   }
 function add_link(src,dst) {
    //
    // link order from out to in

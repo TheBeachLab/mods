@@ -2,7 +2,7 @@
 // create module
 //
 // Neil Gershenfeld 
-// (c) Massachusetts Institute of Technology 2017
+// (c) Massachusetts Institute of Technology 2018
 // 
 // This work may be reproduced, modified, distributed, performed, and 
 // displayed for any purpose, but must acknowledge the mods
@@ -20,7 +20,7 @@ var mod = {}
 //
 // name
 //
-var name = 'create'
+var name = 'create module'
 //
 // initialization
 //
@@ -30,11 +30,19 @@ var init = function() {
 // inputs
 //
 var inputs = {
+   input:{type:'object',
+      event:function(evt){
+         }
+      }
    }
 //
 // outputs
 //
 var outputs = {
+   output:{type:'object',
+      event:function(){
+         }
+      }
    }
 //
 // interface
@@ -50,13 +58,13 @@ var interface = function(div){
       btn.appendChild(document.createTextNode('create module'))
       btn.addEventListener('click',function(){
          var top = div.parentNode.dataset.top
-         var left = parseInt(div.parentNode.dataset.left)+parseInt(div.parentNode.clientWidth)/2
+         var left = parseInt(div.parentNode.dataset.left)+1.1*parseInt(div.parentNode.clientWidth)
          mods.create(`
 //
 // created module
 //
 // Neil Gershenfeld 
-// (c) Massachusetts Institute of Technology 2017
+// (c) Massachusetts Institute of Technology 2018
 // 
 // This work may be reproduced, modified, distributed, performed, and 
 // displayed for any purpose, but must acknowledge the mods
@@ -74,7 +82,7 @@ var mod = {}
 //
 // name
 //
-var name = 'created'
+var name = 'created module'
 //
 // initialization
 //
@@ -88,11 +96,19 @@ var init = function() {
 // inputs
 //
 var inputs = {
+   input:{type:'object',
+      event:function(evt){
+         }
+      }
    }
 //
 // outputs
 //
 var outputs = {
+   output:{type:'object',
+      event:function(){
+         }
+      }
    }
 //
 // interface
@@ -117,6 +133,7 @@ return ({
    })
 }())
             `)
+         mods.add_link(mod.div)
          })
       div.appendChild(btn)
    }
