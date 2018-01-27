@@ -230,18 +230,18 @@ function compare_images() {
       //
       if (mod.win != null) {
          var canvas = mod.win.document.getElementById(mod.div.id+'canvas')
-         canvas.style.width = "100%"
-         canvas.style.height = "100%"
-         var ww = mod.win.innerWidth
-         var wh = mod.win.innerHeight
+         canvas.width = mod.win.innerWidth
+         canvas.height = mod.win.innerHeight
+         var iw = mod.img.width
+         var ih = mod.img.height
          var cw = canvas.width
          var ch = canvas.height
          var ctx = canvas.getContext("2d")
          ctx.clearRect(0,0,cw,ch)
-         if ((ch/cw) > (wh/ww))
-            ctx.drawImage(mod.img,0,0,cw,ch)
+         if ((iw/ih) > (cw/ch))
+            ctx.drawImage(mod.img,0,0,cw,cw*ih/iw)
          else
-            ctx.drawImage(mod.img,0,0,cw,ch)
+            ctx.drawImage(mod.img,0,0,ch*iw/ih,ch)
          }
       //
       // terminate worker
