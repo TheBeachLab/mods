@@ -612,7 +612,8 @@ function mod_load_handler(event) {
    args.id = String(Math.random())
    args.top = 1.5*mods.ui.header
    args.left = 3*mods.ui.header
-   add_module(args)
+   var div = add_module(args)
+   return(div)
    }
 function add_module(args) {
    var idnumber = args.id
@@ -823,6 +824,10 @@ function add_module(args) {
       //
       container.style.width = divint.clientWidth+divin.clientWidth+divout.clientWidth
       mods.fit(divint)
+      //
+      // return container
+      //
+      return(container)
    }
 function delete_module(idnumber) {
    //
@@ -1064,10 +1069,28 @@ function nothing(evt) {
 //
 // link routines
 //
-mods.add_link = function(div) {
-   console.log(div)
-   console.log(div.id)
-   console.log(div.parentNode.id)
+mods.add_link = function(src,dst) {
+   console.log(src,dst)
+
+
+   var ins = document.getElementById(
+      JSON.stringify({id:idnumber,type:'inputs'}))
+   var outs = document.getElementById(
+      JSON.stringify({id:idnumber,type:'outputs'}))
+   for (var i = 1; i < ins.childNodes.length; ++i) {
+      var links = JSON.parse(ins.childNodes[i].dataset.links)
+      for (var l in links)
+         delete_link(links[l])
+      }
+   for (var i = 1; i < outs.childNodes.length; ++i) {
+      var links = JSON.parse(outs.childNodes[i].dataset.links)
+      for (var l in links)
+         delete_link(links[l])
+      }
+
+
+
+
    }
 function add_link(src,dst) {
    //
@@ -1221,7 +1244,8 @@ mods.output = function(mod,varname,val) {
 //
 mods.create = function(args) {
    var event = {target:{result:args}}
-   mod_load_handler(event)
+   var div = mod_load_handler(event)
+   return(div)
    }
 //
 // input event handlers
