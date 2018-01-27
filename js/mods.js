@@ -1070,27 +1070,7 @@ function nothing(evt) {
 // link routines
 //
 mods.add_link = function(src,dst) {
-   console.log(src,dst)
-
-
-   var ins = document.getElementById(
-      JSON.stringify({id:idnumber,type:'inputs'}))
-   var outs = document.getElementById(
-      JSON.stringify({id:idnumber,type:'outputs'}))
-   for (var i = 1; i < ins.childNodes.length; ++i) {
-      var links = JSON.parse(ins.childNodes[i].dataset.links)
-      for (var l in links)
-         delete_link(links[l])
-      }
-   for (var i = 1; i < outs.childNodes.length; ++i) {
-      var links = JSON.parse(outs.childNodes[i].dataset.links)
-      for (var l in links)
-         delete_link(links[l])
-      }
-
-
-
-
+   add_link(src,dst)
    }
 function add_link(src,dst) {
    //
