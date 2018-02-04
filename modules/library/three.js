@@ -1,5 +1,5 @@
 //
-// three.js library module
+// three.js library
 //
 // Neil Gershenfeld 
 // (c) Massachusetts Institute of Technology 2018
