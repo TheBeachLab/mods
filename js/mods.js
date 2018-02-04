@@ -1222,7 +1222,7 @@ mods.output = function(mod,varname,val) {
 //
 // module create call
 //
-mods.create = function(args) {
+mods.create_module = function(args) {
    var event = {target:{result:args}}
    var div = mod_load_handler(event)
    return(div)

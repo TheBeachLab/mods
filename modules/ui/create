@@ -59,7 +59,7 @@ var interface = function(div){
       btn.addEventListener('click',function(){
          var top = div.parentNode.dataset.top
          var left = parseInt(div.parentNode.dataset.left)+1.1*parseInt(div.parentNode.clientWidth)
-         var newnode = mods.create(`
+         var newnode = mods.create_module(`
 //
 // created module
 //
