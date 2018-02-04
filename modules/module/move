@@ -35,28 +35,16 @@ var inputs = {
       event:function(evt){
          switch (evt.detail) {
             case 'up':
-               var top = parseInt(mod.div.parentNode.style.top)
-               mod.div.parentNode.style.top = top-mod.step
-               mod.div.parentNode.dataset.top = top-mod.step
-               draw_links(mod.div.parentNode.id,mods.ui.link)
+               mods.move_module(mod.div.id,mod.step,0)
                break
             case 'down':
-               var top = parseInt(mod.div.parentNode.style.top)
-               mod.div.parentNode.style.top = top+mod.step
-               mod.div.parentNode.dataset.top = top+mod.step
-               draw_links(mod.div.parentNode.id,mods.ui.link)
+               mods.move_module(mod.div.id,-mod.step,0)
                break
             case 'left':
-               var left = parseInt(mod.div.parentNode.style.left)
-               mod.div.parentNode.style.left = left-mod.step
-               mod.div.parentNode.dataset.left = left-mod.step
-               draw_links(mod.div.parentNode.id,mods.ui.link)
+               mods.move_module(mod.div.id,0,-mod.step)
                break
             case 'right':
-               var left = parseInt(mod.div.parentNode.style.left)
-               mod.div.parentNode.style.left = left+mod.step
-               mod.div.parentNode.dataset.left = left+mod.step
-               draw_links(mod.div.parentNode.id,mods.ui.link)
+               mods.move_module(mod.div.id,0,mod.step)
                break
             }
          }}}

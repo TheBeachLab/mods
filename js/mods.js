@@ -1220,12 +1220,23 @@ mods.output = function(mod,varname,val) {
       }
    }
 //
-// module create call
+// module mod-ification calls
 //
 mods.create_module = function(args) {
    var event = {target:{result:args}}
    var div = mod_load_handler(event)
    return(div)
+   }
+mods.move_module = function(id,dx,dy) {
+   var mod = document.getElementById(id)
+   var module = mod.parentNode
+   var top = parseInt(module.style.top)
+   module.style.top = top+dy
+   module.dataset.top = top+dy
+   var left = parseInt(module.style.left)
+   module.style.left = left+dx
+   module.dataset.left = left+dx
+   draw_links(id,mods.ui.link)
    }
 //
 // input event handlers
