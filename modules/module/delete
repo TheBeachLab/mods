@@ -20,7 +20,7 @@ var mod = {}
 //
 // name
 //
-var name = 'move module'
+var name = 'delete module'
 //
 // initialization
 //
@@ -31,29 +31,12 @@ var init = function() {
 // inputs
 //
 var inputs = {
-   move:{type:'string',
-      event:function(evt){
-         var id = mod.div.parentNode.id
-         switch (evt.detail) {
-            case 'up':
-               mods.move_module(id,0,-mod.step)
-               break
-            case 'down':
-               mods.move_module(id,0,mod.step)
-               break
-            case 'left':
-               mods.move_module(id,-mod.step,0)
-               break
-            case 'right':
-               mods.move_module(id,mod.step,0)
-               break
-            }
-         }}}
+   }
 //
 // outputs
 //
 var outputs = {
-   move:{type:'string',
+   link:{type:'',
       event:function(arg){
          mods.output(mod,'move',arg)}}}
 //
@@ -62,29 +45,15 @@ var outputs = {
 var interface = function(div){
    mod.div = div
    var btn = document.createElement('button')
-      btn.appendChild(document.createTextNode('up'))
+      btn.appendChild(document.createTextNode('delete'))
       btn.addEventListener('click',function(){
-         outputs.move.event('up')
-         })
-      div.appendChild(btn)
-   div.appendChild(document.createElement('br'))
-   var btn = document.createElement('button')
-      btn.appendChild(document.createTextNode('left'))
-      btn.addEventListener('click',function(){
-         outputs.move.event('left')
-         })
-      div.appendChild(btn)
-   var btn = document.createElement('button')
-      btn.appendChild(document.createTextNode('right'))
-      btn.addEventListener('click',function(){
-         outputs.move.event('right')
-         })
-      div.appendChild(btn)
-   div.appendChild(document.createElement('br'))
-   var btn = document.createElement('button')
-      btn.appendChild(document.createTextNode('down'))
-      btn.addEventListener('click',function(){
-         outputs.move.event('down')
+         var outs = document.getElementById(
+            JSON.stringify({id:mod.div.parentNode.id,type:'outputs'}))
+         var links = JSON.parse(outs.childNodes[1].dataset.links)
+         console.log(links)
+         var link = JSON.parse(links[0])
+         var dest = JSON.parse(link.dest)
+         console.log(dest.id)
          })
       div.appendChild(btn)
    }
