@@ -36,16 +36,16 @@ var inputs = {
          var id = mod.div.parentNode.id
          switch (evt.detail) {
             case 'up':
-               mods.move_module(id,0,-mod.step)
+               mods.module_move(id,0,-mod.step)
                break
             case 'down':
-               mods.move_module(id,0,mod.step)
+               mods.module_move(id,0,mod.step)
                break
             case 'left':
-               mods.move_module(id,-mod.step,0)
+               mods.module_move(id,-mod.step,0)
                break
             case 'right':
-               mods.move_module(id,mod.step,0)
+               mods.module_move(id,mod.step,0)
                break
             }
          }}}

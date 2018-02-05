@@ -52,7 +52,7 @@ var interface = function(div){
          var links = JSON.parse(outs.childNodes[1].dataset.links)
          var link = JSON.parse(links[0])
          var dest = JSON.parse(link.dest)
-         mods.delete_module(dest.id)
+         mods.module_delete(dest.id)
          })
       div.appendChild(btn)
    }

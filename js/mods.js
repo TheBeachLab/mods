@@ -1222,12 +1222,12 @@ mods.output = function(mod,varname,val) {
 //
 // module mod-ification calls
 //
-mods.create_module = function(args) {
+mods.module_create = function(args) {
    var event = {target:{result:args}}
    var div = mod_load_handler(event)
    return(div)
    }
-mods.move_module = function(id,dx,dy) {
+mods.module_move = function(id,dx,dy) {
    var module = document.getElementById(id)
    var top = parseInt(module.style.top)
    module.style.top = top+dy
@@ -1237,7 +1237,7 @@ mods.move_module = function(id,dx,dy) {
    module.dataset.left = left+dx
    draw_links(id,mods.ui.link)
    }
-mods.delete_module = function(id) {
+mods.module_delete = function(id) {
    delete_module(id)
    }
 //
