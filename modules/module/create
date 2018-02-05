@@ -57,8 +57,10 @@ var interface = function(div){
       btn.style.margin = 1
       btn.appendChild(document.createTextNode('create module'))
       btn.addEventListener('click',function(){
-         var top = div.parentNode.dataset.top
-         var left = parseInt(div.parentNode.dataset.left)+1.1*parseInt(div.parentNode.clientWidth)
+         var id = mods.module_id(mod.div)
+         var top = mods.module_top(id)
+         var width = mods.module_width(id)
+         var left = mods.module_left(id)+width
          var newnode = mods.module_create(`
 //
 // created module
@@ -87,10 +89,8 @@ var name = 'created module'
 // initialization
 //
 var init = function() {
-   mod.div.parentNode.style.left = ${left}
-   mod.div.parentNode.style.top = ${top}
-   mod.div.parentNode.dataset.left = ${left}
-   mod.div.parentNode.dataset.top = ${top}
+   var id = mods.module_id(mod.div)
+   mods.module_position(id,${left},${top})
    }
 //
 // inputs
@@ -133,6 +133,8 @@ return ({
    })
 }())
             `)
+         //var out = mods.module_outputs(id,1)
+         //var inputs = mods.module_inputs(newnode.id,1)
          var srcout = document.getElementById(
             JSON.stringify({id:mod.div.parentNode.id,type:'outputs'}))
          var dstin = document.getElementById(

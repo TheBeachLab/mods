@@ -1227,6 +1227,16 @@ mods.module_create = function(args) {
    var div = mod_load_handler(event)
    return(div)
    }
+mods.module_delete = function(id) {
+   delete_module(id)
+   }
+mods.module_id = function(div) {
+   return div.parentNode.id
+   }
+mods.module_left = function(id) {
+   var module = document.getElementById(id)
+   return (parseInt(module.style.left))
+   }
 mods.module_move = function(id,dx,dy) {
    var module = document.getElementById(id)
    var top = parseInt(module.style.top)
@@ -1237,8 +1247,35 @@ mods.module_move = function(id,dx,dy) {
    module.dataset.left = left+dx
    draw_links(id,mods.ui.link)
    }
-mods.module_delete = function(id) {
-   delete_module(id)
+mods.module_inputs = function(id,index) {
+   var module = document.getElementById(id)
+   var inputs = document.getElementById(
+      JSON.stringify({id:id,type:'inputs'}))
+   console.log(inputs.childNodes[index])
+   }
+mods.module_outputs = function(id,index) {
+   var module = document.getElementById(id)
+   var outputs = document.getElementById(
+      JSON.stringify({id:id,type:'outputs'}))
+   console.log(outputs.childNodes[index])
+   }
+mods.module_position = function(id,x,y) {
+   var module = document.getElementById(id)
+   var top = parseInt(module.style.top)
+   module.style.top = y
+   module.dataset.top = y
+   var left = parseInt(module.style.left)
+   module.style.left = x
+   module.dataset.left = x
+   draw_links(id,mods.ui.link)
+   }
+mods.module_top = function(id) {
+   var module = document.getElementById(id)
+   return (parseInt(module.style.top))
+   }
+mods.module_width = function(id) {
+   var module = document.getElementById(id)
+   return (parseInt(module.clientWidth))
    }
 //
 // input event handlers

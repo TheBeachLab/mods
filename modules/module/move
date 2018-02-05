@@ -33,7 +33,7 @@ var init = function() {
 var inputs = {
    move:{type:'string',
       event:function(evt){
-         var id = mod.div.parentNode.id
+         var id = mods.module_id(mod.div)
          switch (evt.detail) {
             case 'up':
                mods.module_move(id,0,-mod.step)
