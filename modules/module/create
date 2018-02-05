@@ -133,8 +133,8 @@ return ({
    })
 }())
             `)
-         //var out = mods.module_outputs(id,1)
-         //var inputs = mods.module_inputs(newnode.id,1)
+         var out = mods.module_outputs(id,1)
+         var inputs = mods.module_inputs(newnode.id,1)
          var srcout = document.getElementById(
             JSON.stringify({id:mod.div.parentNode.id,type:'outputs'}))
          var dstin = document.getElementById(
