@@ -1228,8 +1228,7 @@ mods.create_module = function(args) {
    return(div)
    }
 mods.move_module = function(id,dx,dy) {
-   var mod = document.getElementById(id)
-   var module = mod.parentNode
+   var module = document.getElementById(id)
    var top = parseInt(module.style.top)
    module.style.top = top+dy
    module.dataset.top = top+dy
