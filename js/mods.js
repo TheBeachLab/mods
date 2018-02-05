@@ -1237,6 +1237,9 @@ mods.move_module = function(id,dx,dy) {
    module.dataset.left = left+dx
    draw_links(id,mods.ui.link)
    }
+mods.delete_module = function(id) {
+   delete_module(id)
+   }
 //
 // input event handlers
 //

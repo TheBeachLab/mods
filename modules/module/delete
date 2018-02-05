@@ -50,10 +50,9 @@ var interface = function(div){
          var outs = document.getElementById(
             JSON.stringify({id:mod.div.parentNode.id,type:'outputs'}))
          var links = JSON.parse(outs.childNodes[1].dataset.links)
-         console.log(links)
          var link = JSON.parse(links[0])
          var dest = JSON.parse(link.dest)
-         console.log(dest.id)
+         mods.delete_module(dest.id)
          })
       div.appendChild(btn)
    }
