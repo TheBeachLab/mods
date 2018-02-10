@@ -167,6 +167,16 @@ var interface = function(div){
       div.appendChild(input)
       mod.fill = input
    div.appendChild(document.createElement('br'))
+   //
+   // edges
+   //
+   div.appendChild(document.createTextNode('invert: '))
+   var input = document.createElement('input')
+      input.type = 'checkbox'
+      input.id = mod.div.id+'fill'
+      div.appendChild(input)
+      mod.invert = input
+   div.appendChild(document.createElement('br'))
    }
 //
 // local functions
@@ -235,8 +245,8 @@ function show_separation() {
    var color = JSON.parse(mod.color.value)
    webworker.postMessage({
       height:mod.input.height,width:mod.input.width,color:color,
-      fill:mod.fill.checked,buffer:img.data.buffer},
-      [img.data.buffer])
+      fill:mod.fill.checked,invert:mod.invert.checked,
+      buffer:img.data.buffer},[img.data.buffer])
    }
 //
 // separation worker
@@ -247,9 +257,17 @@ function separation_worker() {
       var w = evt.data.width
       var color = evt.data.color
       var fill = evt.data.fill
+      if (evt.data.invert) {
+         var low = 255
+         var high = 0
+         }
+      else {
+         var low = 0
+         var high = 255
+         }
       var buf = new Uint8ClampedArray(evt.data.buffer)
       var r,g,b,a,rc,gc,bc
-      var cmin,dmin,d
+      var cmin,dmin,d      
       for (var row = 0; row < h; ++row) {
          for (var col = 0; col < w; ++col) {
             r = buf[(h-1-row)*w*4+col*4+0] 
@@ -260,15 +278,15 @@ function separation_worker() {
             gc = color[1]
             bc = color[2]
             if ((rc == r) && (gc == g) && (bc == b)) {
-               buf[(h-1-row)*w*4+col*4+0] = 255
-               buf[(h-1-row)*w*4+col*4+1] = 255
-               buf[(h-1-row)*w*4+col*4+2] = 255
+               buf[(h-1-row)*w*4+col*4+0] = high
+               buf[(h-1-row)*w*4+col*4+1] = high
+               buf[(h-1-row)*w*4+col*4+2] = high
                buf[(h-1-row)*w*4+col*4+3] = 255
                }
             else {
-               buf[(h-1-row)*w*4+col*4+0] = 0
-               buf[(h-1-row)*w*4+col*4+1] = 0
-               buf[(h-1-row)*w*4+col*4+2] = 0
+               buf[(h-1-row)*w*4+col*4+0] = low
+               buf[(h-1-row)*w*4+col*4+1] = low
+               buf[(h-1-row)*w*4+col*4+2] = low
                buf[(h-1-row)*w*4+col*4+3] = 255
                }
             }
@@ -276,26 +294,26 @@ function separation_worker() {
       if (fill == true) {
          for (var row = 0; row < h; ++row) {
             col = 0
-            buf[(h-1-row)*w*4+col*4+0] = 0
-            buf[(h-1-row)*w*4+col*4+1] = 0
-            buf[(h-1-row)*w*4+col*4+2] = 0
+            buf[(h-1-row)*w*4+col*4+0] = low
+            buf[(h-1-row)*w*4+col*4+1] = low
+            buf[(h-1-row)*w*4+col*4+2] = low
             buf[(h-1-row)*w*4+col*4+3] = 255
             col = w-1
-            buf[(h-1-row)*w*4+col*4+0] = 0
-            buf[(h-1-row)*w*4+col*4+1] = 0
-            buf[(h-1-row)*w*4+col*4+2] = 0
+            buf[(h-1-row)*w*4+col*4+0] = low
+            buf[(h-1-row)*w*4+col*4+1] = low
+            buf[(h-1-row)*w*4+col*4+2] = low
             buf[(h-1-row)*w*4+col*4+3] = 255
             }
          for (var col = 0; col < w; ++col) {
             row = 0
-            buf[(h-1-row)*w*4+col*4+0] = 0
-            buf[(h-1-row)*w*4+col*4+1] = 0
-            buf[(h-1-row)*w*4+col*4+2] = 0
+            buf[(h-1-row)*w*4+col*4+0] = low
+            buf[(h-1-row)*w*4+col*4+1] = low
+            buf[(h-1-row)*w*4+col*4+2] = low
             buf[(h-1-row)*w*4+col*4+3] = 255
             row = h-1
-            buf[(h-1-row)*w*4+col*4+0] = 0
-            buf[(h-1-row)*w*4+col*4+1] = 0
-            buf[(h-1-row)*w*4+col*4+2] = 0
+            buf[(h-1-row)*w*4+col*4+0] = low
+            buf[(h-1-row)*w*4+col*4+1] = low
+            buf[(h-1-row)*w*4+col*4+2] = low
             buf[(h-1-row)*w*4+col*4+3] = 255
             }
          }

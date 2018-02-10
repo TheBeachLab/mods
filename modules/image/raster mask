@@ -140,18 +140,18 @@ function save_mask(mask) {
    var svg = document.createElementNS(svgNS,"svg")
       svg.setAttributeNS("http://www.w3.org/2000/xmlns/",
          "xmlns:xlink","http://www.w3.org/1999/xlink")
-      svg.setAttribute('width',(3+imgwidth)+'in')
-      svg.setAttribute('height',(3+imgheight)+'in')
+      svg.setAttribute('width',(2+imgwidth)+'in')
+      svg.setAttribute('height',(2+imgheight)+'in')
       svg.style.backgroundColor = 'rgb(255,255,255)'
-      svg.setAttribute('viewBox','0 0 '+(3+imgwidth)+' '+(3+imgheight))
+      svg.setAttribute('viewBox','0 0 '+(2+imgwidth)+' '+(2+imgheight))
    //
    // background
    //
    var rect = document.createElementNS(svgNS,'rect')
       rect.setAttribute('x','0')
       rect.setAttribute('y','0')
-      rect.setAttribute('width',3+imgwidth)
-      rect.setAttribute('height',3+imgheight)
+      rect.setAttribute('width',2+imgwidth)
+      rect.setAttribute('height',2+imgheight)
       rect.setAttribute('stroke','none')
       rect.setAttribute('fill','white')
       svg.appendChild(rect)
@@ -165,40 +165,40 @@ function save_mask(mask) {
       polyline.setAttribute('stroke-width','0.01')
       polyline.setAttribute('stroke-linecap','round')
       polyline.setAttribute('fill','none')
-      polyline.setAttribute('points','0.5,0.5 '+
-         '0.5,'+(imgheight+2.5)+' '+
-         (imgwidth+2.5)+','+(imgheight+2.5)+' '+
-         (imgwidth+2.5)+',0.9 '+
-         (imgwidth+2.1)+',0.5 '+
-         '0.5,0.5')
+      polyline.setAttribute('points','0.25,0.25 '+
+         '0.25,'+(imgheight+1.75)+' '+
+         (imgwidth+1.75)+','+(imgheight+1.75)+' '+
+         (imgwidth+1.75)+',0.65 '+
+         (imgwidth+1.35)+',0.25 '+
+         '0.25,0.25')
       g.appendChild(polyline)
    var circle = document.createElementNS(svgNS,'circle')
-      circle.setAttribute('cx','1')
-      circle.setAttribute('cy','1')
+      circle.setAttribute('cx','.75')
+      circle.setAttribute('cy','.75')
       circle.setAttribute('r','0.125')
       circle.setAttribute('stroke','red')
       circle.setAttribute('stroke-width','0.01')
       circle.setAttribute('fill','none')
       g.appendChild(circle)
    var circle = document.createElementNS(svgNS,'circle')
-      circle.setAttribute('cx','1')
-      circle.setAttribute('cy',(2+imgheight))
+      circle.setAttribute('cx','.75')
+      circle.setAttribute('cy',(1.25+imgheight))
       circle.setAttribute('r','0.125')
       circle.setAttribute('stroke','red')
       circle.setAttribute('stroke-width','0.01')
       circle.setAttribute('fill','none')
       g.appendChild(circle)
    var circle = document.createElementNS(svgNS,'circle')
-      circle.setAttribute('cx',(2+imgwidth))
-      circle.setAttribute('cy',(2+imgheight))
+      circle.setAttribute('cx',(1.25+imgwidth))
+      circle.setAttribute('cy',(1.25+imgheight))
       circle.setAttribute('r','0.125')
       circle.setAttribute('stroke','red')
       circle.setAttribute('stroke-width','0.01')
       circle.setAttribute('fill','none')
       g.appendChild(circle)
    var circle = document.createElementNS(svgNS,'circle')
-      circle.setAttribute('cx',(2+imgwidth))
-      circle.setAttribute('cy','1')
+      circle.setAttribute('cx',(1.25+imgwidth))
+      circle.setAttribute('cy','.75')
       circle.setAttribute('r','0.125')
       circle.setAttribute('stroke','red')
       circle.setAttribute('stroke-width','0.01')
@@ -214,12 +214,11 @@ function save_mask(mask) {
       name += '.'+mod.palette[mod.index][3]
    var text = document.createElementNS(svgNS,'text')
       text.setAttribute('id',mod.div.id+'svgtext')
-      text.setAttribute('x',(3+imgwidth)/2)
-      text.setAttribute('y','1')
+      text.setAttribute('x',(2+imgwidth)/2)
+      text.setAttribute('y','.75')
       text.setAttribute('fill','red')
-      text.setAttribute('font-size','.5')
+      text.setAttribute('font-size','.4')
       text.setAttribute('text-anchor','middle')
-      text.setAttribute('dy','.2')
       text.textContent = name
       svg.appendChild(text)
    //
@@ -228,8 +227,8 @@ function save_mask(mask) {
    var href = mod.convert.toDataURL()
    var img = document.createElementNS(svgNS,'image')
       img.setAttribute('id',mod.div.id+'svgimg')
-      img.setAttribute('x','1.5')
-      img.setAttribute('y','1.5')
+      img.setAttribute('x','1')
+      img.setAttribute('y','1')
       img.setAttribute('width',imgwidth)
       img.setAttribute('height',imgheight)
       img.setAttributeNS('http://www.w3.org/1999/xlink','href',href)
