@@ -207,11 +207,14 @@ function save_mask(mask) {
    //
    // name
    //
-   var name = mod.imageInfo.name+'.'+mod.palette[mod.index][0]
-   name += '.'+mod.palette[mod.index][1]
-   name += '.'+mod.palette[mod.index][2]
+   var name = mod.imageInfo.name
    if (mod.palette[mod.index][3] != undefined)
-      name += '.'+mod.palette[mod.index][3]
+      name += '-'+mod.palette[mod.index][3]
+   else {
+      name += '-'+mod.palette[mod.index][0]
+      name += '.'+mod.palette[mod.index][1]
+      name += '.'+mod.palette[mod.index][2]
+      }
    var text = document.createElementNS(svgNS,'text')
       text.setAttribute('id',mod.div.id+'svgtext')
       text.setAttribute('x',(2+imgwidth)/2)

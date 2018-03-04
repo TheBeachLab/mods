@@ -26,8 +26,13 @@ var name = 'image palette'
 // initialization
 //
 var init = function() {
-   mod.palette.value = '[[255,255,255],\n[0,0,0],\n[255,0,0],\n[0,255,0],\n[0,0,255]]'
+   mod.palette.value = '[[255,255,255,"white"],\n[0,0,0,"black"],\n[255,0,0,"red"],\n[0,255,0,"green"],\n[0,0,255,"blue"],\n[255,255,0],\n[255,0,255],\n[0,255,255]]'
    }
+/*
+ var init = function() {
+   mod.palette.value = "[[255,255,255,'white'],\n[0,0,0,'black'],\n[255,0,0,'red'],\n[0,255,0,'green'],\n[0,0,255,'blue'],\n[255,255,0],\n[255,0,255],\n[0,255,255],\n[255,0,255]]"
+   }
+*/
 //
 // inputs
 //
