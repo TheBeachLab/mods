@@ -1,5 +1,6 @@
 # Todo
 - cut, copy, paste
+- three-axis rough and finish cuts
 - Cross-Origin Resource Sharing (CORS)
 - nested module graphs
 - ...
