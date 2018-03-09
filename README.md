@@ -1,4 +1,10 @@
-# Install and run mods
+# Todo
+- cut, copy, paste
+- Cross-Origin Resource Sharing (CORS)
+- nested module graphs
+- ...
+
+# To install and run mods locally
 
 You need to first install [node.js](https://docs.npmjs.com/getting-started/installing-node).
 
