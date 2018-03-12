@@ -1,6 +1,18 @@
 # Todo
 - frep
-- cut, copy, paste
+    - render
+        - CPU
+        - GPU
+        - tree
+    - slice zoom pan rotate
+    - variable expressions
+    - color
+    - CSG bounding boxes
+- save program read ui values
+- subgraph select drag cut copy paste
+- menus
+    - folding
+    - floating
 - three-axis rough and finish cuts
 - Cross-Origin Resource Sharing (CORS)
 - nested module graphs
