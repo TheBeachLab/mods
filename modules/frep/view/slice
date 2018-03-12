@@ -158,8 +158,6 @@ var interface = function(div){
 //
 // local functions
 //
-
-//
 // view_slice
 //
 function view_slice(shape) {   
@@ -204,12 +202,8 @@ function view_slice(shape) {
       h = Math.floor(w*(ylimits[1]-ylimits[0])/(xlimits[1]-xlimits[0]))
    else
       w = Math.floor(h*(xlimits[1]-xlimits[0])/(ylimits[1]-ylimits[0]))
-   }
-
-// image_function
-//
-
-function image_function() {
+   mod.img.height = h
+   mod.img.width = w
    var blob = new Blob(['('+worker.toString()+'())'])
    var url = window.URL.createObjectURL(blob)
    var webworker = new Worker(url)
@@ -254,33 +248,41 @@ function image_function() {
    var img = ctx.getImageData(0,0,mod.img.width,mod.img.height)
    webworker.postMessage({
       height:img.height,width:img.width,
-      args:mod.input.arguments,func:mod.input.function,
+      xvar:xvar,yvar:yvar,zvar:zvar,
+      xlimits:xlimits,ylimits:ylimits,
+      string:str,
       buffer:img.data.buffer},
       [img.data.buffer])
    }
 //
 // worker
 //
-function image_worker() {
+function worker() {
    self.addEventListener('message',function(evt) {
       var h = evt.data.height
       var w = evt.data.width
-      var m = 255
-      var f = new Function(evt.data.args,evt.data.func)
+      var xvar = evt.data.xvar
+      var yvar = evt.data.yvar
+      var zvar = evt.data.zvar
+      var xlimits = evt.data.xlimits
+      var ylimits = evt.data.ylimits
       var buf = new Uint8ClampedArray(evt.data.buffer)
-      var r,g,b,a,i
+      var f = new Function(xvar,yvar,'return ('+evt.data.string+')')
+      var x,y,v
       for (var row = 0; row < h; ++row) {
+         y = ylimits[0]+(ylimits[1]-ylimits[0])*row/(h-1)
          for (var col = 0; col < w; ++col) {
-            buf[(h-1-row)*w*4+col*4+0] = f(col,row,w,h,m)[0]
-            buf[(h-1-row)*w*4+col*4+1] = f(col,row,w,h,m)[1]
-            buf[(h-1-row)*w*4+col*4+2] = f(col,row,w,h,m)[2]
-            buf[(h-1-row)*w*4+col*4+3] = f(col,row,w,h,m)[3]
+            x = xlimits[0]+(xlimits[1]-xlimits[0])*col/(w-1)
+            v = (f(x,y) > 0) ? 255 : 0
+            buf[(h-1-row)*w*4+col*4+0] = v
+            buf[(h-1-row)*w*4+col*4+1] = v
+            buf[(h-1-row)*w*4+col*4+2] = v
+            buf[(h-1-row)*w*4+col*4+3] = 255
             }
          }
       self.postMessage({buffer:buf.buffer},[buf.buffer])
       })
    }
-
 //
 // return values
 //

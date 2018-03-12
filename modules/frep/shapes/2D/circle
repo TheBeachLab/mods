@@ -1,5 +1,5 @@
 //
-// frep rectangle corners
+// frep circle
 //
 // Neil Gershenfeld
 // (c) Massachusetts Institute of Technology 2017
@@ -20,15 +20,14 @@ var mod = {}
 //
 // name
 //
-var name = 'frep rectangle corners'
+var name = 'frep circle'
 //
 // initialization
 //
 var init = function() {
-   mod.xmin.value = '-1'
-   mod.ymin.value = '-1'
-   mod.xmax.value = '1'
-   mod.ymax.value = '1'
+   mod.x.value = '0'
+   mod.y.value = '0'
+   mod.r.value = '1'
    }
 //
 // inputs
@@ -36,10 +35,9 @@ var init = function() {
 var inputs = {
    variables:{type:'',
       event:function(evt){
-         mod.xmin.value = evt.detail.xmin
-         mod.xmax.value = evt.detail.xmax
-         mod.ymin.value = evt.detail.ymin
-         mod.ymax.value = evt.detail.ymax
+         mod.x.value = evt.detail.x
+         mod.y.value = evt.detail.y
+         mod.r.value = evt.detail.r
          outputs.variables.event()
          outputs.shape.event()
          }}}
@@ -49,26 +47,22 @@ var inputs = {
 var outputs = {
    shape:{type:'',
       event:function(){
-         var xmin = parseFloat(mod.xmin.value)
-         var xmax = parseFloat(mod.xmax.value)
-         var ymin = parseFloat(mod.ymin.value)
-         var ymax = parseFloat(mod.ymax.value)
-         var xstr = `Math.min(X-(${xmin}),(${xmax})-X)`
-         var ystr = `Math.min(Y-(${ymin}),(${ymax})-Y)`
-         var str = `Math.min(${xstr},${ystr})`
+         var x = parseFloat(mod.x.value)
+         var y = parseFloat(mod.y.value)
+         var r = parseFloat(mod.r.value)
+         var str = `(${r}*${r}-((X-${x})*(X-${x})+(Y-${y})*(Y-${y})))`
          var variables = ['X','Y']
-         var limits = [[xmin,xmax],[ymin,ymax]]
+         var limits = [[x-r,x+r],[y-r,y+r]]
          var type = 'Magnitude'
          var shape = {string:str,variables:variables,limits:limits,type:type}
          mods.output(mod,'shape',shape)}
          },
    variables:{type:'',
       event:function(){
-         var xmin = parseFloat(mod.xmin.value)
-         var xmax = parseFloat(mod.xmax.value)
-         var ymin = parseFloat(mod.ymin.value)
-         var ymax = parseFloat(mod.ymax.value)
-         var vars = {xmin:xmin,ymin:ymin,xmax:xmax,ymax:ymax}
+         var x = parseFloat(mod.x.value)
+         var y = parseFloat(mod.y.value)
+         var r = parseFloat(mod.r.value)
+         var vars = {x:x,y:y,r:r}
          mods.output(mod,'variables',vars)}
          }}
 //
@@ -77,44 +71,34 @@ var outputs = {
 var interface = function(div){
    mod.div = div
    //
-   // xmin
+   // x
    //
-   div.appendChild(document.createTextNode('xmin: '))
+   div.appendChild(document.createTextNode('x: '))
    var input = document.createElement('input')
       input.type = 'text'
       input.size = 3
       div.appendChild(input)
-      mod.xmin = input
+      mod.x = input
    div.appendChild(document.createElement('br'))
    //
-   // ymin
+   // y
    //
-   div.appendChild(document.createTextNode('ymin: '))
+   div.appendChild(document.createTextNode('y: '))
    var input = document.createElement('input')
       input.type = 'text'
       input.size = 3
       div.appendChild(input)
-      mod.ymin = input
+      mod.y = input
    div.appendChild(document.createElement('br'))
    //
-   // xmax
+   // r
    //
-   div.appendChild(document.createTextNode('xmax: '))
+   div.appendChild(document.createTextNode('r: '))
    var input = document.createElement('input')
       input.type = 'text'
       input.size = 3
       div.appendChild(input)
-      mod.xmax = input
-   div.appendChild(document.createElement('br'))
-   //
-   // ymax
-   //
-   div.appendChild(document.createTextNode('ymax: '))
-   var input = document.createElement('input')
-      input.type = 'text'
-      input.size = 3
-      div.appendChild(input)
-      mod.ymax = input
+      mod.r = input
    div.appendChild(document.createElement('br'))
    //
    // output button
