@@ -175,28 +175,32 @@ function view_slice(shape) {
       var xlimits = limits[0]
       var yvar = vars[1]
       var ylimits = limits[1]
-      var zvar = 0
+      var zvar = vars[2]
+      var zval = 0
       }
-   else if (!isNAN(x)) {
+   else if (!isNaN(x)) {
       var xvar = vars[1]
       var xlimits = limits[1]
       var yvar = vars[2]
       var ylimits = limits[2]
-      var zvar = x
+      var zvar = vars[0]
+      var zval = x
       }
-   else if (!isNAN(y)) {
+   else if (!isNaN(y)) {
       var xvar = vars[0]
       var xlimits = limits[0]
       var yvar = vars[2]
       var ylimits = limits[2]
-      var zvar = y
+      var zvar = vars[1]
+      var zval = y
       }
-   else if (!isNAN(z)) {
+   else if (!isNaN(z)) {
       var xvar = vars[0]
       var xlimits = limits[0]
       var yvar = vars[1]
       var ylimits = limits[1]
-      var zvar = z
+      var zvar = vars[2]
+      var zval = z
       }
    if (!isNaN(w))
       h = Math.floor(w*(ylimits[1]-ylimits[0])/(xlimits[1]-xlimits[0]))
@@ -248,7 +252,7 @@ function view_slice(shape) {
    var img = ctx.getImageData(0,0,mod.img.width,mod.img.height)
    webworker.postMessage({
       height:img.height,width:img.width,
-      xvar:xvar,yvar:yvar,zvar:zvar,
+      xvar:xvar,yvar:yvar,zvar:zvar,zval:zval,
       xlimits:xlimits,ylimits:ylimits,
       string:str,
       buffer:img.data.buffer},
@@ -264,16 +268,17 @@ function worker() {
       var xvar = evt.data.xvar
       var yvar = evt.data.yvar
       var zvar = evt.data.zvar
+      var zval = evt.data.zval
       var xlimits = evt.data.xlimits
       var ylimits = evt.data.ylimits
       var buf = new Uint8ClampedArray(evt.data.buffer)
-      var f = new Function(xvar,yvar,'return ('+evt.data.string+')')
+      var f = new Function(xvar,yvar,zvar,'return ('+evt.data.string+')')
       var x,y,v
       for (var row = 0; row < h; ++row) {
          y = ylimits[0]+(ylimits[1]-ylimits[0])*row/(h-1)
          for (var col = 0; col < w; ++col) {
             x = xlimits[0]+(xlimits[1]-xlimits[0])*col/(w-1)
-            v = (f(x,y) > 0) ? 255 : 0
+            v = (f(x,y,zval) > 0) ? 255 : 0
             buf[(h-1-row)*w*4+col*4+0] = v
             buf[(h-1-row)*w*4+col*4+1] = v
             buf[(h-1-row)*w*4+col*4+2] = v

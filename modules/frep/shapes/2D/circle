@@ -79,11 +79,10 @@ var interface = function(div){
       input.size = 3
       div.appendChild(input)
       mod.x = input
-   div.appendChild(document.createElement('br'))
    //
    // y
    //
-   div.appendChild(document.createTextNode('y: '))
+   div.appendChild(document.createTextNode(' y: '))
    var input = document.createElement('input')
       input.type = 'text'
       input.size = 3
