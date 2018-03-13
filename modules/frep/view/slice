@@ -175,7 +175,7 @@ function view_slice(shape) {
       var xlimits = limits[0]
       var yvar = vars[1]
       var ylimits = limits[1]
-      var zvar = vars[2]
+      var zvar = ''
       var zval = 0
       }
    else if (!isNaN(x)) {

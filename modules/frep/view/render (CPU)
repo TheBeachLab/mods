@@ -1,5 +1,5 @@
 //
-// frep render CPU
+// frep render (CPU)
 //
 // Neil Gershenfeld
 // (c) Massachusetts Institute of Technology 2017
@@ -20,7 +20,7 @@ var mod = {}
 //
 // name
 //
-var name = 'frep render CPU'
+var name = 'frep render (CPU)'
 //
 // initialization
 //
@@ -72,6 +72,7 @@ var interface = function(div){
       input.size = 3
       input.addEventListener('input',function(){
          mod.height.value = ''
+         mod.depth.value = ''
          })
       div.appendChild(input)
       mod.width = input
@@ -84,6 +85,7 @@ var interface = function(div){
       input.size = 3
       input.addEventListener('input',function(){
          mod.width.value = ''
+         mod.depth.value = ''
          })
       div.appendChild(input)
       mod.height = input
@@ -97,6 +99,7 @@ var interface = function(div){
       input.size = 3
       input.addEventListener('input',function(){
          mod.width.value = ''
+         mod.height.value = ''
          })
       div.appendChild(input)
       mod.depth = input
@@ -137,9 +140,6 @@ function render(shape) {
    var vars = shape.variables
    var limits = shape.limits
    var type = shape.type
-   var x = parseFloat(mod.x.value)
-   var y = parseFloat(mod.y.value)
-   var z = parseFloat(mod.z.value)
    var w = parseInt(mod.width.value)
    var h = parseInt(mod.height.value)
    var d = parseInt(mod.depth.value)
@@ -148,8 +148,7 @@ function render(shape) {
       var xlimits = limits[0]
       var yvar = vars[1]
       var ylimits = limits[1]
-      var zvar = vars[2]
-      var zval = 0
+      var zvar = ''
       }
    else if (!isNaN(x)) {
       var xvar = vars[1]
@@ -157,7 +156,7 @@ function render(shape) {
       var yvar = vars[2]
       var ylimits = limits[2]
       var zvar = vars[0]
-      var zval = x
+      var zlimits = limits[2]
       }
    else if (!isNaN(y)) {
       var xvar = vars[0]
@@ -165,7 +164,7 @@ function render(shape) {
       var yvar = vars[2]
       var ylimits = limits[2]
       var zvar = vars[1]
-      var zval = y
+      var zlimits = limits[1]
       }
    else if (!isNaN(z)) {
       var xvar = vars[0]
@@ -173,7 +172,7 @@ function render(shape) {
       var yvar = vars[1]
       var ylimits = limits[1]
       var zvar = vars[2]
-      var zval = z
+      var zlimits = limits[2]
       }
    if (!isNaN(w))
       h = Math.floor(w*(ylimits[1]-ylimits[0])/(xlimits[1]-xlimits[0]))
