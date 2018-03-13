@@ -2,7 +2,7 @@
 // frep render (CPU)
 //
 // Neil Gershenfeld
-// (c) Massachusetts Institute of Technology 2017
+// (c) Massachusetts Institute of Technology 2018
 //
 // This work may be reproduced, modified, distributed, performed, and
 // displayed for any purpose, but must acknowledge the mods
@@ -143,41 +143,23 @@ function render(shape) {
    var w = parseInt(mod.width.value)
    var h = parseInt(mod.height.value)
    var d = parseInt(mod.depth.value)
-   if (vars.length == 2) {
-      var xvar = vars[0]
-      var xlimits = limits[0]
-      var yvar = vars[1]
-      var ylimits = limits[1]
-      var zvar = ''
-      }
-   else if (!isNaN(x)) {
-      var xvar = vars[1]
-      var xlimits = limits[1]
-      var yvar = vars[2]
-      var ylimits = limits[2]
-      var zvar = vars[0]
-      var zlimits = limits[2]
-      }
-   else if (!isNaN(y)) {
-      var xvar = vars[0]
-      var xlimits = limits[0]
-      var yvar = vars[2]
-      var ylimits = limits[2]
-      var zvar = vars[1]
-      var zlimits = limits[1]
-      }
-   else if (!isNaN(z)) {
-      var xvar = vars[0]
-      var xlimits = limits[0]
-      var yvar = vars[1]
-      var ylimits = limits[1]
-      var zvar = vars[2]
-      var zlimits = limits[2]
-      }
-   if (!isNaN(w))
+   var xvar = vars[0]
+   var xlimits = limits[0]
+   var yvar = vars[1]
+   var ylimits = limits[1]
+   var zvar = vars[2]
+   var zlimits = limits[2]
+   if (!isNaN(w)) {
       h = Math.floor(w*(ylimits[1]-ylimits[0])/(xlimits[1]-xlimits[0]))
-   else
+      d = Math.floor(w*(zlimits[1]-zlimits[0])/(xlimits[1]-xlimits[0]))
+      }
+   else (!isNaN(h)) {
       w = Math.floor(h*(xlimits[1]-xlimits[0])/(ylimits[1]-ylimits[0]))
+      d = Math.floor(h*(zlimits[1]-zlimits[0])/(ylimits[1]-ylimits[0]))
+   else {
+      w = Math.floor(d*(xlimits[1]-xlimits[0])/(zlimits[1]-zlimits[0]))
+      h = Math.floor(d*(ylimits[1]-ylimits[0])/(zlimits[1]-zlimits[0]))
+      }
    mod.img.height = h
    mod.img.width = w
    var blob = new Blob(['('+worker.toString()+'())'])
@@ -223,9 +205,9 @@ function render(shape) {
    ctx.clearRect(0,0,mod.img.width,mod.img.height)
    var img = ctx.getImageData(0,0,mod.img.width,mod.img.height)
    webworker.postMessage({
-      height:img.height,width:img.width,
+      height:h,width:w,depth:d,
       xvar:xvar,yvar:yvar,zvar:zvar,
-      xlimits:xlimits,ylimits:ylimits,
+      xlimits:xlimits,ylimits:ylimits,zlimits:zlimits,
       string:str,
       buffer:img.data.buffer},
       [img.data.buffer])
