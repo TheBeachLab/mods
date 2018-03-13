@@ -16,6 +16,7 @@
 - three-axis rough and finish cuts
 - Cross-Origin Resource Sharing (CORS)
 - nested module graphs
+- vector toolpath input
 - ...
 
 # To install and run mods locally
