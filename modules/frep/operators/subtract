@@ -1,0 +1,97 @@
+//
+// frep subtract
+//
+// Neil Gershenfeld
+// (c) Massachusetts Institute of Technology 2017
+//
+// This work may be reproduced, modified, distributed, performed, and
+// displayed for any purpose, but must acknowledge the mods
+// project. Copyright is retained and must be preserved. The work is
+// provided as is; no warranty is provided, and users accept all
+// liability.
+//
+// closure
+//
+(function(){
+//
+// module globals
+//
+var mod = {}
+//
+// name
+//
+var name = 'frep subtract'
+//
+// initialization
+//
+var init = function() {
+   mod.shape0 = null
+   mod.shape1 = null
+   }
+//
+// inputs
+//
+var inputs = {
+   shape0:{type:'',label:'shape 0',
+      event:function(evt){
+         mod.shape0 = evt.detail
+         outputs.shape.event()
+         }},
+   shape1:{type:'',label:'shape 1',
+      event:function(evt){
+         mod.shape1 = evt.detail
+         outputs.shape.event()
+         }}}
+//
+// outputs
+//
+var outputs = {
+   shape:{type:'',
+      event:function(){
+         if ((mod.shape0 != null) && (mod.shape1 != null)) {
+            var str = `Math.min(${mod.shape0.string},-(${mod.shape1.string}))`
+            var variables = mod.shape0.variables
+            var type = mod.shape0.type        
+            var limits = mod.shape0.limits
+            for (var v = 0; v < limits.length; ++v) {
+               if (mod.shape1.limits[v][0] < limits[v][0])
+                  limits[v][0] = mod.shape1.limits[v][0]
+               if (mod.shape1.limits[v][1] > limits[v][1])
+                  limits[v][1] = mod.shape1.limits[v][1]
+               }
+            var shape = {string:str,variables:variables,limits:limits,type:type}
+            mods.output(mod,'shape',shape)}
+            }
+         }}
+//
+// interface
+//
+var interface = function(div){
+   mod.div = div
+   //
+   // output button
+   //
+   var btn = document.createElement('button')
+      btn.style.padding = mods.ui.padding
+      btn.style.margin = 1
+      btn.appendChild(document.createTextNode('output'))
+      btn.addEventListener('click',function(){
+         outputs.shape.event()
+         })
+      div.appendChild(btn)
+   }
+//
+// local functions
+//
+;
+//
+// return values
+//
+return ({
+   name:name,
+   init:init,
+   inputs:inputs,
+   outputs:outputs,
+   interface:interface
+   })
+}())
