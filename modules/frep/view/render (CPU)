@@ -1,8 +1,8 @@
 //
-// frep view slice
+// frep render (CPU)
 //
 // Neil Gershenfeld
-// (c) Massachusetts Institute of Technology 2017
+// (c) Massachusetts Institute of Technology 2018
 //
 // This work may be reproduced, modified, distributed, performed, and
 // displayed for any purpose, but must acknowledge the mods
@@ -20,13 +20,12 @@ var mod = {}
 //
 // name
 //
-var name = 'frep view slice'
+var name = 'frep render (CPU)'
 //
 // initialization
 //
 var init = function() {
-   mod.width.value = 1000
-   mod.z.value = 0
+   mod.width.value = 255
    }
 //
 // inputs
@@ -34,7 +33,7 @@ var init = function() {
 var inputs = {
    shape:{type:'frep',
       event:function(evt){
-         view_slice(evt.detail)
+         render(evt.detail)
          }}}
 //
 // outputs
@@ -65,46 +64,6 @@ var interface = function(div){
    var canvas = document.createElement('canvas')
       mod.img = canvas
    //
-   // x
-   //
-   div.appendChild(document.createTextNode('x: '))
-   var input = document.createElement('input')
-      input.type = 'text'
-      input.size = 3
-      input.addEventListener('input',function(){
-         mod.y.value = ''
-         mod.z.value = ''
-         })
-      div.appendChild(input)
-      mod.x = input
-   //
-   // y
-   //
-   div.appendChild(document.createTextNode(' y: '))
-   var input = document.createElement('input')
-      input.type = 'text'
-      input.size = 3
-      input.addEventListener('input',function(){
-         mod.x.value = ''
-         mod.z.value = ''
-         })
-      div.appendChild(input)
-      mod.y = input
-   //
-   // z
-   //
-   div.appendChild(document.createTextNode(' z: '))
-   var input = document.createElement('input')
-      input.type = 'text'
-      input.size = 3
-      input.addEventListener('input',function(){
-         mod.x.value = ''
-         mod.y.value = ''
-         })
-      div.appendChild(input)
-      mod.z = input
-   div.appendChild(document.createElement('br'))
-   //
    // width
    //
    div.appendChild(document.createTextNode('width: '))
@@ -113,6 +72,7 @@ var interface = function(div){
       input.size = 3
       input.addEventListener('input',function(){
          mod.height.value = ''
+         mod.depth.value = ''
          })
       div.appendChild(input)
       mod.width = input
@@ -125,9 +85,24 @@ var interface = function(div){
       input.size = 3
       input.addEventListener('input',function(){
          mod.width.value = ''
+         mod.depth.value = ''
          })
       div.appendChild(input)
       mod.height = input
+   div.appendChild(document.createElement('br'))
+   //
+   // depth
+   //
+   div.appendChild(document.createTextNode(' depth: '))
+   var input = document.createElement('input')
+      input.type = 'text'
+      input.size = 3
+      input.addEventListener('input',function(){
+         mod.width.value = ''
+         mod.height.value = ''
+         })
+      div.appendChild(input)
+      mod.depth = input
    div.appendChild(document.createElement('br'))
    //
    // view button
@@ -158,54 +133,34 @@ var interface = function(div){
 //
 // local functions
 //
-// view_slice
+// render
 //
-function view_slice(shape) {   
+function render(shape) {   
    var str = shape.string
    var vars = shape.variables
    var limits = shape.limits
    var type = shape.type
-   var x = parseFloat(mod.x.value)
-   var y = parseFloat(mod.y.value)
-   var z = parseFloat(mod.z.value)
    var w = parseInt(mod.width.value)
    var h = parseInt(mod.height.value)
-   if (vars.length == 2) {
-      var xvar = vars[0]
-      var xlimits = limits[0]
-      var yvar = vars[1]
-      var ylimits = limits[1]
-      var zvar = ''
-      var zval = 0
-      }
-   else if (!isNaN(x)) {
-      var xvar = vars[1]
-      var xlimits = limits[1]
-      var yvar = vars[2]
-      var ylimits = limits[2]
-      var zvar = vars[0]
-      var zval = x
-      }
-   else if (!isNaN(y)) {
-      var xvar = vars[0]
-      var xlimits = limits[0]
-      var yvar = vars[2]
-      var ylimits = limits[2]
-      var zvar = vars[1]
-      var zval = y
-      }
-   else if (!isNaN(z)) {
-      var xvar = vars[0]
-      var xlimits = limits[0]
-      var yvar = vars[1]
-      var ylimits = limits[1]
-      var zvar = vars[2]
-      var zval = z
-      }
-   if (!isNaN(w))
+   var d = parseInt(mod.depth.value)
+   var xvar = vars[0]
+   var xlimits = limits[0]
+   var yvar = vars[1]
+   var ylimits = limits[1]
+   var zvar = vars[2]
+   var zlimits = limits[2]
+   if (!isNaN(w)) {
       h = Math.floor(w*(ylimits[1]-ylimits[0])/(xlimits[1]-xlimits[0]))
-   else
+      d = Math.floor(w*(zlimits[1]-zlimits[0])/(xlimits[1]-xlimits[0]))
+      }
+   else if (!isNaN(h)) {
       w = Math.floor(h*(xlimits[1]-xlimits[0])/(ylimits[1]-ylimits[0]))
+      d = Math.floor(h*(zlimits[1]-zlimits[0])/(ylimits[1]-ylimits[0]))
+      }
+   else {
+      w = Math.floor(d*(xlimits[1]-xlimits[0])/(zlimits[1]-zlimits[0]))
+      h = Math.floor(d*(ylimits[1]-ylimits[0])/(zlimits[1]-zlimits[0]))
+      }
    mod.img.height = h
    mod.img.width = w
    var blob = new Blob(['('+worker.toString()+'())'])
@@ -251,9 +206,9 @@ function view_slice(shape) {
    ctx.clearRect(0,0,mod.img.width,mod.img.height)
    var img = ctx.getImageData(0,0,mod.img.width,mod.img.height)
    webworker.postMessage({
-      height:img.height,width:img.width,
-      xvar:xvar,yvar:yvar,zvar:zvar,zval:zval,
-      xlimits:xlimits,ylimits:ylimits,
+      height:h,width:w,depth:d,
+      xvar:xvar,yvar:yvar,zvar:zvar,
+      xlimits:xlimits,ylimits:ylimits,zlimits:zlimits,
       string:str,
       buffer:img.data.buffer},
       [img.data.buffer])
@@ -265,24 +220,37 @@ function worker() {
    self.addEventListener('message',function(evt) {
       var h = evt.data.height
       var w = evt.data.width
+      var d = evt.data.depth
       var xvar = evt.data.xvar
       var yvar = evt.data.yvar
       var zvar = evt.data.zvar
-      var zval = evt.data.zval
       var xlimits = evt.data.xlimits
       var ylimits = evt.data.ylimits
+      var zlimits = evt.data.zlimits
       var buf = new Uint8ClampedArray(evt.data.buffer)
       var f = new Function(xvar,yvar,zvar,'return ('+evt.data.string+')')
-      var x,y,v
+      var x,y,z,v
       for (var row = 0; row < h; ++row) {
-         y = ylimits[0]+(ylimits[1]-ylimits[0])*row/(h-1)
          for (var col = 0; col < w; ++col) {
-            x = xlimits[0]+(xlimits[1]-xlimits[0])*col/(w-1)
-            v = (f(x,y,zval) > 0) ? 255 : 0
-            buf[(h-1-row)*w*4+col*4+0] = v
-            buf[(h-1-row)*w*4+col*4+1] = v
-            buf[(h-1-row)*w*4+col*4+2] = v
+            buf[(h-1-row)*w*4+col*4+0] = 0
+            buf[(h-1-row)*w*4+col*4+1] = 0
+            buf[(h-1-row)*w*4+col*4+2] = 0
             buf[(h-1-row)*w*4+col*4+3] = 255
+            }
+         }
+      for (var layer = 0; layer < d; ++layer) {
+         z = zlimits[0]+(zlimits[1]-zlimits[0])*layer/(d-1)
+         v = Math.floor(255*layer/(d-1))
+         for (var row = 0; row < h; ++row) {
+            y = ylimits[0]+(ylimits[1]-ylimits[0])*row/(h-1)
+            for (var col = 0; col < w; ++col) {
+               x = xlimits[0]+(xlimits[1]-xlimits[0])*col/(w-1)
+               if (f(x,y,z) > 0) {
+                  buf[(h-1-row)*w*4+col*4+0] = v
+                  buf[(h-1-row)*w*4+col*4+1] = v
+                  buf[(h-1-row)*w*4+col*4+2] = v
+                  }
+               }
             }
          }
       self.postMessage({buffer:buf.buffer},[buf.buffer])
