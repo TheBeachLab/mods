@@ -25,7 +25,7 @@ var name = 'frep render (CPU)'
 // initialization
 //
 var init = function() {
-   mod.width.value = 1000
+   mod.width.value = 255
    }
 //
 // inputs
@@ -153,9 +153,10 @@ function render(shape) {
       h = Math.floor(w*(ylimits[1]-ylimits[0])/(xlimits[1]-xlimits[0]))
       d = Math.floor(w*(zlimits[1]-zlimits[0])/(xlimits[1]-xlimits[0]))
       }
-   else (!isNaN(h)) {
+   else if (!isNaN(h)) {
       w = Math.floor(h*(xlimits[1]-xlimits[0])/(ylimits[1]-ylimits[0]))
       d = Math.floor(h*(zlimits[1]-zlimits[0])/(ylimits[1]-ylimits[0]))
+      }
    else {
       w = Math.floor(d*(xlimits[1]-xlimits[0])/(zlimits[1]-zlimits[0]))
       h = Math.floor(d*(ylimits[1]-ylimits[0])/(zlimits[1]-zlimits[0]))
@@ -244,7 +245,7 @@ function worker() {
             y = ylimits[0]+(ylimits[1]-ylimits[0])*row/(h-1)
             for (var col = 0; col < w; ++col) {
                x = xlimits[0]+(xlimits[1]-xlimits[0])*col/(w-1)
-               if (f(x,y,zval) > 0) {
+               if (f(x,y,z) > 0) {
                   buf[(h-1-row)*w*4+col*4+0] = v
                   buf[(h-1-row)*w*4+col*4+1] = v
                   buf[(h-1-row)*w*4+col*4+2] = v
