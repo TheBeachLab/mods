@@ -1,5 +1,5 @@
 //
-// devie server module
+// WebSocket module
 //
 // Neil Gershenfeld 
 // (c) Massachusetts Institute of Technology 2016
@@ -20,53 +20,37 @@ var mod = {}
 //
 // name
 //
-var name = 'WebSocket device'
+var name = 'WebSocket'
 //
 // initialization
 //
 var init = function() {
    mod.address.value = '127.0.0.1'
    mod.port.value = 1234
-   mod.device.value = 'usb/lp0'
-   mod.socket = null
+   mod.socket = 0
    socket_open()
    }
 //
 // inputs
 //
 var inputs = {
-   file:{type:'',
+   send:{type:'object',
       event:function(evt){
-         if (evt.detail.type == 'command') {
-            mod.command = evt.detail
-            mod.command.device = mod.device.value
-            mod.command.type = 'print'
-            socket_send(JSON.stringify(mod.command))
-            }
-         else if (evt.detail.type == 'file') {
-            mod.job = evt.detail
-            mod.label.nodeValue = 'send file to device'
-            mod.labelspan.style.fontWeight = 'bold'
-            }
+         socket_send(evt.detail)
          }}}
 //
 // outputs
 //
 var outputs = {
-   }
+   receive:{type:'object',
+      event:function(data){
+         mods.output(mod,'receive',data)}}}
 //
 // interface
 //
 var interface = function(div){
    mod.div = div
-   //
-   // server
-   //
-   var a = document.createElement('a')
-      a.href = './js/deviceserver.js'
-      a.innerHTML = 'deviceserver:'
-      a.target = '_blank'
-   div.appendChild(a)
+   div.appendChild(document.createTextNode('server:'))
    div.appendChild(document.createElement('br'))
    div.appendChild(document.createTextNode('address: '))
    input = document.createElement('input')
@@ -89,9 +73,6 @@ var interface = function(div){
       div.appendChild(input)
       mod.status = input
    div.appendChild(document.createElement('br'))
-   //
-   // open/close
-   //
    var btn = document.createElement('button')
       btn.style.margin = 1
       btn.appendChild(document.createTextNode('open'))
@@ -106,20 +87,10 @@ var interface = function(div){
          socket_close()
          })
       div.appendChild(btn)
-   div.appendChild(document.createElement('br'))
-   //
-   // device
-   //
-   div.appendChild(document.createTextNode('device:'))
-   div.appendChild(document.createElement('br'))
-   div.appendChild(document.createTextNode('/dev/'))
-   var input = document.createElement('input')
-      input.type = 'text'
-      input.size = 10
-      div.appendChild(input)
-      mod.device = input
-   div.appendChild(document.createElement('br'))   
-   var btn = document.createElement('button')
+	  
+	  
+	  
+	     var btn = document.createElement('button')
       btn.style.padding = mods.ui.padding
       btn.style.margin = 1
       var span = document.createElement('span')
@@ -132,14 +103,15 @@ var interface = function(div){
          if (mod.socket == null) {
             mod.status.value = "can't send, not open"
             }
-         else if (mod.label.nodeValue == 'send file to device') {
-            mod.job.device = mod.device.value
-            mod.job.type = 'print'
+         else if (mod.label.nodeValue == 'send file') {
             socket_send(JSON.stringify(mod.job))
             mod.label.nodeValue = 'cancel'
             }
          else if (mod.label.nodeValue == 'cancel') {
-            socket_send('cancel')
+            mod.command = {}
+            mod.command.type = 'cancel'
+			socket_send('test test ')
+            //socket_send(JSON.stringify(mod.command))
             }
          })
       div.appendChild(btn)
@@ -151,28 +123,23 @@ function socket_open() {
    var url = "ws://"+mod.address.value+':'+mod.port.value
    mod.socket = new WebSocket(url)
    mod.socket.onopen = function(event) {
-      mod.status.value = "socket opened"
+      mod.status.value = "opened"
       }
    mod.socket.onerror = function(event) {
-      mod.status.value = "can not open socket"
-      mod.socket = null
+      mod.status.value = "can not open"
       }
    mod.socket.onmessage = function(event) {
-      mod.status.value = event.data
-      if ((event.data == 'done') || (event.data == 'cancel')
-         || (event.data.slice(0,5) == 'error')) {
-         mod.label.nodeValue = 'waiting for file'
-         mod.labelspan.style.fontWeight = 'normal'
-         }
+      mod.status.value = "receive"
+      outputs.receive.event(event.data)
       }
    }
 function socket_close() {
    mod.socket.close()
-   mod.status.value = "socket closed"
-   mod.socket = null
+   mod.status.value = "closed"
+   mod.socket = 0
    }
 function socket_send(msg) {
-   if (mod.socket != null) {
+   if (mod.socket != 0) {
       mod.status.value = "send"
       mod.socket.send(msg)
       }

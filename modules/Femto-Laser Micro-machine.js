@@ -1,5 +1,7 @@
 //
-// Roland SRM-20 milling machine
+// Pharos Femto-Laseer Micro-Machining
+// Prashant Patil 
+// March 14th, 2018.
 //
 // Neil Gershenfeld
 // (c) Massachusetts Institute of Technology 2016
@@ -12,19 +14,7 @@
 //
 // closure
 //
-/*
-G-codes:
-G00X10.0
-G90 (absolute positioning)
-G21 (mm units)
-#.0 numbers
-G00 (positioning rapid move)
-G01 (linear motion)
-M03 (start spindle)
-M05 (stop spindle)
-F (feed rate mm/min, 6-1800)
-203.2 (X) x 152.4 (Y) x 60.5 (Z) mm         
-*/
+
 (function(){
 //
 // module globals
@@ -33,16 +23,16 @@ var mod = {}
 //
 // name
 //
-var name = 'Roland SRM-20 milling machine'
+var name = 'Femto-Laser Micro-machine'
 //
 // initialization
 //
 var init = function() {
-   mod.units = 100.0
+   mod.units = 40.0
    mod.speed.value = 4
    mod.ox.value = 10
    mod.oy.value = 10
-   mod.oz.value = 10
+   mod.oz.value = 0
    mod.jz.value = 2
    mod.hx.value = 0
    mod.hy.value = 152.4
@@ -52,7 +42,7 @@ var init = function() {
 // inputs
 //
 var inputs = {
-   toolpath:{type:'',
+   toolpath:{type:'object',
       event:function(evt){
          mod.name = evt.detail.name
          mod.path = evt.detail.path
@@ -65,7 +55,7 @@ var inputs = {
 // outputs
 //
 var outputs = {
-   file:{type:'',
+   file:{type:'object',
       event:function(obj){
          mods.output(mod,'file',obj)
          }}}
@@ -86,7 +76,7 @@ var interface = function(div){
    div.appendChild(document.createTextNode(' (mm/s)'))
    div.appendChild(document.createElement('br'))
    //
-   // origin
+   // origin x (mm)
    //
    div.appendChild(document.createTextNode('origin:'))
    div.appendChild(document.createElement('br'))
@@ -106,43 +96,35 @@ var interface = function(div){
       mod.oy = input
    div.appendChild(document.createTextNode(' (mm)'))
    div.appendChild(document.createElement('br'))
-   div.appendChild(document.createTextNode('z: '))
+   //div.appendChild(document.createTextNode('z: '))
    var input = document.createElement('input')
       input.type = 'text'
       input.size = 6
-      div.appendChild(input)
+      //div.appendChild(input)
       mod.oz = input
-   div.appendChild(document.createTextNode(' (mm)'))
-   div.appendChild(document.createElement('br'))
+   //div.appendChild(document.createTextNode(' (mm)'))
+   //div.appendChild(document.createElement('br'))
+   
+   // Move to origin.
    var btn = document.createElement('button')
       btn.style.padding = mods.ui.padding
       btn.style.margin = 1
       var span = document.createElement('span')
-         var text = document.createTextNode('move to origin')
+         var text = document.createTextNode('Move to origin')
             span.appendChild(text)
          btn.appendChild(span)
       btn.addEventListener('click',function(){
          var x0 = mod.units*parseFloat(mod.ox.value);
          var y0 = mod.units*parseFloat(mod.oy.value);
          var z0 = mod.units*parseFloat(mod.oz.value);
-         var zjog = z0+mod.units*parseFloat(mod.jz.value);
-         //
-         // G-code version
-         //
-         /*
-         str = '%\n' // data start
-         str += 'G90\n' // absolute units
-         str += 'G21\n' // mm units
-         str += 'G00Z30.0\n' // move z
-         str += 'M02\n' // end of program
-         */
-         //
-         // RML version
-         //
-         var str = "PA;PA;VS10;!VZ10;!PZ0,"+zjog+";PU"+x0+","+y0+";Z"+x0+","+y0+","+z0+";!MC0;"+"\u0004"
-         //
-         // send command
-         //
+         var zjog = mod.units*parseFloat(mod.jz.value);
+         
+         // Call function "MCS_HomeStage" to home stage.
+         var str = "MCS_HomeStage"
+
+           
+
+
          var obj = {}
          obj.type = 'command'
          obj.name = mod.name+'.rml'
@@ -193,34 +175,18 @@ var interface = function(div){
       mod.hz = input
    div.appendChild(document.createTextNode(' (mm)'))
    div.appendChild(document.createElement('br'))
+   
    var btn = document.createElement('button')
       btn.style.padding = mods.ui.padding
       btn.style.margin = 1
       var span = document.createElement('span')
-         var text = document.createTextNode('move to home')
+         var text = document.createTextNode('move home and stop')
             span.appendChild(text)
          btn.appendChild(span)
       btn.addEventListener('click',function(){
          var xhome = mod.units*parseFloat(mod.hx.value);
          var yhome = mod.units*parseFloat(mod.hy.value);
          var zhome = mod.units*parseFloat(mod.hz.value);
-         //
-         // G-code version
-         //
-         /*
-         str = '%\n' // data start
-         str += 'G90\n' // absolute units
-         str += 'G21\n' // mm units
-         str += 'G00Z50.0\n' // move z
-         str += 'M02\n' // end of program
-         */
-         //
-         // RML version
-         //
-         var str = "PA;PA;!PZ0,"+zhome+";PU"+xhome+","+yhome+";!MC0;"+"\u0004"
-         //
-         // send command
-         //
          var obj = {}
          obj.type = 'command'
          obj.name = mod.name+'.rml'
@@ -237,7 +203,7 @@ function make_path() {
    var dx = 25.4*mod.width/mod.dpi
    var nx = mod.width
    var speed = parseFloat(mod.speed.value)
-   var jog = parseFloat(mod.oz.value)+parseFloat(mod.jz.value)
+   var jog = parseFloat(mod.jz.value)
    var ijog = Math.floor(mod.units*jog)
    var scale = mod.units*dx/(nx-1)
    var x0 = parseFloat(mod.ox.value)

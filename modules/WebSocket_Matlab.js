@@ -1,5 +1,6 @@
 //
-// serial server module
+// WebSocket_Matlab for Pharos
+// Prashant Patil.
 //
 // Neil Gershenfeld 
 // (c) Massachusetts Institute of Technology 2016
@@ -20,16 +21,13 @@ var mod = {}
 //
 // name
 //
-var name = 'WebSocket serial'
+var name = 'WebSocket Matlab'
 //
 // initialization
 //
 var init = function() {
    mod.address.value = '127.0.0.1'
    mod.port.value = 1234
-   mod.device.value = 'ttyUSB0'
-   mod.baud.value = 9600
-   mod.flow_rtscts.checked = true
    mod.socket = null
    socket_open()
    }
@@ -69,15 +67,7 @@ var outputs = {
 //
 var interface = function(div){
    mod.div = div
-   //
-   // server
-   //
-   var a = document.createElement('a')
-      a.href = './js/serialserver.js'
-      a.innerHTML = 'serialserver:'
-      a.target = '_blank'
-   div.appendChild(a)
-   div.appendChild(document.createElement('br'))
+ 
    //
    // open/close
    //
@@ -126,80 +116,31 @@ var interface = function(div){
       div.appendChild(input)
       mod.status = input
    div.appendChild(document.createElement('br'))
-   //
-   // serial
-   //
-   div.appendChild(document.createTextNode('serial device:'))
-   div.appendChild(document.createElement('br'))
-   //
-   // open/close
-   //
+
+   // Home stage button.
    var btn = document.createElement('button')
+      btn.style.padding = mods.ui.padding
       btn.style.margin = 1
-      btn.appendChild(document.createTextNode('open'))
-      btn.addEventListener('click',function() {
-         serial_open()
+      var span = document.createElement('span')
+         var text = document.createTextNode('Move to origin')
+            span.appendChild(text)
+         btn.appendChild(span)
+      btn.addEventListener('click',function(){
+  
+         
+         // Call function "MCS_HomeStage" to home stage.
+         var str = "MCS_HomeStage"
+         var obj = {}
+         obj.type = 'command'
+         obj.name = mod.name+'.m'
+         obj.contents = str
+         socket_send(JSON.stringify(obj))
          })
       div.appendChild(btn)
-   var btn = document.createElement('button')
-      btn.style.margin = 1
-      btn.appendChild(document.createTextNode('close'))
-      btn.addEventListener('click',function() {
-         serial_close()
-         })
-      div.appendChild(btn)
    div.appendChild(document.createElement('br'))
-   //
-   // device
-   //
-   div.appendChild(document.createTextNode('/dev/'))
-   var input = document.createElement('input')
-      input.type = 'text'
-      input.size = 10
-      div.appendChild(input)
-      mod.device = input
-   div.appendChild(document.createElement('br'))   
-   //
-   // baud rate
-   //
-   div.appendChild(document.createTextNode('baud rate:'))
-   div.appendChild(document.createElement('br'))   
-   var input = document.createElement('input')
-      input.type = 'text'
-      input.size = 10
-      div.appendChild(input)
-      mod.baud = input
-   div.appendChild(document.createElement('br'))   
-   //
-   // flow control
-   //
-   div.appendChild(document.createTextNode('flow control:'))
-   div.appendChild(document.createElement('br'))   
-   var input = document.createElement('input')
-      input.type = 'radio'
-      input.name = mod.div.id+'flow'
-      input.id = mod.div.id+'flow_none'
-      div.appendChild(input)
-      mod.flow_none = input
-   div.appendChild(document.createTextNode('none\u00A0\u00A0\u00A0\u00A0'))
-   div.appendChild(document.createElement('br'))   
-   var input = document.createElement('input')
-      input.type = 'radio'
-      input.name = mod.div.id+'flow'
-      input.id = mod.div.id+'flow_rtscts'
-      div.appendChild(input)
-      mod.flow_rtscts = input
-   div.appendChild(document.createTextNode('RTSCTS'))
-   div.appendChild(document.createElement('br'))   
-   var input = document.createElement('input')
-      input.type = 'radio'
-      input.name = mod.div.id+'flow'
-      input.id = mod.div.id+'flow_dsrdtr'
-      div.appendChild(input)
-      input.disabled = true
-      mod.flow_dsrdtr = input
-   div.appendChild(document.createTextNode('DSRDTR'))
-   div.appendChild(document.createElement('br'))   
+
+
+  
    //
    // file button
    //
@@ -236,7 +177,6 @@ function socket_open() {
    mod.socket = new WebSocket(url)
    mod.socket.onopen = function(event) {
       mod.status.value = "socket opened"
-      serial_open()
       }
    mod.socket.onerror = function(event) {
       mod.status.value = "can not open"
@@ -256,6 +196,8 @@ function socket_close() {
    mod.status.value = "socket closed"
    mod.socket = null
    }
+
+
 function socket_send(msg) {
    if (mod.socket != null) {
       mod.status.value = "send"
@@ -265,47 +207,9 @@ function socket_send(msg) {
       mod.status.value = "can't send, not open"
       }
    }
-function serial_open() {
-   if (mod.socket == null) {
-      mod.status.value = "socket not open"
-      }
-   else {
-      var msg = {}
-      msg.type = 'open'
-      msg.device = '/dev/'+mod.device.value
-      msg.baud = mod.baud.value
-      if (mod.flow_none.checked)
-         msg.flow = 'none'
-      else if (mod.flow_rtscts.checked)
-         msg.flow = 'rtscts'
-      else if (mod.flow_dsrdtr.checked)
-         msg.flow = 'dsrdtr'
-      mod.socket.send(JSON.stringify(msg))
-      }
-   }
-function serial_close() {
-   if (mod.socket == null) {
-      mod.status.value = "socket not open"
-      }
-   else {
-      var msg = {}
-      msg.type = 'close'
-      msg.device = '/dev/'+mod.device.value
-      mod.socket.send(JSON.stringify(msg))
-      }
-   }
-function serial_send_string(str) {
-   if (mod.socket == null) {
-      mod.status.value = "socket not open"
-      }
-   else {
-      var msg = {}
-      msg.type = 'string'
-      msg.string = str
-      mod.socket.send(JSON.stringify(msg))
-      mod.status.value = 'transmit'
-      }
-   }
+ 
+ 
+ 
 //
 // return values
 //
