@@ -2,9 +2,10 @@
 - frep
     - render
         - CPU
+            - zoom pan rotate
         - GPU
         - tree
-    - slice zoom pan rotate
+    - slice zoom pan
     - variable expressions
     - color
     - CSG bounding boxes
