@@ -20,7 +20,7 @@ var mod = {}
 //
 // name
 //
-var name = 'frep 2D function'
+var name = 'frep 3D function'
 //
 // initialization
 //
