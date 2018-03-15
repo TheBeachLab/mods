@@ -1,4 +1,6 @@
 # Todo
+- view toolpath to library
+- ws support for Node.js < 4.5.0
 - frep
     - transforms
     - variable expressions
