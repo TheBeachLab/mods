@@ -2,7 +2,7 @@
 // frep rectangle corners
 //
 // Neil Gershenfeld
-// (c) Massachusetts Institute of Technology 2017
+// (c) Massachusetts Institute of Technology 2018
 //
 // This work may be reproduced, modified, distributed, performed, and
 // displayed for any purpose, but must acknowledge the mods
@@ -55,7 +55,7 @@ var outputs = {
          var ymax = parseFloat(mod.ymax.value)
          var xstr = `Math.min(X-(${xmin}),(${xmax})-X)`
          var ystr = `Math.min(Y-(${ymin}),(${ymax})-Y)`
-         var str = `Math.min(${xstr},${ystr})`
+         var str = `Math.min((${xstr}),(${ystr}))`
          var variables = ['X','Y']
          var limits = [[xmin,xmax],[ymin,ymax]]
          var type = 'Magnitude'

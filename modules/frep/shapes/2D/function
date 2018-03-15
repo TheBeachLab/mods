@@ -1,5 +1,5 @@
 //
-// frep circle
+// frep 2D function
 //
 // Neil Gershenfeld
 // (c) Massachusetts Institute of Technology 2018
@@ -20,14 +20,16 @@ var mod = {}
 //
 // name
 //
-var name = 'frep circle'
+var name = 'frep 2D function'
 //
 // initialization
 //
 var init = function() {
-   mod.x.value = '0'
-   mod.y.value = '0'
-   mod.r.value = '1'
+   mod.fn.value = 'Math.sin(10*X)-10*Y'
+   mod.xmin.value = '-1'
+   mod.ymin.value = '-1'
+   mod.xmax.value = '1'
+   mod.ymax.value = '1'
    }
 //
 // inputs
@@ -35,9 +37,10 @@ var init = function() {
 var inputs = {
    variables:{type:'',
       event:function(evt){
-         mod.x.value = evt.detail.x
-         mod.y.value = evt.detail.y
-         mod.r.value = evt.detail.r
+         mod.xmin.value = evt.detail.xmin
+         mod.xmax.value = evt.detail.xmax
+         mod.ymin.value = evt.detail.ymin
+         mod.ymax.value = evt.detail.ymax
          outputs.variables.event()
          outputs.shape.event()
          }}}
@@ -47,22 +50,27 @@ var inputs = {
 var outputs = {
    shape:{type:'',
       event:function(){
-         var x = parseFloat(mod.x.value)
-         var y = parseFloat(mod.y.value)
-         var r = parseFloat(mod.r.value)
-         var str = `((${r})*(${r})-((X-(${x}))*(X-(${x}))+(Y-(${y}))*(Y-(${y}))))`
+         var fn = mod.fn.value
+         var xmin = parseFloat(mod.xmin.value)
+         var xmax = parseFloat(mod.xmax.value)
+         var ymin = parseFloat(mod.ymin.value)
+         var ymax = parseFloat(mod.ymax.value)
+         var str = `Math.min(X-(${xmin}),(${xmax})-X)`
+         var str = `Math.min((${fn}),${str})`
          var variables = ['X','Y']
-         var limits = [[x-r,x+r],[y-r,y+r]]
+         var limits = [[xmin,xmax],[ymin,ymax]]
          var type = 'Magnitude'
          var shape = {string:str,variables:variables,limits:limits,type:type}
          mods.output(mod,'shape',shape)}
          },
    variables:{type:'',
       event:function(){
-         var x = parseFloat(mod.x.value)
-         var y = parseFloat(mod.y.value)
-         var r = parseFloat(mod.r.value)
-         var vars = {x:x,y:y,r:r}
+         var fn = parseFloat(mod.fn.value)
+         var xmin = parseFloat(mod.xmin.value)
+         var xmax = parseFloat(mod.xmax.value)
+         var ymin = parseFloat(mod.ymin.value)
+         var ymax = parseFloat(mod.ymax.value)
+         var vars = {fn:fn,xmin:xmin,ymin:ymin,xmax:xmax,ymax:ymax}
          mods.output(mod,'variables',vars)}
          }}
 //
@@ -71,33 +79,52 @@ var outputs = {
 var interface = function(div){
    mod.div = div
    //
-   // x
+   // function
    //
-   div.appendChild(document.createTextNode('x: '))
+   div.appendChild(document.createTextNode('function: '))
    var input = document.createElement('input')
       input.type = 'text'
-      input.size = 3
+      input.size = 10
       div.appendChild(input)
-      mod.x = input
-   //
-   // y
-   //
-   div.appendChild(document.createTextNode(' y: '))
-   var input = document.createElement('input')
-      input.type = 'text'
-      input.size = 3
-      div.appendChild(input)
-      mod.y = input
+      mod.fn = input
    div.appendChild(document.createElement('br'))
    //
-   // r
+   // xmin
    //
-   div.appendChild(document.createTextNode('r: '))
+   div.appendChild(document.createTextNode('xmin: '))
    var input = document.createElement('input')
       input.type = 'text'
       input.size = 3
       div.appendChild(input)
-      mod.r = input
+      mod.xmin = input
+   //
+   // xmax
+   //
+   div.appendChild(document.createTextNode(' xmax: '))
+   var input = document.createElement('input')
+      input.type = 'text'
+      input.size = 3
+      div.appendChild(input)
+      mod.xmax = input
+   div.appendChild(document.createElement('br'))
+   //
+   // ymin
+   //
+   div.appendChild(document.createTextNode('ymin: '))
+   var input = document.createElement('input')
+      input.type = 'text'
+      input.size = 3
+      div.appendChild(input)
+      mod.ymin = input
+   //
+   // ymax
+   //
+   div.appendChild(document.createTextNode(' ymax: '))
+   var input = document.createElement('input')
+      input.type = 'text'
+      input.size = 3
+      div.appendChild(input)
+      mod.ymax = input
    div.appendChild(document.createElement('br'))
    //
    // output button
