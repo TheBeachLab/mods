@@ -113,20 +113,20 @@ var interface = function(div){
       btn.appendChild(document.createTextNode('view'))
       btn.addEventListener('click',function(){
          mod.win = window.open('')
-         //mod.win.document.body.style.overflow = 'hidden'
-         //mod.win.document.body.style.border = 0
-         //mod.win.document.body.style.padding = 0
-         //mod.win.document.body.style.margin = 0
+         mod.win.document.body.style.overflow = 'hidden'
+         mod.win.document.body.style.border = 0
+         mod.win.document.body.style.padding = 0
+         mod.win.document.body.style.margin = 0
          mod.win.addEventListener('unload',function() {
             mod.win = null
             })
          var canvas = document.createElement('canvas')
-            canvas.width = mod.img.width
-            canvas.height = mod.img.height
             canvas.setAttribute('id',mod.div.id+'canvas')
             mod.win.document.body.appendChild(canvas)
          var ctx = canvas.getContext("2d")
-            ctx.drawImage(mod.img,0,0)
+            canvas.width = window.innerWidth
+            canvas.height = window.innerWidth
+            ctx.drawImage(mod.img,0,0,canvas.width,canvas.width)
          })
       div.appendChild(btn)
    }
@@ -191,11 +191,11 @@ function render(shape) {
       ctx.drawImage(mod.img,x0,y0,wd,hd)
       if (mod.win != null) {
          var canvas = mod.win.document.getElementById(mod.div.id+'canvas')
-         canvas.width = mod.img.width
-         canvas.height = mod.img.height
+         canvas.width = mod.win.innerWidth
+         canvas.height = mod.win.innerWidth
          var ctx = canvas.getContext("2d")
-         ctx.clearRect(0,0,mod.img.width,mod.img.height)
-         ctx.drawImage(mod.img,0,0)
+         ctx.clearRect(0,0,canvas.width,canvas.height)
+         ctx.drawImage(mod.img,0,0,canvas.width,canvas.width)
          }
       webworker.terminate()
       outputs.image.event()

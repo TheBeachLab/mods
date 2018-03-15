@@ -1,5 +1,5 @@
 //
-// frep sphere
+// frep cylinder
 //
 // Neil Gershenfeld
 // (c) Massachusetts Institute of Technology 2018
@@ -20,14 +20,15 @@ var mod = {}
 //
 // name
 //
-var name = 'frep sphere'
+var name = 'frep cylinder'
 //
 // initialization
 //
 var init = function() {
    mod.x.value = '0'
    mod.y.value = '0'
-   mod.z.value = '0'
+   mod.z0.value = '0'
+   mod.z1.value = '1'
    mod.r.value = '1'
    }
 //
@@ -38,7 +39,8 @@ var inputs = {
       event:function(evt){
          mod.x.value = evt.detail.x
          mod.y.value = evt.detail.y
-         mod.z.value = evt.detail.z
+         mod.z0.value = evt.detail.z0
+         mod.z1.value = evt.detail.z1
          mod.r.value = evt.detail.r
          outputs.variables.event()
          outputs.shape.event()
@@ -51,11 +53,14 @@ var outputs = {
       event:function(){
          var x = parseFloat(mod.x.value)
          var y = parseFloat(mod.y.value)
-         var z = parseFloat(mod.z.value)
+         var z0 = parseFloat(mod.z0.value)
+         var z1 = parseFloat(mod.z1.value)
          var r = parseFloat(mod.r.value)
-         var str = `(${r}*${r}-((X-(${x}))*(X-(${x}))+(Y-(${y}))*(Y-(${y}))+(Z-(${z}))*(Z-(${z}))))`
+         var str = `(${r}*${r}-((X-(${x}))*(X-(${x}))+(Y-(${y}))*(Y-(${y}))))`
+         str = `Math.min((Z-(${z0})),(${str}))`
+         str = `Math.min(((${z1})-Z),(${str}))`
          var variables = ['X','Y','Z']
-         var limits = [[x-r,x+r],[y-r,y+r],[z-r,z+r]]
+         var limits = [[x-r,x+r],[y-r,y+r],[z0,z1]]
          var type = 'Magnitude'
          var shape = {string:str,variables:variables,limits:limits,type:type}
          mods.output(mod,'shape',shape)}
@@ -64,9 +69,10 @@ var outputs = {
       event:function(){
          var x = parseFloat(mod.x.value)
          var y = parseFloat(mod.y.value)
-         var z = parseFloat(mod.z.value)
+         var z0 = parseFloat(mod.z0.value)
+         var z1 = parseFloat(mod.z1.value)
          var r = parseFloat(mod.r.value)
-         var vars = {x:x,y:y,z:z,r:r}
+         var vars = {x:x,y:y,r:r}
          mods.output(mod,'variables',vars)}
          }}
 //
@@ -94,14 +100,24 @@ var interface = function(div){
       mod.y = input
    div.appendChild(document.createElement('br'))
    //
-   // z
+   // z0
    //
-   div.appendChild(document.createTextNode('z: '))
+   div.appendChild(document.createTextNode('z0: '))
    var input = document.createElement('input')
       input.type = 'text'
       input.size = 3
       div.appendChild(input)
-      mod.z = input
+      mod.z0 = input
+   //
+   // z1
+   //
+   div.appendChild(document.createTextNode(' z1: '))
+   var input = document.createElement('input')
+      input.type = 'text'
+      input.size = 3
+      div.appendChild(input)
+      mod.z1 = input
+   div.appendChild(document.createElement('br'))
    //
    // r
    //
