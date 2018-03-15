@@ -1,12 +1,13 @@
 # Todo
 - frep
+    - transforms
+    - variable expressions
     - render
         - CPU
             - zoom pan rotate
         - GPU
         - tree
     - slice zoom pan
-    - variable expressions
     - color
     - CSG bounding boxes
 - save program read ui values
