@@ -42,8 +42,10 @@ var inputs = {
 var outputs = {
    image:{type:'RGBA',
       event:function(){
-         mods.output(mod,'image',0)}
-         }}
+         var ctx = mod.img.getContext("2d")
+         var img = ctx.getImageData(0,0,mod.img.width,mod.img.height)
+         mods.output(mod,'image',img)
+         }}}
 //
 // interface
 //
