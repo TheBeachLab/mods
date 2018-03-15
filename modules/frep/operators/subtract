@@ -50,6 +50,7 @@ var outputs = {
       event:function(){
          if ((mod.shape0 != null) && (mod.shape1 != null)) {
             var str = `Math.min(${mod.shape0.string},-(${mod.shape1.string}))`
+            mod.fn.value = str
             var variables = mod.shape0.variables
             var type = mod.shape0.type        
             var limits = mod.shape0.limits
@@ -68,6 +69,17 @@ var outputs = {
 //
 var interface = function(div){
    mod.div = div
+   //
+   // function
+   //
+   div.appendChild(document.createTextNode('function: '))
+   div.appendChild(document.createElement('br'))
+   var input = document.createElement('input')
+      input.type = 'text'
+      input.size = 10
+      div.appendChild(input)
+      mod.fn = input
+   div.appendChild(document.createElement('br'))
    //
    // output button
    //

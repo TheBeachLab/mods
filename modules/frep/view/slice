@@ -34,6 +34,7 @@ var init = function() {
 var inputs = {
    shape:{type:'frep',
       event:function(evt){
+         mod.fn.value = evt.detail.string
          view_slice(evt.detail)
          }}}
 //
@@ -130,6 +131,16 @@ var interface = function(div){
          })
       div.appendChild(input)
       mod.height = input
+   div.appendChild(document.createElement('br'))
+   //
+   // function
+   //
+   div.appendChild(document.createTextNode('function: '))
+   var input = document.createElement('input')
+      input.type = 'text'
+      input.size = 10
+      div.appendChild(input)
+      mod.fn = input
    div.appendChild(document.createElement('br'))
    //
    // view button

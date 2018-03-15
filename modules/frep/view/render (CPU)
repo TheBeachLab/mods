@@ -33,6 +33,7 @@ var init = function() {
 var inputs = {
    shape:{type:'frep',
       event:function(evt){
+         mod.fn.value = evt.detail.string
          render(evt.detail)
          }}}
 //
@@ -44,7 +45,7 @@ var outputs = {
          var ctx = mod.img.getContext("2d")
          var img = ctx.getImageData(0,0,mod.img.width,mod.img.height)
          mods.output(mod,'image',img)
-         }}
+         }}}
 //
 // interface
 //
@@ -105,6 +106,16 @@ var interface = function(div){
          })
       div.appendChild(input)
       mod.depth = input
+   div.appendChild(document.createElement('br'))
+   //
+   // function
+   //
+   div.appendChild(document.createTextNode('function: '))
+   var input = document.createElement('input')
+      input.type = 'text'
+      input.size = 10
+      div.appendChild(input)
+      mod.fn = input
    div.appendChild(document.createElement('br'))
    //
    // view button
