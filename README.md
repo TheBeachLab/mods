@@ -13,6 +13,8 @@
     - color
     - CSG bounding boxes
 - save program read ui values
+- collapse nodes
+- program load clear, redirect
 - subgraph select drag cut copy paste
 - menus
     - folding
@@ -20,7 +22,9 @@
 - three-axis rough and finish cuts
 - Cross-Origin Resource Sharing (CORS)
 - nested module graphs
-- vector toolpath input
+- HPGL input
+- STL slicer
+- SVG export
 - ...
 
 # To install and run mods locally
