@@ -145,6 +145,7 @@ var interface = function(div){
    //
    // view button
    //
+   div.appendChild(document.createTextNode(' '))
    var btn = document.createElement('button')
       btn.style.padding = mods.ui.padding
       btn.style.margin = 1
@@ -291,7 +292,7 @@ function worker() {
          y = ylimits[0]+(ylimits[1]-ylimits[0])*row/(h-1)
          for (var col = 0; col < w; ++col) {
             x = xlimits[0]+(xlimits[1]-xlimits[0])*col/(w-1)
-            v = (f(x,y,zval) > 0) ? 255 : 0
+            v = (f(x,y,zval) >= 0) ? 255 : 0
             buf[(h-1-row)*w*4+col*4+0] = v
             buf[(h-1-row)*w*4+col*4+1] = v
             buf[(h-1-row)*w*4+col*4+2] = v

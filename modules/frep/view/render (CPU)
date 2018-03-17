@@ -258,7 +258,7 @@ function worker() {
             y = ylimits[0]+(ylimits[1]-ylimits[0])*row/(h-1)
             for (var col = 0; col < w; ++col) {
                x = xlimits[0]+(xlimits[1]-xlimits[0])*col/(w-1)
-               if (f(x,y,z) > 0) {
+               if (f(x,y,z) >= 0) {
                   buf[(h-1-row)*w*4+col*4+0] = v
                   buf[(h-1-row)*w*4+col*4+1] = v
                   buf[(h-1-row)*w*4+col*4+2] = v
