@@ -50,11 +50,11 @@ var outputs = {
          var x = parseFloat(mod.x.value)
          var y = parseFloat(mod.y.value)
          var r = parseFloat(mod.r.value)
-         var str = `((${r})*(${r})-((X-(${x}))*(X-(${x}))+(Y-(${y}))*(Y-(${y}))))`
+         var fn = `((${r})*(${r})-((X-(${x}))*(X-(${x}))+(Y-(${y}))*(Y-(${y}))))`
          var variables = ['X','Y']
          var limits = [[x-r,x+r],[y-r,y+r]]
          var type = 'Magnitude'
-         var shape = {string:str,variables:variables,limits:limits,type:type}
+         var shape = {function:fn,variables:variables,limits:limits,type:type}
          mods.output(mod,'shape',shape)}
          },
    variables:{type:'',

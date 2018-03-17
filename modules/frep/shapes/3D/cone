@@ -56,14 +56,14 @@ var outputs = {
          var z0 = parseFloat(mod.z0.value)
          var z1 = parseFloat(mod.z1.value)
          var r = parseFloat(mod.r.value)
-         var str = `(${r}*((${z1})-Z)/((${z1})-(${z0})))`
-         str = `(${str}*${str}-((X-(${x}))*(X-(${x}))+(Y-(${y}))*(Y-(${y}))))`
-         str = `Math.min((Z-(${z0})),(${str}))`
-         str = `Math.min(((${z1})-Z),(${str}))`
+         var fn = `(${r}*((${z1})-Z)/((${z1})-(${z0})))`
+         fn = `(${fn}*${fn}-((X-(${x}))*(X-(${x}))+(Y-(${y}))*(Y-(${y}))))`
+         fn = `Math.min((Z-(${z0})),(${fn}))`
+         fn = `Math.min(((${z1})-Z),(${fn}))`
          var variables = ['X','Y','Z']
          var limits = [[x-r,x+r],[y-r,y+r],[z0,z1]]
          var type = 'Magnitude'
-         var shape = {string:str,variables:variables,limits:limits,type:type}
+         var shape = {function:fn,variables:variables,limits:limits,type:type}
          mods.output(mod,'shape',shape)}
          },
    variables:{type:'',

@@ -175,7 +175,7 @@ var interface = function(div){
 // view_slice
 //
 function view_slice(shape) {   
-   var str = shape.string
+   var fn = shape.function
    var vars = shape.variables
    var limits = shape.limits
    var type = shape.type
@@ -268,7 +268,7 @@ function view_slice(shape) {
       height:img.height,width:img.width,
       xvar:xvar,yvar:yvar,zvar:zvar,zval:zval,
       xlimits:xlimits,ylimits:ylimits,
-      string:str,
+      function:fn,
       buffer:img.data.buffer},
       [img.data.buffer])
    }
@@ -286,7 +286,7 @@ function worker() {
       var xlimits = evt.data.xlimits
       var ylimits = evt.data.ylimits
       var buf = new Uint8ClampedArray(evt.data.buffer)
-      var f = new Function(xvar,yvar,zvar,'return ('+evt.data.string+')')
+      var f = new Function(xvar,yvar,zvar,'return ('+evt.data.function+')')
       var x,y,v
       for (var row = 0; row < h; ++row) {
          y = ylimits[0]+(ylimits[1]-ylimits[0])*row/(h-1)

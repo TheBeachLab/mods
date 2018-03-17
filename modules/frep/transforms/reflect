@@ -1,5 +1,5 @@
 //
-// frep right triangle
+// frep reflect
 //
 // Neil Gershenfeld
 // (c) Massachusetts Institute of Technology 2018
@@ -20,27 +20,21 @@ var mod = {}
 //
 // name
 //
-var name = 'frep right triangle'
+var name = 'frep reflect'
 //
 // initialization
 //
 var init = function() {
-   mod.x.value = '0'
-   mod.y.value = '0'
-   mod.width.value = '0.5'
-   mod.height.value = '1'
+   mod.location.value = 0
+   mod.x.checked = true
    }
 //
 // inputs
 //
 var inputs = {
-   variables:{type:'',
+   shape:{type:'',
       event:function(evt){
-         mod.x.value = evt.detail.x
-         mod.y.value = evt.detail.y
-         mod.width.value = evt.width.y
-         mod.height.value = evt.height.y
-         outputs.variables.event()
+         mod.shape = evt.detail
          outputs.shape.event()
          }}}
 //
@@ -49,26 +43,22 @@ var inputs = {
 var outputs = {
    shape:{type:'',
       event:function(){
-         var x = parseFloat(mod.x.value)
-         var y = parseFloat(mod.y.value)
-         var width = parseFloat(mod.width.value)
-         var height = parseFloat(mod.height.value)
-         var fn = `Math.min(X-(${x}),Y-(${y}))`
-         var fn = `Math.min(${height}*(${width}+(${x})-X)/${width}-Y,${fn})`
-         var variables = ['X','Y']
-         var limits = [[x,x+width],[y,y+height]]
-         var type = 'Magnitude'
+         var fn = mod.shape.function
+         var variables = mod.shape.variables
+         var type = mod.shape.type        
+         var limits = mod.shape.limits
+         var location = parseFloat(mod.location.value)
+         if (mod.x.checked) {
+            var xvar = variables[0]
+            var re = new RegExp(xvar,'g')
+            fn = fn.replace(re,`(-${xvar})`)
+            var dx = mod.shape.limits[0][1]-mod.shape.limits[0][0]
+            var dl = mod.shape.limits[0][0]-location
+            mod.shape.limits[0][0] = location-(dl+dx)
+            mod.shape.limits[0][1] = location-dl
+            }
          var shape = {function:fn,variables:variables,limits:limits,type:type}
          mods.output(mod,'shape',shape)}
-         },
-   variables:{type:'',
-      event:function(){
-         var x = parseFloat(mod.x.value)
-         var y = parseFloat(mod.y.value)
-         var width = parseFloat(mod.y.width)
-         var height = parseFloat(mod.y.height)
-         var vars = {x:x,y:y,width:width,height:height}
-         mods.output(mod,'variables',vars)}
          }}
 //
 // interface
@@ -76,43 +66,40 @@ var outputs = {
 var interface = function(div){
    mod.div = div
    //
-   // x
+   // axis
    //
-   div.appendChild(document.createTextNode('x: '))
+   div.appendChild(document.createTextNode('axis: '))
+   div.appendChild(document.createTextNode('x'))
    var input = document.createElement('input')
-      input.type = 'text'
-      input.size = 3
+      input.type = 'radio'
+      input.name = mod.div.id+'axis'
+      input.id = mod.div.id+'x'
       div.appendChild(input)
       mod.x = input
-   //
-   // y
-   //
-   div.appendChild(document.createTextNode(' y: '))
+   div.appendChild(document.createTextNode(' y'))
    var input = document.createElement('input')
-      input.type = 'text'
-      input.size = 3
+      input.type = 'radio'
+      input.name = mod.div.id+'axis'
+      input.id = mod.div.id+'y'
       div.appendChild(input)
       mod.y = input
+   div.appendChild(document.createTextNode(' z'))
+   var input = document.createElement('input')
+      input.type = 'radio'
+      input.name = mod.div.id+'axis'
+      input.id = mod.div.id+'z'
+      div.appendChild(input)
+      mod.z = input
    div.appendChild(document.createElement('br'))
    //
-   // width
+   // location
    //
-   div.appendChild(document.createTextNode('width: '))
+   div.appendChild(document.createTextNode('location: '))
    var input = document.createElement('input')
       input.type = 'text'
-      input.size = 3
+      input.size = 6
       div.appendChild(input)
-      mod.width = input
-   div.appendChild(document.createElement('br'))
-   //
-   // height
-   //
-   div.appendChild(document.createTextNode('height: '))
-   var input = document.createElement('input')
-      input.type = 'text'
-      input.size = 3
-      div.appendChild(input)
-      mod.height = input
+      mod.location = input
    div.appendChild(document.createElement('br'))
    //
    // output button
@@ -122,7 +109,6 @@ var interface = function(div){
       btn.style.margin = 1
       btn.appendChild(document.createTextNode('output'))
       btn.addEventListener('click',function(){
-         outputs.variables.event()
          outputs.shape.event()
          })
       div.appendChild(btn)

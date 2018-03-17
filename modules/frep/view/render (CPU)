@@ -33,7 +33,7 @@ var init = function() {
 var inputs = {
    shape:{type:'frep',
       event:function(evt){
-         mod.fn.value = evt.detail.string
+         mod.fn.value = evt.detail.function
          render(evt.detail)
          }}}
 //
@@ -149,7 +149,7 @@ var interface = function(div){
 // render
 //
 function render(shape) {   
-   var str = shape.string
+   var fn = shape.function
    var vars = shape.variables
    var limits = shape.limits
    var type = shape.type
@@ -222,7 +222,7 @@ function render(shape) {
       height:h,width:w,depth:d,
       xvar:xvar,yvar:yvar,zvar:zvar,
       xlimits:xlimits,ylimits:ylimits,zlimits:zlimits,
-      string:str,
+      function:fn,
       buffer:img.data.buffer},
       [img.data.buffer])
    }
@@ -241,7 +241,7 @@ function worker() {
       var ylimits = evt.data.ylimits
       var zlimits = evt.data.zlimits
       var buf = new Uint8ClampedArray(evt.data.buffer)
-      var f = new Function(xvar,yvar,zvar,'return ('+evt.data.string+')')
+      var f = new Function(xvar,yvar,zvar,'return ('+evt.data.function+')')
       var x,y,z,v
       for (var row = 0; row < h; ++row) {
          for (var col = 0; col < w; ++col) {
