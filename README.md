@@ -1,31 +1,40 @@
 # Todo
 - view toolpath to library
-- ws support for Node.js < 4.5.0
+- ui
+    - menus
+        - floating
+        - folding
+    - browser pan zoom
+    - collapse nodes
+    - refactor for skinning
 - frep
-    - multiple events
+    - multiple event propagation to rendering
     - transforms
     - variable expressions
     - render
         - CPU
+            - background color
             - zoom pan rotate
         - GPU
         - tree
     - slice zoom pan
     - color
-    - CSG bounding boxes
-- save program read ui values
-- collapse nodes
-- program load clear, redirect
-- subgraph select drag cut copy paste
-- menus
-    - folding
-    - floating
-- three-axis rough and finish cuts
+    - calculate CSG bounding boxes
+- devices
+    - remove /dev from serial paths
+- programs
+    - save program read ui values
+    - program load clear, redirect
+- editing
+    - subgraph select drag cut copy paste
+    - nested module graphs
+- processes
+    - STL slicer
+    - three-axis rough and finish cuts
 - Cross-Origin Resource Sharing (CORS)
-- nested module graphs
-- HPGL input
-- STL slicer
-- SVG export
+- formats
+    - HPGL input
+    - SVG export
 - ...
 
 # To install and run mods locally
