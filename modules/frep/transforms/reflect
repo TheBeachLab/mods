@@ -46,16 +46,39 @@ var outputs = {
          var fn = mod.shape.function
          var variables = mod.shape.variables
          var type = mod.shape.type        
-         var limits = mod.shape.limits
          var location = parseFloat(mod.location.value)
+         var limits = []
+         for (var v = 0; v < mod.shape.limits.length; ++v) {
+            limits[v] = []
+            limits[v][0] = mod.shape.limits[v][0]
+            limits[v][1] = mod.shape.limits[v][1]
+            }
          if (mod.x.checked) {
             var xvar = variables[0]
             var re = new RegExp(xvar,'g')
-            fn = fn.replace(re,`(-${xvar})`)
+            fn = fn.replace(re,`(${2*location}-${xvar})`)
             var dx = mod.shape.limits[0][1]-mod.shape.limits[0][0]
             var dl = mod.shape.limits[0][0]-location
-            mod.shape.limits[0][0] = location-(dl+dx)
-            mod.shape.limits[0][1] = location-dl
+            limits[0][0] = location-(dl+dx)
+            limits[0][1] = location-dl
+            }
+         else if (mod.y.checked) {
+            var yvar = variables[1]
+            var re = new RegExp(yvar,'g')
+            fn = fn.replace(re,`(${2*location}-${yvar})`)
+            var dy = mod.shape.limits[1][1]-mod.shape.limits[1][0]
+            var dl = mod.shape.limits[1][0]-location
+            limits[1][0] = location-(dl+dy)
+            limits[1][1] = location-dl
+            }
+         else if (mod.z.checked) {
+            var zvar = variables[2]
+            var re = new RegExp(zvar,'g')
+            fn = fn.replace(re,`(${2*location}-${zvar})`)
+            var dz = mod.shape.limits[2][1]-mod.shape.limits[2][0]
+            var dl = mod.shape.limits[2][0]-location
+            limits[2][0] = location-(dl+dz)
+            limits[2][1] = location-dl
             }
          var shape = {function:fn,variables:variables,limits:limits,type:type}
          mods.output(mod,'shape',shape)}
