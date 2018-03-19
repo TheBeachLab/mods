@@ -51,10 +51,9 @@ var inputs = {
    response:{type:'three.js',
       event:function(evt){
          var script = document.createElement('script')
-         script.type = 'text/javascript'
+         //script.type = 'text/javascript'
          script.onload = init_window
          script.src = 'data:text/javascript,' + encodeURIComponent(evt.detail)
-         
          mod.div.appendChild(script)
          //init_window(evt.detail)
          }}}
