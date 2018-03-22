@@ -34,7 +34,7 @@ var init = function() {
 var inputs = {
    shape:{type:'frep',
       event:function(evt){
-         mod.fn.value = evt.detail.string
+         mod.fn.value = evt.detail.function
          view_slice(evt.detail)
          }}}
 //

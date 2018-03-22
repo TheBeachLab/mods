@@ -47,6 +47,15 @@ var inputs = {
          show_path_info()
          show_path()
          outputs.toolpath.event()
+         }},
+   response:{type:'three.js',
+      event:function(evt){
+         var script = document.createElement('script')
+         //script.type = 'text/javascript'
+         script.onload = init_window
+         script.src = 'data:text/javascript,' + encodeURIComponent(evt.detail)
+         mod.div.appendChild(script)
+         //init_window(evt.detail)
          }}}
 //
 // outputs
@@ -61,6 +70,10 @@ var outputs = {
          cmd.width = mod.width
          cmd.height = mod.height
          mods.output(mod,'toolpath',cmd)
+         }},
+   request:{type:'three.js',
+      event:function(arg){
+         mods.output(mod,'request',arg)
          }}}
 //
 // interface
@@ -222,6 +235,163 @@ function show_path() {
 // open_view_window
 //
 function open_view_window() {
+   //
+   // open window
+   //
+   win = window.open('')
+   mod.win = win
+   //
+   // load three.js
+   //
+   outputs.request.event('three.js')
+   }
+//
+// init_window
+//
+function init_window() {
+   //document.write('<script type="text/javascript">'+arg+'</script>')
+   //document.close()
+   //
+   // close button
+   //
+   var btn = document.createElement('button')
+      btn.appendChild(document.createTextNode('close'))
+      btn.style.padding = mods.ui.padding
+      btn.style.margin = 1
+      btn.addEventListener('click',function(){
+         mod.win.close()
+         mod.win = undefined
+         })
+      mod.win.document.body.appendChild(btn)
+   //
+   // label text
+   //
+   var text = win.document.createTextNode(' left: pan, right: rotate, scroll: zoom')
+      mod.win.document.body.appendChild(text)
+   //
+   // GL container
+   //
+   mod.win.document.body.appendChild(document.createElement('br'))   
+   container = mod.win.document.createElement('div')
+   container.style.overflow = 'hidden'
+   mod.win.document.body.appendChild(container)
+   //
+   // event handlers
+   //
+   container.addEventListener('contextmenu',context_menu)
+   container.addEventListener('mousedown',mouse_down)
+   container.addEventListener('mouseup',mouse_up)
+   container.addEventListener('mousemove',mouse_move)
+   container.addEventListener('wheel',mouse_wheel)
+   //
+   // add scene
+   //
+   scene = new THREE.Scene()
+   mod.scene = scene
+   var width = mod.win.innerWidth
+   var height = mod.win.innerHeight
+   var aspect = width/height
+   var near = 0.1
+   var far = 1000000
+   camera = new THREE.PerspectiveCamera(90,aspect,near,far)
+   mod.camera = camera
+   scene.add(camera)
+   //
+   // add renderer
+   //
+   renderer = new THREE.WebGLRenderer({antialias:true})
+   mod.renderer = renderer
+   renderer.setClearColor(0xffffff)
+   renderer.setSize(width,height)
+   container.appendChild(renderer.domElement)
+   //
+   // show the path if available
+   //
+   show_path()
+   //
+   // context_menu
+   //
+   function context_menu(evt) {
+      evt.preventDefault()
+      evt.stopPropagation()
+      return (false)
+      }
+   //
+   // mouse_down
+   //
+   function mouse_down(evt) {
+      evt.preventDefault()
+      evt.stopPropagation()
+      mod.button = evt.button
+      mod.x = evt.clientX
+      mod.y = evt.clientY
+      }
+   //
+   // mouse_up
+   //
+   function mouse_up(evt) {
+      mod.button = undefined
+      mod.x = evt.clientX
+      mod.y = evt.clientY
+      }
+   //
+   // mouse_move
+   //
+   function mouse_move(evt) {
+      evt.preventDefault()
+      evt.stopPropagation()
+      var dx = evt.clientX-mod.x
+      var dy = evt.clientY-mod.y
+      mod.x = evt.clientX
+      mod.y = evt.clientY
+      if (mod.button == 0) {
+         mod.x0 += 
+            Math.sin(mod.thetaz)*mod.height*dy/mod.win.innerHeight
+            -Math.cos(mod.thetaz)*mod.width*dx/mod.win.innerWidth
+         mod.y0 += 
+            Math.cos(mod.thetaz)*mod.height*dy/mod.win.innerHeight
+            +Math.sin(mod.thetaz)*mod.width*dx/mod.win.innerWidth
+         camera.position.x = mod.x0+Math.sin(mod.thetaz)*mod.r*Math.sin(mod.thetaxy)
+         camera.position.y = mod.y0+Math.cos(mod.thetaz)*mod.r*Math.sin(mod.thetaxy)
+         camera.position.z = mod.r*Math.cos(mod.thetaxy)
+         camera.position.z = mod.r*Math.cos(mod.thetaxy)
+	      camera.up = new THREE.Vector3(Math.sin(mod.thetaz),Math.cos(mod.thetaz),0)
+	      camera.lookAt(new THREE.Vector3(mod.x0,mod.y0,0))
+         camera.updateProjectionMatrix()
+	      renderer.render(scene,camera)
+	      }
+      else if (mod.button == 2) {
+         mod.thetaxy += dy/mod.win.innerHeight
+         mod.thetaz += dx/mod.win.innerWidth
+         camera.position.x = mod.x0+Math.sin(mod.thetaz)*mod.r*Math.sin(mod.thetaxy)
+         camera.position.y = mod.y0+Math.cos(mod.thetaz)*mod.r*Math.sin(mod.thetaxy)
+         camera.position.z = mod.r*Math.cos(mod.thetaxy)
+	      camera.up = new THREE.Vector3(Math.sin(mod.thetaz),Math.cos(mod.thetaz),0)
+	      camera.lookAt(new THREE.Vector3(mod.x0,mod.y0,0))
+         camera.updateProjectionMatrix()
+	      renderer.render(scene,camera)
+	      }
+      }
+   //
+   // mouse_wheel
+   //
+   function mouse_wheel(evt) {
+      evt.preventDefault()
+      evt.stopPropagation()
+      var dy = evt.deltaY/mod.win.innerHeight
+      mod.r += mod.height*dy
+      camera.position.x = mod.x0+Math.sin(mod.thetaz)*mod.r*Math.sin(mod.thetaxy)
+      camera.position.y = mod.y0+Math.cos(mod.thetaz)*mod.r*Math.sin(mod.thetaxy)
+      camera.position.z = mod.r*Math.cos(mod.thetaxy)
+	   camera.lookAt(new THREE.Vector3(mod.x0,mod.y0,0))
+      camera.updateProjectionMatrix()
+	   renderer.render(scene,camera)
+      }
+   }
+//
+// old_open_view_window
+//
+function old_open_view_window() {
    //
    // globals
    //
