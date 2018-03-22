@@ -28,6 +28,7 @@ var init = function() {
    mod.in0.value = '{"x":0,"y":1}'
    mod.in1.value = '{}'
    mod.out.value = '{"f":x+y}'
+   mod.out.value = '{"f":1+2}'
    }
 //
 // inputs
@@ -101,7 +102,8 @@ function construct_output() {
    var in1 = JSON.parse(mod.in1.value)
    var out = mod.out.value
    console.log(out)
-   console.log(eval(out))
+   var ret = JSON.parse(mod.out.value)
+   console.log(ret)
    function construct(expression) {
       return `${expression}`
       }
