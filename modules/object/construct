@@ -26,41 +26,35 @@ var name = 'construct object'
 //
 var init = function() {
    mod.in0.value = '{"x":0,"y":1}'
-   mod.in1.value = '{}'
-   mod.out.value = '{"f":x+y}'
-   mod.out.value = '{"f":1+2}'
+   mod.in1.value = '{"a":"b","c":"d"}'
+   mod.out0.value = '{"x":in0.z1+in0.r}'
+   mod.out1.value = '{"f":1+2}'
    }
 //
 // inputs
 //
 var inputs = {
-   input0:{type:'',label:'input 0',
+   in0:{type:'',label:'input 0',
       event:function(evt) {
          mod.in0.value = JSON.stringify(evt.detail)
          construct_output()
-         outputs.output0.event(evt.detail)
          }},
-   input1:{type:'',label:'input 1',
+   in1:{type:'',label:'input 1',
       event:function(evt) {
          mod.in1.value = JSON.stringify(evt.detail)
          construct_output()
-         outputs.output1.event(evt.detail)
          }}}
 //
 // outputs
 //
 var outputs = {
-   output0:{type:'',label:'input 0',
+   out0:{type:'',label:'output 0',
       event:function(arg){
-         mods.output(mod,'output0',arg)
+         mods.output(mod,'out0',arg)
          }},
-   output1:{type:'',label:'input 1',
+   out1:{type:'',label:'output 1',
       event:function(arg){
-         mods.output(mod,'output1',arg)
-         }},
-   out:{type:'',label:'output',
-      event:function(){
-         mods.output(mod,'output',mod.value.value)
+         mods.output(mod,'out1',arg)
          }}}
 //
 // interface
@@ -70,29 +64,34 @@ var interface = function(div){
    div.appendChild(document.createTextNode('input 0:'))
    div.appendChild(document.createElement('br'))
    var text = document.createElement('textarea')
-      text.setAttribute('rows',2)
+      text.setAttribute('rows',1)
       text.setAttribute('cols',mods.ui.cols)
-      text.addEventListener('input',function(evt) {
-         format_string()
-         })
       div.appendChild(text)
       mod.in0 = text
    div.appendChild(document.createElement('br'))
    div.appendChild(document.createTextNode('input 1:'))
    div.appendChild(document.createElement('br'))
    var text = document.createElement('textarea')
-      text.setAttribute('rows',2)
+      text.setAttribute('rows',1)
       text.setAttribute('cols',mods.ui.cols)
       div.appendChild(text)
       mod.in1 = text
    div.appendChild(document.createElement('br'))
-   div.appendChild(document.createTextNode('output:'))
+   div.appendChild(document.createTextNode('output 0:'))
    div.appendChild(document.createElement('br'))
    var text = document.createElement('textarea')
-      text.setAttribute('rows',2)
+      text.setAttribute('rows',1)
       text.setAttribute('cols',mods.ui.cols)
       div.appendChild(text)
-      mod.out = text
+      mod.out0 = text
+   div.appendChild(document.createElement('br'))
+   div.appendChild(document.createTextNode('output 1:'))
+   div.appendChild(document.createElement('br'))
+   var text = document.createElement('textarea')
+      text.setAttribute('rows',1)
+      text.setAttribute('cols',mods.ui.cols)
+      div.appendChild(text)
+      mod.out1 = text
    }
 //
 // local functions
@@ -100,13 +99,10 @@ var interface = function(div){
 function construct_output() {
    var in0 = JSON.parse(mod.in0.value)
    var in1 = JSON.parse(mod.in1.value)
-   var out = mod.out.value
-   console.log(out)
-   var ret = JSON.parse(mod.out.value)
-   console.log(ret)
-   function construct(expression) {
-      return `${expression}`
-      }
+   eval('out0 ='+mod.out0.value)
+   eval('out1 ='+mod.out1.value)
+   outputs.out0.event(out0)
+   outputs.out1.event(out1)
    }
 //
 // return values

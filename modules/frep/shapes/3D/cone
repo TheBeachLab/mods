@@ -73,7 +73,7 @@ var outputs = {
          var z0 = parseFloat(mod.z0.value)
          var z1 = parseFloat(mod.z1.value)
          var r = parseFloat(mod.r.value)
-         var vars = {x:x,y:y,r:r}
+         var vars = {x:x,y:y,z0:z0,z1:z1,r:r}
          mods.output(mod,'variables',vars)}
          }}
 //
