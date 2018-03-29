@@ -1,5 +1,5 @@
 //
-// frep reflect
+// frep repeat
 //
 // Neil Gershenfeld
 // (c) Massachusetts Institute of Technology 2018
@@ -20,13 +20,14 @@ var mod = {}
 //
 // name
 //
-var name = 'frep reflect'
+var name = 'frep repeat'
 //
 // initialization
 //
 var init = function() {
-   mod.location.value = 0
    mod.x.checked = true
+   mod.spacing.value = 0
+   mod.number.value = 10
    }
 //
 // inputs
@@ -40,13 +41,20 @@ var inputs = {
 //
 // outputs
 //
+
+   (x-x0)%spacing
+   x1 = min + num*space
+   x1-X
+
+
 var outputs = {
    shape:{type:'',
       event:function(){
          var fn = mod.shape.function
          var variables = mod.shape.variables
          var type = mod.shape.type        
-         var location = parseFloat(mod.location.value)
+         var spacing = parseFloat(mod.spacing.value)
+         var number = parseInt(mod.number.value)
          var limits = []
          for (var v = 0; v < mod.shape.limits.length; ++v) {
             limits[v] = []
@@ -63,22 +71,8 @@ var outputs = {
             limits[0][1] = location-dl
             }
          else if (mod.y.checked) {
-            var yvar = variables[1]
-            var re = new RegExp(yvar,'g')
-            fn = fn.replace(re,`(${2*location}-${yvar})`)
-            var dy = mod.shape.limits[1][1]-mod.shape.limits[1][0]
-            var dl = mod.shape.limits[1][0]-location
-            limits[1][0] = location-(dl+dy)
-            limits[1][1] = location-dl
             }
          else if (mod.z.checked) {
-            var zvar = variables[2]
-            var re = new RegExp(zvar,'g')
-            fn = fn.replace(re,`(${2*location}-${zvar})`)
-            var dz = mod.shape.limits[2][1]-mod.shape.limits[2][0]
-            var dl = mod.shape.limits[2][0]-location
-            limits[2][0] = location-(dl+dz)
-            limits[2][1] = location-dl
             }
          var shape = {function:fn,variables:variables,limits:limits,type:type}
          mods.output(mod,'shape',shape)}
@@ -115,26 +109,25 @@ var interface = function(div){
       mod.z = input
    div.appendChild(document.createElement('br'))
    //
-   // location
+   // spacing
    //
-   div.appendChild(document.createTextNode('location: '))
+   div.appendChild(document.createTextNode('spacing: '))
    var input = document.createElement('input')
       input.type = 'text'
       input.size = 6
       div.appendChild(input)
-      mod.location = input
+      mod.spacing = input
    div.appendChild(document.createElement('br'))
    //
-   // output button
+   // number 
    //
-   var btn = document.createElement('button')
-      btn.style.padding = mods.ui.padding
-      btn.style.margin = 1
-      btn.appendChild(document.createTextNode('output'))
-      btn.addEventListener('click',function(){
-         outputs.shape.event()
-         })
-      div.appendChild(btn)
+   div.appendChild(document.createTextNode('number: '))
+   var input = document.createElement('input')
+      input.type = 'text'
+      input.size = 6
+      div.appendChild(input)
+      mod.number = input
+   div.appendChild(document.createElement('br'))
    }
 //
 // local functions
