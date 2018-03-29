@@ -137,9 +137,21 @@ var interface = function(div){
             canvas.setAttribute('id',mod.div.id+'canvas')
             mod.win.document.body.appendChild(canvas)
          var ctx = canvas.getContext("2d")
-            canvas.width = window.innerWidth
-            canvas.height = window.innerWidth
-            ctx.drawImage(mod.img,0,0,canvas.width,canvas.width)
+         canvas.width = window.innerWidth
+         canvas.height = window.innerWidth
+         var h = mod.img.height
+         var w = mod.img.width
+         if (w > h) {
+            var wd = canvas.width
+            var hd = canvas.width*h/w
+            }
+         else {
+            var wd = canvas.height*w/h
+            var hd = canvas.height
+            }
+         ctx.fillStyle = '#dddddd'
+         ctx.fillRect(0,0,canvas.width,canvas.height)
+         ctx.drawImage(mod.img,0,0,wd,hd)
          })
       div.appendChild(btn)
    }
@@ -200,15 +212,27 @@ function render(shape) {
          var hd = mod.canvas.height
          }
       var ctx = mod.canvas.getContext("2d")
-      ctx.clearRect(0,0,mod.canvas.width,mod.canvas.height)
+      ctx.fillStyle = '#dddddd'
+      ctx.fillRect(0,0,mod.canvas.width,mod.canvas.height)
       ctx.drawImage(mod.img,x0,y0,wd,hd)
       if (mod.win != null) {
          var canvas = mod.win.document.getElementById(mod.div.id+'canvas')
-         canvas.width = mod.win.innerWidth
-         canvas.height = mod.win.innerWidth
          var ctx = canvas.getContext("2d")
-         ctx.clearRect(0,0,canvas.width,canvas.height)
-         ctx.drawImage(mod.img,0,0,canvas.width,canvas.width)
+         canvas.width = window.innerWidth
+         canvas.height = window.innerWidth
+         var h = mod.img.height
+         var w = mod.img.width
+         if (w > h) {
+            var wd = canvas.width
+            var hd = canvas.width*h/w
+            }
+         else {
+            var wd = canvas.height*w/h
+            var hd = canvas.height
+            }
+         ctx.fillStyle = '#dddddd'
+         ctx.fillRect(0,0,canvas.width,canvas.height)
+         ctx.drawImage(mod.img,0,0,wd,hd)
          }
       webworker.terminate()
       outputs.image.event()
