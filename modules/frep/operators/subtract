@@ -93,17 +93,6 @@ var interface = function(div){
       div.appendChild(input)
       mod.fn1 = input
    div.appendChild(document.createElement('br'))
-   //
-   // output button
-   //
-   var btn = document.createElement('button')
-      btn.style.padding = mods.ui.padding
-      btn.style.margin = 1
-      btn.appendChild(document.createTextNode('output'))
-      btn.addEventListener('click',function(){
-         outputs.shape.event()
-         })
-      div.appendChild(btn)
    }
 //
 // local functions
