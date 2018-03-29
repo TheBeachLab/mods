@@ -43,6 +43,11 @@ var inputs = {
          mod.shape1 = evt.detail
          mod.fn1.value = evt.detail.function
          outputs.shape.event()
+         }},
+   clear:{type:'',
+      event:function(evt){
+         mod.shape0 = null
+         mod.shape1 = null
          }}}
 //
 // outputs
