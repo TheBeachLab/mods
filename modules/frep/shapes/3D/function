@@ -92,11 +92,12 @@ var interface = function(div){
    // function
    //
    div.appendChild(document.createTextNode('function: '))
-   var input = document.createElement('input')
-      input.type = 'text'
-      input.size = 10
-      div.appendChild(input)
-      mod.fn = input
+   div.appendChild(document.createElement('br'))
+   var text = document.createElement('textarea')
+      text.setAttribute('rows',1)
+      text.setAttribute('cols',mods.ui.cols)
+      div.appendChild(text)
+      mod.fn = text
    div.appendChild(document.createElement('br'))
    //
    // xmin
