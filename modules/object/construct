@@ -26,9 +26,9 @@ var name = 'construct object'
 //
 var init = function() {
    mod.in0.value = '{"x":0,"y":1}'
-   mod.in1.value = '""'
+   mod.in1.value = '{}'
    mod.out0.value = '{"f":in0.x+in0.y,"g":2*in0.x-3*in0.y}'
-   mod.out1.value = '""'
+   mod.out1.value = '{}'
    }
 //
 // inputs

@@ -27,6 +27,8 @@ var name = 'frep add'
 var init = function() {
    mod.shape0 = null
    mod.shape1 = null
+   mod.fn0.value = ''
+   mod.fn1.value = ''
    }
 //
 // inputs
@@ -48,6 +50,8 @@ var inputs = {
       event:function(evt){
          mod.shape0 = null
          mod.shape1 = null
+         mod.fn0.value = ''
+         mod.fn1.value = ''
          }}}
 //
 // outputs
