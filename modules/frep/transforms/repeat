@@ -41,12 +41,11 @@ var inputs = {
 //
 // outputs
 //
-
+/*
    (x-x0)%spacing
    x1 = min + num*space
    x1-X
-
-
+*/
 var outputs = {
    shape:{type:'',
       event:function(){
@@ -63,16 +62,33 @@ var outputs = {
             }
          if (mod.x.checked) {
             var xvar = variables[0]
+            var xmin = limits[0][0]
+            var xmax = limits[0][1]
             var re = new RegExp(xvar,'g')
-            fn = fn.replace(re,`(${2*location}-${xvar})`)
-            var dx = mod.shape.limits[0][1]-mod.shape.limits[0][0]
-            var dl = mod.shape.limits[0][0]-location
-            limits[0][0] = location-(dl+dx)
-            limits[0][1] = location-dl
+            fn = fn.replace(re,`((${xmin})+(${xvar}-(${xmin}))%(${spacing+xmax-xmin}))`)
+            fn = `Math.min(${xvar}-(${xmin}),${fn})`
+            fn = `Math.min((${xmin+number*(spacing+xmax-xmin)})-${xvar},${fn})`
+            limits[0][1] = xmin+number*(xmax-xmin)+(number-1)*spacing
             }
          else if (mod.y.checked) {
+            var yvar = variables[1]
+            var ymin = limits[1][0]
+            var ymax = limits[1][1]
+            var re = new RegExp(yvar,'g')
+            fn = fn.replace(re,`((${ymin})+(${yvar}-(${ymin}))%(${spacing+ymax-ymin}))`)
+            fn = `Math.min(${yvar}-(${ymin}),${fn})`
+            fn = `Math.min((${ymin+number*(spacing+ymax-ymin)})-${yvar},${fn})`
+            limits[1][1] = ymin+number*(ymax-ymin)+(number-1)*spacing
             }
          else if (mod.z.checked) {
+            var zvar = variables[2]
+            var zmin = limits[2][0]
+            var zmax = limits[2][1]
+            var re = new RegExp(zvar,'g')
+            fn = fn.replace(re,`((${zmin})+(${zvar}-(${zmin}))%(${spacing+zmax-zmin}))`)
+            fn = `Math.min(${zvar}-(${zmin}),${fn})`
+            fn = `Math.min((${zmin+number*(spacing+zmax-zmin)})-${zvar},${fn})`
+            limits[2][1] = zmin+number*(zmax-zmin)+(number-1)*spacing
             }
          var shape = {function:fn,variables:variables,limits:limits,type:type}
          mods.output(mod,'shape',shape)}
