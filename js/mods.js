@@ -2,7 +2,7 @@
 // mods.js
 //
 // Neil Gershenfeld
-// (c) Massachusetts Institute of Technology 2015,6,7,8
+// (c) Massachusetts Institute of Technology 2019
 //
 // This work may be reproduced, modified, distributed, performed, and
 // displayed for any purpose, but must acknowledge the mods
@@ -47,6 +47,14 @@ function optest(opt,link) {
    else
       opt.disabled = true
    }
+//
+// right click
+//
+document.addEventListener('contextmenu',function(evt){
+   evt.preventDefault()
+   alert('right click')
+   return false
+   })
 //
 // programs
 //
