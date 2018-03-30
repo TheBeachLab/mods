@@ -112,14 +112,18 @@ document.addEventListener('contextmenu',function(evt){
       var div = document.createElement('div')
       make_menu(div)
       add_menu(div,'open server module here',function(evt){
+         /*
          window.callback = function(msg) {
             mod_message_handler(msg,
                evt.clientY+document.body.scrollTop,
                evt.clientX+document.body.scrollLeft)
             }
-         //document.body.removeChild(evt.target.parentNode)
-         evt.target.parentNode.innerHTML='<object type="text/html" data="modules/index.html" ></object>'
-         //var win = window.open('modules/index.html')
+         */
+         document.body.removeChild(evt.target.parentNode)
+         var div = document.createElement('div')
+         make_menu(div)
+         div.innerHTML='<object type="text/html" data="modules/index.html" ></object>'
+         document.body.appendChild(div)
          })
       add_menu(div,'open server module',function(evt){
          document.body.removeChild(evt.target.parentNode)
