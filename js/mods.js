@@ -59,8 +59,8 @@ document.addEventListener('contextmenu',function(evt){
    document.body.appendChild(div)
    function make_menu(div) {
       div.style.position = "absolute"
-      div.style.top = evt.clientY
-      div.style.left = evt.clientX
+      div.style.top = evt.clientY+document.body.scrollTop
+      div.style.left = evt.clientX+document.body.scrollLeft
       div.style.zIndex = 0
       div.style.cursor = 'default'
       div.style.backgroundColor = "rgb(220,255,255)"
@@ -97,7 +97,9 @@ document.addEventListener('contextmenu',function(evt){
       add_menu(div,'open server module',function(evt){
          document.body.removeChild(evt.target.parentNode)
          window.callback = function(msg) {
-            mod_message_handler(msg)
+            mod_message_handler(msg,
+               evt.clientY+document.body.scrollTop,
+               evt.clientX+document.body.scrollLeft)
             }
          var win = window.open('modules/index.html')
          })
@@ -202,7 +204,8 @@ var sel = document.createElement('select')
       switch (evt.target.value) {
          case 'add server module':
             window.callback = function(msg) {
-               mod_message_handler(msg)
+               mod_message_handler(msg,
+                  1.5*mods.ui.header,3*mods.ui.header)
                }
             var win = window.open('modules/index.html')
             break
@@ -665,7 +668,7 @@ function mod_read_handler(event) {
    file_reader.onload = mod_load_handler
    file_reader.readAsText(file.files[0])
    }
-function mod_message_handler(filename) {
+function mod_message_handler(filename,top,left) {
    var req = new XMLHttpRequest()
    req.responseType = 'text'
    req.onreadystatechange = function() {
@@ -674,8 +677,8 @@ function mod_message_handler(filename) {
          eval('var args = '+str)
          args.definition = str
          args.id = String(Math.random())
-         args.top = 1.5*mods.ui.header
-         args.left = 3*mods.ui.header
+         args.top = top
+         args.left = left
          add_module(args)
          }
       }
