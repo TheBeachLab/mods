@@ -29,6 +29,12 @@ var init = function() {
 	mod.steps.value=256.0;
 	mod.z.value=0.0;
 	mod.windowOpen=false;
+	mod.xLimit1 =-1.0 ;
+	mod.xLimit2 =1.0 ; 
+	mod.yLimit1 =-1.0 ; 
+	mod.yLimit2 =1.0 ; 
+	mod.zLimit1 =-1.0 ; 
+	mod.zLimit2 =1.0 ;
    };
 //
 // inputs
@@ -36,15 +42,55 @@ var init = function() {
 var inputs = {
 	shape:{type:'frep',
 	event:function(evt){
+		
 
 		//test performance
-		mod.tstart = Date.now();
+		// mod.tstart = Date.now();
 
 		mod.shape=evt.detail;
+
+		// var limits=[];
+		// limits=mod.shape.limits.slice();
+
+		outputs.messageLog.event(mod.shape.limits);
+
+		//get largerst range and rescale other ones to adjust limit mapping
+		var tempIndex=0;
+		var tempMax=-1.0;
+
+		for(i=0;i<mod.shape.limits.length;i++)
+		{
+			if((mod.shape.limits[i][1]-mod.shape.limits[i][0]) >= tempMax )
+			{
+				tempIndex=i;
+				tempMax=mod.shape.limits[i][1]-mod.shape.limits[i][0];
+			}
+		}
+		for(i=0;i < mod.shape.limits.length;i++)
+		{
+			if(i!=tempIndex)
+			{
+				var tempDif = (mod.shape.limits[tempIndex][1]-mod.shape.limits[tempIndex][0])-(mod.shape.limits[i][1]-mod.shape.limits[i][0]);
+				mod.shape.limits[i][0]-=tempDif/2.0;
+				mod.shape.limits[i][1]+=tempDif/2.0;
+				
+			}
+		}
+
+		// outputs.messageLog.event('here');
+
+		mod.xLimit1=mod.shape.limits[0][0] ;
+		mod.xLimit2=mod.shape.limits[0][1] ; 
+		mod.yLimit1=mod.shape.limits[1][0] ; 
+		mod.yLimit2=mod.shape.limits[1][1] ; 
+		mod.zLimit1=mod.shape.limits[2][0] ; 
+		mod.zLimit2=mod.shape.limits[2][1] ;
+		
+
 		//
 		//turn function string to gsls
 		//
-		var str1 = mod.shape.string;
+		var str1 = mod.shape.function;
 		str1=str1.replace(/Math./g, '');
 
 		//turn all ints to float
@@ -99,7 +145,7 @@ var inputs = {
 				str+=str1[i];
 			}
 		}
-		outputs.messageLog.event(str);
+		// outputs.messageLog.event(str);
 		mod.str=str;
 
 		//if window open update shader function
@@ -319,20 +365,18 @@ function open_view_window() {
 				// ceil( sqrt(3) * 512 ) = 887
 				// This prevents the back of the image from getting cut off when steps=512 & viewing diagonally.
 				const int MAX_STEPS = 887;
-				//TODO: Fix: make limits based on limits valrials
-				float xLimit1=-1.0;
-				float xLimit2=1.0;
-				float yLimit1=-1.0;
-				float yLimit2=1.0;
-				float zLimit1=-1.0;
-				float zLimit2=1.0;
+				uniform float xLimit1;
+				uniform float xLimit2;
+				uniform float yLimit1;
+				uniform float yLimit2;
+				uniform float zLimit1;
+				uniform float zLimit2;
 				float orgMin=0.0;
 				float orgMax=1.0;
 
 				//Acts like a texture3D using Z slices and trilinear filtering.
 				vec4 sampleAs3DTextureCustom( vec3 texCoord )
 				{ 
-					//TODO: Fix: make limits based on limits valrials
 					float X= (texCoord.x - orgMin) * (xLimit2 - xLimit1) / (orgMax - orgMin) + xLimit1;
 					float Y= (texCoord.y - orgMin) * (yLimit2 - yLimit1) / (orgMax - orgMin) + yLimit1;
 					float Z= (texCoord.z - orgMin) * (zLimit2 - zLimit1) / (orgMax - orgMin) + zLimit1;
@@ -503,7 +547,7 @@ function init_window() {
 												magFilter: THREE.LinearFilter,
 												wrapS:  THREE.ClampToEdgeWrapping,
 												wrapT:  THREE.ClampToEdgeWrapping,
-												format: THREE.RGBFormat,
+												format: THREE.RGBAFormat,
 												type: THREE.FloatType,
 												generateMipmaps: false} );
 
@@ -522,6 +566,12 @@ function init_window() {
 		uniforms: {	tex:  { type: "t", value: rtTexture },
 					steps : {type: "1f" , value: mod.steps.value }, //guiControls.steps
 					zSlice : {type: "1f" , value: mod.z.value }, 
+					xLimit1 : {type: "1f" , value: mod.xLimit1 }, 
+					xLimit2 : {type: "1f" , value: mod.xLimit2 }, 
+					yLimit1 : {type: "1f" , value: mod.yLimit1 }, 
+					yLimit2 : {type: "1f" , value: mod.yLimit2 }, 
+					zLimit1 : {type: "1f" , value: mod.zLimit1 }, 
+					zLimit2 : {type: "1f" , value: mod.zLimit2 }, 
 					alphaCorrection : {type: "1f" , value: guiControls.alphaCorrection }}
 		});
 
@@ -612,10 +662,9 @@ function init_window() {
 	Controls.addMouseHandler(renderer.domElement, drag, zoomIn, zoomOut);
 	
 
-
 	renderer.setSize( win.innerWidth, win.innerHeight );
 
-	//window.addEventListener( 'resize', onWindowResize, false );
+	win.addEventListener( 'resize', onWindowResize, false );
 	
 	 //animate();
 	 render();
@@ -625,10 +674,13 @@ function init_window() {
 	/////////////// 
 	function onWindowResize( event ) {
 
+		//TODO: Fix box white edge when window resize
+		renderer.setSize( win.innerWidth, win.innerHeight );
+
 		camera.aspect = win.innerWidth / win.innerHeight;
 		camera.updateProjectionMatrix();
 
-		renderer.setSize( win.innerWidth, win.innerHeight );
+		redraw();
 	}
 
     ////////////////
@@ -648,22 +700,33 @@ function init_window() {
 
 		var delta = clock.getDelta();
 
+		materialSecondPass.uniforms.steps.value = mod.steps.value;
+		materialSecondPass.uniforms.zSlice.value = mod.z.value;
+		materialSecondPass.uniforms.alphaCorrection.value = guiControls.alphaCorrection;
+		materialSecondPass.uniforms.xLimit1.value =mod.xLimit1 ;
+		materialSecondPass.uniforms.xLimit2.value =mod.xLimit2 ; 
+		materialSecondPass.uniforms.yLimit1.value =mod.yLimit1 ; 
+		materialSecondPass.uniforms.yLimit2.value =mod.yLimit2 ; 
+		materialSecondPass.uniforms.zLimit1.value =mod.zLimit1 ; 
+		materialSecondPass.uniforms.zLimit2.value =mod.zLimit2 ;
+
 		//Render first pass and store the world space coords of the back face fragments into the texture.
 		renderer.render( sceneFirstPass, camera, rtTexture, true );
 
 		//Render the second pass and perform the volume rendering.
 		renderer.render( sceneSecondPass, camera );
 
-		materialSecondPass.uniforms.steps.value = mod.steps.value;
-		materialSecondPass.uniforms.zSlice.value = mod.z.value;
-		materialSecondPass.uniforms.alphaCorrection.value = guiControls.alphaCorrection;
+		
+		 
 	}
 
 	//
 	//when fuction changes
 	function updateShaderFunction()
 	{
-		outputs.messageLog.event('update shader');
+		// outputs.messageLog.event('update shader');
+		
+		// outputs.messageLog.event(mod.xLimit1);
 
 		var div = document.getElementById('fragmentShaderSecondPass');
 
@@ -671,7 +734,7 @@ function init_window() {
 		div.innerHTML =fragmentShaderSecondPass();
 		
 		
-		outputs.messageLog.event('update shader1');
+		// outputs.messageLog.event('update shader1');
 		materialSecondPass = new THREE.ShaderMaterial( {
 			vertexShader: document.getElementById( 'vertexShaderSecondPass' ).textContent,
 			fragmentShader: document.getElementById( 'fragmentShaderSecondPass' ).textContent,
@@ -679,16 +742,23 @@ function init_window() {
 			uniforms: {	tex:  { type: "t", value: rtTexture },
 						steps : {type: "1f" , value: mod.steps.value }, //guiControls.steps
 						zSlice : {type: "1f" , value: mod.z.value }, 
+						xLimit1 : {type: "1f" , value: mod.xLimit1 }, 
+						xLimit2 : {type: "1f" , value: mod.xLimit2 }, 
+						yLimit1 : {type: "1f" , value: mod.yLimit1 }, 
+						yLimit2 : {type: "1f" , value: mod.yLimit2 }, 
+						zLimit1 : {type: "1f" , value: mod.zLimit1 }, 
+						zLimit2 : {type: "1f" , value: mod.zLimit2 }, 
 						alphaCorrection : {type: "1f" , value: guiControls.alphaCorrection }}
-		});
+			});
 
 		meshSecondPass.material=materialSecondPass;
 		meshSecondPass.material.needsUpdate = true;
 
 		redraw();
+		//test performance
 		mod.tend = Date.now();
 		var dt = mod.tend-mod.tstart;
-		outputs.messageLog.event(dt/1000);
+		// outputs.messageLog.event(dt/1000);
 
 	}
 	mod.updateShaderFunction=updateShaderFunction;
