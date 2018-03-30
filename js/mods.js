@@ -54,33 +54,36 @@ document.addEventListener('contextmenu',function(evt){
    evt.preventDefault()
    var div = document.createElement('div')
       div.style.position = "absolute"
-      div.style.top = 100
-      div.style.left = 100
+      div.style.top = evt.clientY
+      div.style.left = evt.clientX
       div.style.zIndex = 0
-      div.appendChild(document.createTextNode('programs'))
-      div.appendChild(document.createElement('br'))
-      div.appendChild(document.createTextNode('modules'))
-      div.addEventListener('mouseover',menu_over)
-      div.addEventListener('mouseout',menu_out)
-      div.addEventListener('mousedown',menu_click)
-      div.addEventListener('touchstart',menu_click)
       div.style.cursor = 'default'
       div.style.backgroundColor = "rgb(220,255,255)"
       div.style.padding = 1.5*mods.ui.padding
       div.style.textAlign = 'center'
       div.style.border = '2px solid'
       div.style.borderRadius = '10px'
+      add_menu('programs')
+      add_menu('modules')
       document.body.appendChild(div)
-      function menu_over(evt) {
-         evt.target.style.fontWeight = 'bold'
-         console.log('over')
-         }
-      function menu_out(evt) {
-         evt.target.style.fontWeight = 'normal'
-         console.log('out')
-         }
-      function menu_click(evt) {
-         console.log('click')
+      function add_menu(text) {
+         var textdiv = document.createElement('div')
+         textdiv.appendChild(document.createTextNode(text))
+         textdiv.appendChild(document.createElement('br'))
+         textdiv.addEventListener('mouseover',menu_over)
+         textdiv.addEventListener('mouseout',menu_out)
+         textdiv.addEventListener('mousedown',menu_click)
+         textdiv.addEventListener('touchstart',menu_click)
+         div.appendChild(textdiv)
+         function menu_over(evt) {
+            evt.target.style.fontWeight = 'bold'
+            }
+         function menu_out(evt) {
+            evt.target.style.fontWeight = 'normal'
+            }
+         function menu_click(evt) {
+            document.body.removeChild(evt.target.parentNode)
+            }
          }
    return false
    })
