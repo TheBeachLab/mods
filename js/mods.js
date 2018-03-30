@@ -48,15 +48,44 @@ function optest(opt,link) {
       opt.disabled = true
    }
 //
-// right click
+// right click menu
 //
 document.addEventListener('contextmenu',function(evt){
    evt.preventDefault()
-   alert('right click')
+   var div = document.createElement('div')
+      div.style.position = "absolute"
+      div.style.top = 100
+      div.style.left = 100
+      div.style.zIndex = 0
+      div.appendChild(document.createTextNode('programs'))
+      div.appendChild(document.createElement('br'))
+      div.appendChild(document.createTextNode('modules'))
+      div.addEventListener('mouseover',menu_over)
+      div.addEventListener('mouseout',menu_out)
+      div.addEventListener('mousedown',menu_click)
+      div.addEventListener('touchstart',menu_click)
+      div.style.cursor = 'default'
+      div.style.backgroundColor = "rgb(220,255,255)"
+      div.style.padding = 1.5*mods.ui.padding
+      div.style.textAlign = 'center'
+      div.style.border = '2px solid'
+      div.style.borderRadius = '10px'
+      document.body.appendChild(div)
+      function menu_over(evt) {
+         evt.target.style.fontWeight = 'bold'
+         console.log('over')
+         }
+      function menu_out(evt) {
+         evt.target.style.fontWeight = 'normal'
+         console.log('out')
+         }
+      function menu_click(evt) {
+         console.log('click')
+         }
    return false
    })
 //
-// programs
+// programs menu
 //
 document.body.appendChild(document.createTextNode(' '))
 var sel = document.createElement('select')
@@ -121,7 +150,7 @@ var sel = document.createElement('select')
    document.body.appendChild(sel)
 mods.ui.header = 2*sel.clientHeight
 //
-// modules
+// modules menu
 //
 document.body.appendChild(document.createTextNode(' '))
 var sel = document.createElement('select')
@@ -164,7 +193,7 @@ var sel = document.createElement('select')
       sel.add(opt)
    document.body.appendChild(sel)
 //
-// edit
+// edit menu
 //
 document.body.appendChild(document.createTextNode(' '))
 document.body.appendChild(document.createTextNode(' '))
@@ -199,7 +228,7 @@ var sel = document.createElement('select')
       sel.add(opt)
    document.body.appendChild(sel)
 //
-// options
+// options menu
 //
 document.body.appendChild(document.createTextNode(' '))
 var sel = document.createElement('select')
