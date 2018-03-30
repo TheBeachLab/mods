@@ -53,6 +53,11 @@ function optest(opt,link) {
 document.addEventListener('contextmenu',function(evt){
    evt.preventDefault()
    var div = document.createElement('div')
+   make_menu(div)
+   add_menu(div,'programs',programs)
+   add_menu(div,'modules',modules)
+   document.body.appendChild(div)
+   function make_menu(div) {
       div.style.position = "absolute"
       div.style.top = evt.clientY
       div.style.left = evt.clientX
@@ -60,31 +65,66 @@ document.addEventListener('contextmenu',function(evt){
       div.style.cursor = 'default'
       div.style.backgroundColor = "rgb(220,255,255)"
       div.style.padding = 1.5*mods.ui.padding
-      div.style.textAlign = 'center'
+      div.style.textAlign = 'left'
       div.style.border = '2px solid'
       div.style.borderRadius = '10px'
-      add_menu('programs')
-      add_menu('modules')
+      }
+   function programs(evt) {
+      document.body.removeChild(evt.target.parentNode)
+      var div = document.createElement('div')
+      make_menu(div)
+      add_menu(div,'open server program',function(evt){
+         document.body.removeChild(evt.target.parentNode)
+         })
+      add_menu(div,'open local program',function(evt){
+         document.body.removeChild(evt.target.parentNode)
+         })
+      add_menu(div,'open remote program',function(evt){
+         document.body.removeChild(evt.target.parentNode)
+         })
+      add_menu(div,'save local program',function(evt){
+         document.body.removeChild(evt.target.parentNode)
+         })
+      add_menu(div,'save local page',function(evt){
+         document.body.removeChild(evt.target.parentNode)
+         })
       document.body.appendChild(div)
-      function add_menu(text) {
-         var textdiv = document.createElement('div')
-         textdiv.appendChild(document.createTextNode(text))
-         textdiv.appendChild(document.createElement('br'))
-         textdiv.addEventListener('mouseover',menu_over)
-         textdiv.addEventListener('mouseout',menu_out)
-         textdiv.addEventListener('mousedown',menu_click)
-         textdiv.addEventListener('touchstart',menu_click)
-         div.appendChild(textdiv)
-         function menu_over(evt) {
-            evt.target.style.fontWeight = 'bold'
+      }
+   function modules(evt) {
+      document.body.removeChild(evt.target.parentNode)
+      var div = document.createElement('div')
+      make_menu(div)
+      add_menu(div,'open server module',function(evt){
+         document.body.removeChild(evt.target.parentNode)
+         window.callback = function(msg) {
+            mod_message_handler(msg)
             }
-         function menu_out(evt) {
-            evt.target.style.fontWeight = 'normal'
-            }
-         function menu_click(evt) {
-            document.body.removeChild(evt.target.parentNode)
-            }
+         var win = window.open('modules/index.html')
+         })
+      add_menu(div,'open local module',function(evt){
+         document.body.removeChild(evt.target.parentNode)
+         })
+      add_menu(div,'open remote module',function(evt){
+         document.body.removeChild(evt.target.parentNode)
+         })
+      document.body.appendChild(div)
+      }
+   function add_menu(div,text,click) {
+      var textdiv = document.createElement('div')
+      textdiv.appendChild(document.createTextNode(text))
+      textdiv.appendChild(document.createElement('br'))
+      textdiv.addEventListener('mouseover',menu_over)
+      textdiv.addEventListener('mouseout',menu_out)
+      textdiv.addEventListener('mousedown',click)
+      textdiv.addEventListener('touchstart',click)
+      div.appendChild(textdiv)
+      function menu_over(evt) {
+         evt.target.style.fontWeight = 'bold'
          }
+      function menu_out(evt) {
+         evt.target.style.fontWeight = 'normal'
+         }
+      }
    return false
    })
 //
