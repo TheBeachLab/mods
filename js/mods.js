@@ -2,7 +2,7 @@
 // mods.js
 //
 // Neil Gershenfeld
-// (c) Massachusetts Institute of Technology 2015,6,7,8
+// (c) Massachusetts Institute of Technology 2019
 //
 // This work may be reproduced, modified, distributed, performed, and
 // displayed for any purpose, but must acknowledge the mods
@@ -48,7 +48,47 @@ function optest(opt,link) {
       opt.disabled = true
    }
 //
-// programs
+// right click menu
+//
+document.addEventListener('contextmenu',function(evt){
+   evt.preventDefault()
+   var div = document.createElement('div')
+      div.style.position = "absolute"
+      div.style.top = evt.clientY
+      div.style.left = evt.clientX
+      div.style.zIndex = 0
+      div.style.cursor = 'default'
+      div.style.backgroundColor = "rgb(220,255,255)"
+      div.style.padding = 1.5*mods.ui.padding
+      div.style.textAlign = 'center'
+      div.style.border = '2px solid'
+      div.style.borderRadius = '10px'
+      add_menu('programs')
+      add_menu('modules')
+      document.body.appendChild(div)
+      function add_menu(text) {
+         var textdiv = document.createElement('div')
+         textdiv.appendChild(document.createTextNode(text))
+         textdiv.appendChild(document.createElement('br'))
+         textdiv.addEventListener('mouseover',menu_over)
+         textdiv.addEventListener('mouseout',menu_out)
+         textdiv.addEventListener('mousedown',menu_click)
+         textdiv.addEventListener('touchstart',menu_click)
+         div.appendChild(textdiv)
+         function menu_over(evt) {
+            evt.target.style.fontWeight = 'bold'
+            }
+         function menu_out(evt) {
+            evt.target.style.fontWeight = 'normal'
+            }
+         function menu_click(evt) {
+            document.body.removeChild(evt.target.parentNode)
+            }
+         }
+   return false
+   })
+//
+// programs menu
 //
 document.body.appendChild(document.createTextNode(' '))
 var sel = document.createElement('select')
@@ -113,7 +153,7 @@ var sel = document.createElement('select')
    document.body.appendChild(sel)
 mods.ui.header = 2*sel.clientHeight
 //
-// modules
+// modules menu
 //
 document.body.appendChild(document.createTextNode(' '))
 var sel = document.createElement('select')
@@ -156,7 +196,7 @@ var sel = document.createElement('select')
       sel.add(opt)
    document.body.appendChild(sel)
 //
-// edit
+// edit menu
 //
 document.body.appendChild(document.createTextNode(' '))
 document.body.appendChild(document.createTextNode(' '))
@@ -191,7 +231,7 @@ var sel = document.createElement('select')
       sel.add(opt)
    document.body.appendChild(sel)
 //
-// options
+// options menu
 //
 document.body.appendChild(document.createTextNode(' '))
 var sel = document.createElement('select')
