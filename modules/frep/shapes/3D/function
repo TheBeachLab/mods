@@ -39,12 +39,8 @@ var init = function() {
 var inputs = {
    variables:{type:'',
       event:function(evt){
-         mod.xmin.value = evt.detail.xmin
-         mod.xmax.value = evt.detail.xmax
-         mod.ymin.value = evt.detail.ymin
-         mod.ymax.value = evt.detail.ymax
-         mod.zmin.value = evt.detail.zmin
-         mod.zmax.value = evt.detail.zmax
+         for (var p in evt.detail)
+            mod[p].value = evt.detail[p]
          outputs.variables.event()
          outputs.shape.event()
          }}}

@@ -36,10 +36,8 @@ var init = function() {
 var inputs = {
    variables:{type:'',
       event:function(evt){
-         mod.x.value = evt.detail.x
-         mod.y.value = evt.detail.y
-         mod.z.value = evt.detail.z
-         mod.r.value = evt.detail.r
+         for (var p in evt.detail)
+            mod[p].value = evt.detail[p]
          outputs.variables.event()
          outputs.shape.event()
          }}}
