@@ -69,42 +69,46 @@ document.addEventListener('contextmenu',function(evt){
       div.style.border = '2px solid'
       div.style.borderRadius = '10px'
       }
-      function programs(evt) {
+   function programs(evt) {
+      document.body.removeChild(evt.target.parentNode)
+      var div = document.createElement('div')
+      make_menu(div)
+      add_menu(div,'open server program',function(evt){
          document.body.removeChild(evt.target.parentNode)
-         var div = document.createElement('div')
-         make_menu(div)
-         add_menu(div,'open server program',function(evt){
-            document.body.removeChild(evt.target.parentNode)
-            })
-         add_menu(div,'open local program',function(evt){
-            document.body.removeChild(evt.target.parentNode)
-            })
-         add_menu(div,'open remote program',function(evt){
-            document.body.removeChild(evt.target.parentNode)
-            })
-         add_menu(div,'save local program',function(evt){
-            document.body.removeChild(evt.target.parentNode)
-            })
-         add_menu(div,'save local page',function(evt){
-            document.body.removeChild(evt.target.parentNode)
-            })
-         document.body.appendChild(div)
-         }
-      function modules(evt) {
+         })
+      add_menu(div,'open local program',function(evt){
          document.body.removeChild(evt.target.parentNode)
-         var div = document.createElement('div')
-         make_menu(div)
-         add_menu(div,'open server module',function(evt){
-            document.body.removeChild(evt.target.parentNode)
-            })
-         add_menu(div,'open local module',function(evt){
-            document.body.removeChild(evt.target.parentNode)
-            })
-         add_menu(div,'open remote module',function(evt){
-            document.body.removeChild(evt.target.parentNode)
-            })
-         document.body.appendChild(div)
-         }
+         })
+      add_menu(div,'open remote program',function(evt){
+         document.body.removeChild(evt.target.parentNode)
+         })
+      add_menu(div,'save local program',function(evt){
+         document.body.removeChild(evt.target.parentNode)
+         })
+      add_menu(div,'save local page',function(evt){
+         document.body.removeChild(evt.target.parentNode)
+         })
+      document.body.appendChild(div)
+      }
+   function modules(evt) {
+      document.body.removeChild(evt.target.parentNode)
+      var div = document.createElement('div')
+      make_menu(div)
+      add_menu(div,'open server module',function(evt){
+         document.body.removeChild(evt.target.parentNode)
+         window.callback = function(msg) {
+            mod_message_handler(msg)
+            }
+         var win = window.open('modules/index.html')
+         })
+      add_menu(div,'open local module',function(evt){
+         document.body.removeChild(evt.target.parentNode)
+         })
+      add_menu(div,'open remote module',function(evt){
+         document.body.removeChild(evt.target.parentNode)
+         })
+      document.body.appendChild(div)
+      }
    function add_menu(div,text,click) {
       var textdiv = document.createElement('div')
       textdiv.appendChild(document.createTextNode(text))
