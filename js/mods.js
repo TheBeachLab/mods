@@ -75,18 +75,35 @@ document.addEventListener('contextmenu',function(evt){
       make_menu(div)
       add_menu(div,'open server program',function(evt){
          document.body.removeChild(evt.target.parentNode)
+         window.callback = function(msg) {
+            if (location.port == 80)
+               var uri = encodeURI('http://'+location.hostname
+                  +'?program='+msg)
+            else
+               var uri = encodeURI('http://'+location.hostname+':'
+                  +location.port+'?program='+msg)
+            set_prompt('<a href='+uri+'>program link</a>')
+            prog_message_handler(msg)
+            }
+         var win = window.open('programs/index.html')
          })
       add_menu(div,'open local program',function(evt){
          document.body.removeChild(evt.target.parentNode)
+         var file = document.getElementById('prog_input')
+         file.value = null
+         file.click()
          })
       add_menu(div,'open remote program',function(evt){
          document.body.removeChild(evt.target.parentNode)
+         alert('remotes not yet implemented')
          })
       add_menu(div,'save local program',function(evt){
          document.body.removeChild(evt.target.parentNode)
+         save_program()
          })
       add_menu(div,'save local page',function(evt){
          document.body.removeChild(evt.target.parentNode)
+         save_page()
          })
       document.body.appendChild(div)
       }
@@ -105,9 +122,13 @@ document.addEventListener('contextmenu',function(evt){
          })
       add_menu(div,'open local module',function(evt){
          document.body.removeChild(evt.target.parentNode)
+         var file = document.getElementById('mod_input')
+         file.value = null
+         file.click()
          })
       add_menu(div,'open remote module',function(evt){
          document.body.removeChild(evt.target.parentNode)
+         alert('remotes not yet implemented')
          })
       document.body.appendChild(div)
       }
