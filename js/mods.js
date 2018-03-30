@@ -406,6 +406,7 @@ function logo(size) {
    logo.appendChild(new_circ)
    return logo
    }
+set_prompt('right click for menu')
 //
 // SVG canvas for drawing
 //
