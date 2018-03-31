@@ -1,30 +1,24 @@
 # Todo
+- programs
+    - save program read ui values
+    - program load clear, redirect
 - view toolpath to library
 - ui
     - menus
-        - floating
-        - folding
+        - search
     - browser pan zoom
     - collapse nodes
     - refactor for skinning
 - frep
-    - multiple event propagation to rendering
     - transforms
-    - variable expressions
     - render
         - CPU
-            - background color
-            - zoom pan rotate
         - GPU
         - tree
     - slice zoom pan
     - color
-    - calculate CSG bounding boxes
 - devices
     - remove /dev from serial paths
-- programs
-    - save program read ui values
-    - program load clear, redirect
 - editing
     - subgraph select drag cut copy paste
     - nested module graphs
