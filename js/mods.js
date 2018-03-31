@@ -69,6 +69,18 @@ document.addEventListener('contextmenu',function(evt){
       div.style.border = '2px solid'
       div.style.borderRadius = '10px'
       }
+   function add_menu(div,text,click) {
+      var textdiv = document.createElement('div')
+      textdiv.appendChild(document.createTextNode(text))
+      textdiv.appendChild(document.createElement('br'))
+      textdiv.addEventListener('mouseover',function(evt){
+         evt.target.style.fontWeight = 'bold'})
+      textdiv.addEventListener('mouseout',function(evt){
+         evt.target.style.fontWeight = 'normal'})
+      textdiv.addEventListener('mousedown',click)
+      textdiv.addEventListener('touchstart',click)
+      div.appendChild(textdiv)
+      }
    function programs(evt) {
       evt.preventDefault()
       document.body.removeChild(evt.target.parentNode)
@@ -143,23 +155,6 @@ document.addEventListener('contextmenu',function(evt){
          })
       document.body.appendChild(div)
       }
-   function add_menu(div,text,click) {
-      var textdiv = document.createElement('div')
-      textdiv.appendChild(document.createTextNode(text))
-      textdiv.appendChild(document.createElement('br'))
-      textdiv.addEventListener('mouseover',menu_over)
-      textdiv.addEventListener('mouseout',menu_out)
-      textdiv.addEventListener('mousedown',click)
-      textdiv.addEventListener('touchstart',click)
-      div.appendChild(textdiv)
-      function menu_over(evt) {
-         evt.target.style.fontWeight = 'bold'
-         }
-      function menu_out(evt) {
-         evt.target.style.fontWeight = 'normal'
-         }
-      }
-   return false
    })
 //
 // programs menu

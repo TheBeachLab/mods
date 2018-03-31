@@ -1,5 +1,10 @@
+
 var div = document.createElement('div')
 div.appendChild(document.createTextNode('\u00A0123'))
+div.addEventListener('mouseover',function(evt){
+   evt.target.style.fontWeight = 'bold'})
+div.addEventListener('mouseout',function(evt){
+   evt.target.style.fontWeight = 'normal'})
 div.addEventListener('mousedown',function(evt){
    document.body.removeChild(evt.target.parentNode)
    mod_message_handler('modules/event/delay',
@@ -11,8 +16,13 @@ menu.appendChild(div)
 
 var div = document.createElement('div')
 div.appendChild(document.createTextNode('456'))
+div.addEventListener('mouseover',function(evt){
+   evt.target.style.fontWeight = 'bold'})
+div.addEventListener('mouseout',function(evt){
+   evt.target.style.fontWeight = 'normal'})
 div.addEventListener('mousedown',function(evt){
    document.body.removeChild(evt.target.parentNode)
    set_prompt(456)})
 div.appendChild(document.createElement('br'))
 menu.appendChild(div)
+
