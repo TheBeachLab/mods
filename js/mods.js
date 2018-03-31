@@ -29,25 +29,6 @@ mods.ui = {source:null,
    }
 mods.globals = {}
 //
-// set up UI
-//
-function optest(opt,link) {
-   if (document.location.href.slice(0,4) == 'http') {
-      var req = new XMLHttpRequest()
-      req.responseType = 'text'
-      req.onreadystatechange = function() {
-         if (req.readyState == XMLHttpRequest.DONE) {
-            if (req.status == 404)
-               opt.disabled = true
-            }
-         }
-      req.open('GET',link+'?rnd='+Math.random()) // random to prevent caching
-      req.send()
-      }
-   else
-      opt.disabled = true
-   }
-//
 // right click menu
 //
 document.addEventListener('contextmenu',function(evt){
