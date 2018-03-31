@@ -109,7 +109,7 @@ document.addEventListener('contextmenu',function(evt){
       document.body.appendChild(div)
       }
    function modules(evt) {
-     bevt.preventDefault()
+      evt.preventDefault()
       document.body.removeChild(evt.target.parentNode)
       var div = document.createElement('div')
       make_menu(div)
@@ -124,7 +124,11 @@ document.addEventListener('contextmenu',function(evt){
          document.body.removeChild(evt.target.parentNode)
          var div = document.createElement('div')
          make_menu(div)
-         div.innerHTML='<object type="text/html" data="modules/index.html" ></object>'
+         //div.innerHTML='<object type="text/html" data="modules/index.html" ></object>'
+         var s = document.createElement('script')
+         s.setAttribute('src','modules/index.js'+'?rnd='+Math.random())
+         //s.onload=callback;
+         div.appendChild(s)
          document.body.appendChild(div)
          })
       add_menu(div,'open server module',function(evt){
@@ -155,7 +159,7 @@ document.addEventListener('contextmenu',function(evt){
       textdiv.addEventListener('mouseover',menu_over)
       textdiv.addEventListener('mouseout',menu_out)
       textdiv.addEventListener('mousedown',click)
-      textdiv.addEventListener('touchend',click)
+      textdiv.addEventListener('touchstart',click)
       div.appendChild(textdiv)
       function menu_over(evt) {
          evt.target.style.fontWeight = 'bold'
