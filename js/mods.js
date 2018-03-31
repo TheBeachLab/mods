@@ -122,14 +122,21 @@ document.addEventListener('contextmenu',function(evt){
             }
          */
          document.body.removeChild(evt.target.parentNode)
-         var div = document.createElement('div')
-         make_menu(div)
-         //div.innerHTML='<object type="text/html" data="modules/index.html" ></object>'
-         var s = document.createElement('script')
-         s.setAttribute('src','modules/index.js'+'?rnd='+Math.random())
-         //s.onload=callback;
-         div.appendChild(s)
-         document.body.appendChild(div)
+         var menu = document.createElement('div')
+         make_menu(menu)
+         document.body.appendChild(menu)
+
+         var req = new XMLHttpRequest()
+         req.responseType = 'text'
+         req.onreadystatechange = function() {
+            if (req.readyState == XMLHttpRequest.DONE) {
+               var str = req.response
+               eval(str)
+               }
+            }
+         req.open('GET','modules/index.js'+'?rnd='+Math.random())
+         req.send()
+
          })
       add_menu(div,'open server module',function(evt){
          document.body.removeChild(evt.target.parentNode)
