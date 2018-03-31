@@ -153,6 +153,16 @@ document.addEventListener('contextmenu',function(evt){
       var div = document.createElement('div')
       make_menu(div)
       //
+      // open local program
+      //
+      add_menu(div,'open local program',function(evt){
+         document.body.removeChild(evt.target.parentNode)
+         mods.globals.menu = null
+         var file = document.getElementById('prog_input')
+         file.value = null
+         file.click()
+         })
+      //
       // open server program
       //
       add_menu(div,'open server program',function(evt){
@@ -204,16 +214,6 @@ document.addEventListener('contextmenu',function(evt){
             }
          req.open('GET','programs/index.js'+'?rnd='+Math.random())
          req.send()
-         })
-      //
-      // open local program
-      //
-      add_menu(div,'open local program',function(evt){
-         document.body.removeChild(evt.target.parentNode)
-         mods.globals.menu = null
-         var file = document.getElementById('prog_input')
-         file.value = null
-         file.click()
          })
       //
       // open remote program
