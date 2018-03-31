@@ -140,7 +140,7 @@ document.addEventListener('contextmenu',function(evt){
       add_menu(div,'open remote module',function(evt){
          document.body.removeChild(evt.target.parentNode)
          mods.globals.menu = null
-         alert('remotes not yet implemented')
+         set_prompt('remotes not yet implemented')
          })
       document.body.appendChild(div)
       }
