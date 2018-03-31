@@ -1,5 +1,5 @@
 //
-// frep morph
+// frep blend
 //
 // Neil Gershenfeld
 // (c) Massachusetts Institute of Technology 2018
@@ -20,7 +20,7 @@ var mod = {}
 //
 // name
 //
-var name = 'frep morph'
+var name = 'frep blend'
 //
 // initialization
 //
@@ -29,7 +29,7 @@ var init = function() {
    mod.shape1 = null
    mod.fn0.value = ''
    mod.fn1.value = ''
-   mod.weight.value = 0.5
+   mod.offset.value = 0.1
    }
 //
 // inputs
@@ -61,8 +61,9 @@ var outputs = {
    shape:{type:'',
       event:function(){
          if ((mod.shape0 != null) && (mod.shape1 != null)) {
-            var weight = parseFloat(mod.weight.value)
-            var fn = `(${weight}*${mod.shape0.function}+(1-${weight})*${mod.shape1.function})`
+            var offset = parseFloat(mod.offset.value)
+            var fn = `Math.max(${mod.shape0.function},${mod.shape1.function})`
+            var fn = `Math.max(${fn},(${mod.shape0.function})+(${mod.shape1.function})+(${offset}))`
             var variables = mod.shape0.variables
             var type = mod.shape0.type        
             var limits = []
@@ -109,15 +110,15 @@ var interface = function(div){
       mod.fn1 = input
    div.appendChild(document.createElement('br'))
    //
-   // weight
+   // offset
    //
-   div.appendChild(document.createTextNode('weight: '))
+   div.appendChild(document.createTextNode('offset: '))
    div.appendChild(document.createElement('br'))
    var input = document.createElement('input')
       input.type = 'text'
       input.size = 6
       div.appendChild(input)
-      mod.weight = input
+      mod.offset = input
    div.appendChild(document.createElement('br'))
    //
    // output button

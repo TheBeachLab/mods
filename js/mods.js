@@ -106,6 +106,7 @@ document.addEventListener('contextmenu',function(evt){
             div.appendChild(document.createElement('br'))
             menu.appendChild(div)
             }
+         evt.preventDefault()
          document.body.removeChild(evt.target.parentNode)
          var menu = document.createElement('div')
          make_menu(menu)
@@ -197,6 +198,7 @@ document.addEventListener('contextmenu',function(evt){
             div.appendChild(document.createElement('br'))
             menu.appendChild(div)
             }
+         evt.preventDefault()
          document.body.removeChild(evt.target.parentNode)
          var menu = document.createElement('div')
          make_menu(menu)
