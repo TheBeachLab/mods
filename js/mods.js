@@ -52,12 +52,19 @@ function optest(opt,link) {
 //
 document.addEventListener('contextmenu',function(evt){
    evt.preventDefault()
+   if (mods.globals.menu != null) {
+      document.body.removeChild(mods.globals.menu)
+      mods.globals.menu = null
+      }
    var div = document.createElement('div')
    make_menu(div)
    add_menu(div,'programs',programs)
    add_menu(div,'modules',modules)
+   add_menu(div,'edit',edit)
+   add_menu(div,'options',options)
    document.body.appendChild(div)
    function make_menu(div) {
+      mods.globals.menu = div
       div.style.position = "absolute"
       div.style.top = evt.clientY+document.body.scrollTop
       div.style.left = evt.clientX+document.body.scrollLeft
@@ -201,6 +208,33 @@ document.addEventListener('contextmenu',function(evt){
       add_menu(div,'open remote module',function(evt){
          document.body.removeChild(evt.target.parentNode)
          alert('remotes not yet implemented')
+         })
+      document.body.appendChild(div)
+      }
+   function edit(evt) {
+      evt.preventDefault()
+      document.body.removeChild(evt.target.parentNode)
+      set_prompt('editing not yet implemented')
+      }
+   function options(evt) {
+      evt.preventDefault()
+      document.body.removeChild(evt.target.parentNode)
+      var div = document.createElement('div')
+      make_menu(div)
+      //
+      // list files
+      //
+      add_menu(div,'list files',function(evt){
+         document.body.removeChild(evt.target.parentNode)
+         var win = window.open('files.html')
+         })
+      document.body.appendChild(div)
+      //
+      // save files
+      //
+      add_menu(div,'save files',function(evt){
+         document.body.removeChild(evt.target.parentNode)
+         var win = window.open('https://gitlab.cba.mit.edu/pub/mods')
          })
       document.body.appendChild(div)
       }
