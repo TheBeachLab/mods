@@ -86,6 +86,9 @@ document.addEventListener('contextmenu',function(evt){
       document.body.removeChild(evt.target.parentNode)
       var div = document.createElement('div')
       make_menu(div)
+      //
+      // open server program
+      //
       add_menu(div,'open server program',function(evt){
          document.body.removeChild(evt.target.parentNode)
          window.callback = function(msg) {
@@ -100,20 +103,32 @@ document.addEventListener('contextmenu',function(evt){
             }
          var win = window.open('programs/index.html')
          })
+      //
+      // open local program
+      //
       add_menu(div,'open local program',function(evt){
          document.body.removeChild(evt.target.parentNode)
          var file = document.getElementById('prog_input')
          file.value = null
          file.click()
          })
+      //
+      // open remote program
+      //
       add_menu(div,'open remote program',function(evt){
          document.body.removeChild(evt.target.parentNode)
          alert('remotes not yet implemented')
          })
+      //
+      // save local program
+      //
       add_menu(div,'save local program',function(evt){
          document.body.removeChild(evt.target.parentNode)
          save_program()
          })
+      //
+      // save local page
+      //
       add_menu(div,'save local page',function(evt){
          document.body.removeChild(evt.target.parentNode)
          save_page()
@@ -125,11 +140,41 @@ document.addEventListener('contextmenu',function(evt){
       document.body.removeChild(evt.target.parentNode)
       var div = document.createElement('div')
       make_menu(div)
+      //
+      // open server module
+      //
       add_menu(div,'open server module',function(evt){
+         function module_label(label) {
+            var div = document.createElement('div')
+            var i = document.createElement('i')
+            i.appendChild(document.createTextNode(label))
+            div.appendChild(i)
+            div.appendChild(document.createElement('br'))
+            menu.appendChild(div)
+            }
+         function module_menu(label,module) {
+            var div = document.createElement('div')
+            div.appendChild(
+               document.createTextNode('\u00A0\u00A0\u00A0'+label))
+            div.addEventListener('mouseover',function(evt){
+               evt.target.style.fontWeight = 'bold'})
+            div.addEventListener('mouseout',function(evt){
+               evt.target.style.fontWeight = 'normal'})
+            div.addEventListener('mousedown',function(evt){
+               document.body.removeChild(evt.target.parentNode)
+               mod_message_handler(module,
+               evt.clientY+document.body.scrollTop,
+               evt.clientX+document.body.scrollLeft)})
+            div.appendChild(document.createElement('br'))
+            menu.appendChild(div)
+            }
          document.body.removeChild(evt.target.parentNode)
          var menu = document.createElement('div')
          make_menu(menu)
          document.body.appendChild(menu)
+         menu.style.width = mods.ui.canvas
+         menu.style.height = mods.ui.canvas
+         menu.style.overflow = 'auto'
          var req = new XMLHttpRequest()
          req.responseType = 'text'
          req.onreadystatechange = function() {
@@ -141,12 +186,18 @@ document.addEventListener('contextmenu',function(evt){
          req.open('GET','modules/index.js'+'?rnd='+Math.random())
          req.send()
          })
+      //
+      // open local module
+      //
       add_menu(div,'open local module',function(evt){
          document.body.removeChild(evt.target.parentNode)
          var file = document.getElementById('mod_input')
          file.value = null
          file.click()
          })
+      //
+      // open remote module
+      //
       add_menu(div,'open remote module',function(evt){
          document.body.removeChild(evt.target.parentNode)
          alert('remotes not yet implemented')
