@@ -372,7 +372,7 @@ function logo(size) {
    logo.appendChild(new_circ)
    return logo
    }
-set_prompt('right click/long press for menu')
+set_prompt('right click/two finger/long press for menu')
 //
 // SVG canvas for drawing
 //
