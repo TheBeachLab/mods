@@ -80,6 +80,34 @@ var outputs = {
             limits[2][0] = location-(dl+dz)
             limits[2][1] = location-dl
             }
+         else if (mod.xy.checked) {
+            var xvar = variables[1]
+            var yvar = variables[2]
+            var re = new RegExp(zvar,'g')
+            fn = fn.replace(re,`(${2*location}-${zvar})`)
+            var dz = mod.shape.limits[2][1]-mod.shape.limits[2][0]
+            var dl = mod.shape.limits[2][0]-location
+            limits[2][0] = location-(dl+dz)
+            limits[2][1] = location-dl
+            }
+         else if (mod.xz.checked) {
+            var zvar = variables[2]
+            var re = new RegExp(zvar,'g')
+            fn = fn.replace(re,`(${2*location}-${zvar})`)
+            var dz = mod.shape.limits[2][1]-mod.shape.limits[2][0]
+            var dl = mod.shape.limits[2][0]-location
+            limits[2][0] = location-(dl+dz)
+            limits[2][1] = location-dl
+            }
+         else if (mod.yz.checked) {
+            var zvar = variables[2]
+            var re = new RegExp(zvar,'g')
+            fn = fn.replace(re,`(${2*location}-${zvar})`)
+            var dz = mod.shape.limits[2][1]-mod.shape.limits[2][0]
+            var dl = mod.shape.limits[2][0]-location
+            limits[2][0] = location-(dl+dz)
+            limits[2][1] = location-dl
+            }
          var shape = {function:fn,variables:variables,limits:limits,type:type}
          mods.output(mod,'shape',shape)}
          }}
@@ -92,6 +120,7 @@ var interface = function(div){
    // axis
    //
    div.appendChild(document.createTextNode('axis: '))
+   div.appendChild(document.createElement('br'))
    div.appendChild(document.createTextNode('x'))
    var input = document.createElement('input')
       input.type = 'radio'
@@ -113,6 +142,28 @@ var interface = function(div){
       input.id = mod.div.id+'z'
       div.appendChild(input)
       mod.z = input
+   div.appendChild(document.createElement('br'))
+   div.appendChild(document.createTextNode('xy'))
+   var input = document.createElement('input')
+      input.type = 'radio'
+      input.name = mod.div.id+'axis'
+      input.id = mod.div.id+'xy'
+      div.appendChild(input)
+      mod.xy = input
+   div.appendChild(document.createTextNode(' xz'))
+   var input = document.createElement('input')
+      input.type = 'radio'
+      input.name = mod.div.id+'axis'
+      input.id = mod.div.id+'xz'
+      div.appendChild(input)
+      mod.xz = input
+   div.appendChild(document.createTextNode(' yz'))
+   var input = document.createElement('input')
+      input.type = 'radio'
+      input.name = mod.div.id+'axis'
+      input.id = mod.div.id+'yz'
+      div.appendChild(input)
+      mod.yz = input
    div.appendChild(document.createElement('br'))
    //
    // location
