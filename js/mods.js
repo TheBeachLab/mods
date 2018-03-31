@@ -130,7 +130,6 @@ document.addEventListener('contextmenu',function(evt){
          var menu = document.createElement('div')
          make_menu(menu)
          document.body.appendChild(menu)
-
          var req = new XMLHttpRequest()
          req.responseType = 'text'
          req.onreadystatechange = function() {
@@ -141,7 +140,6 @@ document.addEventListener('contextmenu',function(evt){
             }
          req.open('GET','modules/index.js'+'?rnd='+Math.random())
          req.send()
-
          })
       add_menu(div,'open local module',function(evt){
          document.body.removeChild(evt.target.parentNode)
