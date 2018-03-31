@@ -1,9 +1,9 @@
 //
-// load.js
-//    node js/load.js subdir
+// programs.js
+//    node js/programs.js subdir
 //
 // Neil Gershenfeld 
-// (c) Massachusetts Institute of Technology 2016
+// (c) Massachusetts Institute of Technology 2018
 // 
 // This work may be reproduced, modified, distributed, performed, and 
 // displayed for any purpose, but must acknowledge the mods
@@ -17,18 +17,8 @@ var fs = require('fs')
 var subdir = process.argv[2]
 var root = './'+subdir
 
-str = '<html>\n\
-   <head><meta charset="utf-8"></head>\n\
-   <body>\n\
-   <body link="black" alink="black" vlink="black">\n\
-   <b>file to open?</b><br><br>\n\
-   <script>\n\
-   function handler(uri) {\n\
-      window.opener.callback(uri)\n\
-      window.close()\n\
-      }\n\
-   </script>\n\
-   '
+var str = ''
+
 list_files(root)
 console.log(str)
 
@@ -47,14 +37,12 @@ function list_files(path) {
          if (match == null)
             var prefix = ''
          else {
-            var prefix = Array(match.length).join('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;')
+            var prefix = Array(match.length).join('\u00A0\u00A0\u00A0')
             }
-         str += prefix
-         str += '<a href="javascript:handler('
-         str += "'"
+         str += "program_menu('"
+         str += prefix+file+"','"
          str += encodeURI(url)
-         str += "'"
-         str += ')">'+file+'</a><br>\n'
+         str += "')\n"
          }
       else if (stats.isDirectory() == true) {
          if (relpath == '')
@@ -65,9 +53,9 @@ function list_files(path) {
          if (match == null)
             var prefix = ''
          else {
-            var prefix = Array(match.length).join('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;')
+            var prefix = Array(match.length).join('\u00A0\u00A0\u00A0')
             }
-         str += '<i>'+prefix+file+'</i><br>\n'
+         str += "program_label('"+prefix+file+"')\n"
          list_files(path+'/'+file)
          }
       else

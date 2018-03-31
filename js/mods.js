@@ -58,8 +58,8 @@ document.addEventListener('contextmenu',function(evt){
       }
    var div = document.createElement('div')
    make_menu(div)
-   add_menu(div,'programs',programs)
    add_menu(div,'modules',modules)
+   add_menu(div,'programs',programs)
    add_menu(div,'edit',edit)
    add_menu(div,'options',options)
    document.body.appendChild(div)
@@ -88,60 +88,9 @@ document.addEventListener('contextmenu',function(evt){
       textdiv.addEventListener('touchstart',click)
       div.appendChild(textdiv)
       }
-   function programs(evt) {
-      evt.preventDefault()
-      document.body.removeChild(evt.target.parentNode)
-      var div = document.createElement('div')
-      make_menu(div)
-      //
-      // open server program
-      //
-      add_menu(div,'open server program',function(evt){
-         document.body.removeChild(evt.target.parentNode)
-         window.callback = function(msg) {
-            if (location.port == 80)
-               var uri = encodeURI('http://'+location.hostname
-                  +'?program='+msg)
-            else
-               var uri = encodeURI('http://'+location.hostname+':'
-                  +location.port+'?program='+msg)
-            set_prompt('<a href='+uri+'>program link</a>')
-            prog_message_handler(msg)
-            }
-         var win = window.open('programs/index.html')
-         })
-      //
-      // open local program
-      //
-      add_menu(div,'open local program',function(evt){
-         document.body.removeChild(evt.target.parentNode)
-         var file = document.getElementById('prog_input')
-         file.value = null
-         file.click()
-         })
-      //
-      // open remote program
-      //
-      add_menu(div,'open remote program',function(evt){
-         document.body.removeChild(evt.target.parentNode)
-         alert('remotes not yet implemented')
-         })
-      //
-      // save local program
-      //
-      add_menu(div,'save local program',function(evt){
-         document.body.removeChild(evt.target.parentNode)
-         save_program()
-         })
-      //
-      // save local page
-      //
-      add_menu(div,'save local page',function(evt){
-         document.body.removeChild(evt.target.parentNode)
-         save_page()
-         })
-      document.body.appendChild(div)
-      }
+   //
+   // modules menu
+   //
    function modules(evt) {
       evt.preventDefault()
       document.body.removeChild(evt.target.parentNode)
@@ -169,6 +118,7 @@ document.addEventListener('contextmenu',function(evt){
                evt.target.style.fontWeight = 'normal'})
             div.addEventListener('mousedown',function(evt){
                document.body.removeChild(evt.target.parentNode)
+               mods.globals.menu = null
                mod_message_handler(module,
                evt.clientY+document.body.scrollTop,
                evt.clientX+document.body.scrollLeft)})
@@ -198,6 +148,7 @@ document.addEventListener('contextmenu',function(evt){
       //
       add_menu(div,'open local module',function(evt){
          document.body.removeChild(evt.target.parentNode)
+         mods.globals.menu = null
          var file = document.getElementById('mod_input')
          file.value = null
          file.click()
@@ -207,18 +158,124 @@ document.addEventListener('contextmenu',function(evt){
       //
       add_menu(div,'open remote module',function(evt){
          document.body.removeChild(evt.target.parentNode)
+         mods.globals.menu = null
          alert('remotes not yet implemented')
          })
       document.body.appendChild(div)
       }
+   //
+   // programs menu
+   //
+   function programs(evt) {
+      evt.preventDefault()
+      document.body.removeChild(evt.target.parentNode)
+      var div = document.createElement('div')
+      make_menu(div)
+      //
+      // open server program
+      //
+      add_menu(div,'open server program',function(evt){
+         function program_label(label) {
+            var div = document.createElement('div')
+            var i = document.createElement('i')
+            i.appendChild(document.createTextNode(label))
+            div.appendChild(i)
+            div.appendChild(document.createElement('br'))
+            menu.appendChild(div)
+            }
+         function program_menu(label,program) {
+            var div = document.createElement('div')
+            div.appendChild(
+               document.createTextNode('\u00A0\u00A0\u00A0'+label))
+            div.addEventListener('mouseover',function(evt){
+               evt.target.style.fontWeight = 'bold'})
+            div.addEventListener('mouseout',function(evt){
+               evt.target.style.fontWeight = 'normal'})
+            div.addEventListener('mousedown',function(evt){
+               if (location.port == 80)
+                  var uri = 'http://'+location.hostname
+                     +'?program='+program
+               else
+                  var uri = 'http://'+location.hostname+':'
+                     +location.port+'?program='+program
+               set_prompt('<a href='+uri+'>program link</a>')
+               prog_message_handler(program)
+               document.body.removeChild(evt.target.parentNode)
+               mods.globals.menu = null
+               })
+            div.appendChild(document.createElement('br'))
+            menu.appendChild(div)
+            }
+         document.body.removeChild(evt.target.parentNode)
+         var menu = document.createElement('div')
+         make_menu(menu)
+         document.body.appendChild(menu)
+         menu.style.width = mods.ui.canvas
+         menu.style.height = mods.ui.canvas
+         menu.style.overflow = 'auto'
+         var req = new XMLHttpRequest()
+         req.responseType = 'text'
+         req.onreadystatechange = function() {
+            if (req.readyState == XMLHttpRequest.DONE) {
+               var str = req.response
+               eval(str)
+               }
+            }
+         req.open('GET','programs/index.js'+'?rnd='+Math.random())
+         req.send()
+         })
+      //
+      // open local program
+      //
+      add_menu(div,'open local program',function(evt){
+         document.body.removeChild(evt.target.parentNode)
+         mods.globals.menu = null
+         var file = document.getElementById('prog_input')
+         file.value = null
+         file.click()
+         })
+      //
+      // open remote program
+      //
+      add_menu(div,'open remote program',function(evt){
+         document.body.removeChild(evt.target.parentNode)
+         mods.globals.menu = null
+         set_prompt('remotes not yet implemented')
+         })
+      //
+      // save local program
+      //
+      add_menu(div,'save local program',function(evt){
+         document.body.removeChild(evt.target.parentNode)
+         mods.globals.menu = null
+         save_program()
+         })
+      //
+      // save local page
+      //
+      add_menu(div,'save local page',function(evt){
+         document.body.removeChild(evt.target.parentNode)
+         mods.globals.menu = null
+         save_page()
+         })
+      document.body.appendChild(div)
+      }
+   //
+   // edit menu
+   //
    function edit(evt) {
       evt.preventDefault()
       document.body.removeChild(evt.target.parentNode)
+      mods.globals.menu = null
       set_prompt('editing not yet implemented')
       }
+   //
+   // options menu
+   //
    function options(evt) {
       evt.preventDefault()
       document.body.removeChild(evt.target.parentNode)
+      mods.globals.menu = null
       var div = document.createElement('div')
       make_menu(div)
       //
@@ -226,6 +283,7 @@ document.addEventListener('contextmenu',function(evt){
       //
       add_menu(div,'list files',function(evt){
          document.body.removeChild(evt.target.parentNode)
+         mods.globals.menu = null
          var win = window.open('files.html')
          })
       document.body.appendChild(div)
@@ -234,199 +292,16 @@ document.addEventListener('contextmenu',function(evt){
       //
       add_menu(div,'save files',function(evt){
          document.body.removeChild(evt.target.parentNode)
+         mods.globals.menu = null
          var win = window.open('https://gitlab.cba.mit.edu/pub/mods')
          })
       document.body.appendChild(div)
       }
    })
 //
-// programs menu
-//
-document.body.appendChild(document.createTextNode(' '))
-var sel = document.createElement('select')
-   sel.style.padding = mods.ui.padding
-   sel.addEventListener(('change'),function(evt){ // click?
-      switch (evt.target.value) {
-         case 'open server program':
-            window.callback = function(msg) {
-               if (location.port == 80)
-                  var uri = encodeURI('http://'+location.hostname
-                     +'?program='+msg)
-               else
-                  var uri = encodeURI('http://'+location.hostname+':'
-                     +location.port+'?program='+msg)
-               set_prompt('<a href='+uri+'>program link</a>')
-               prog_message_handler(msg)
-               }
-            var win = window.open('programs/index.html')
-            break
-         case 'open local program':
-            var file = document.getElementById('prog_input')
-            file.value = null
-            file.click()
-            break
-         case 'open remote program':
-            alert('remotes not yet implemented')
-            break
-         case 'save local program':
-            save_program()
-            break
-         case 'save local page':
-            save_page()
-            break
-         }
-      evt.target.value = 'programs'
-      })
-   var opt = document.createElement('option')
-      opt.text = 'programs'
-      opt.value = opt.text
-      sel.add(opt)
-   var opt = document.createElement('option')
-      opt.text = 'open server program'
-      opt.value = opt.text
-      sel.add(opt)
-      optest(opt,'programs/index.html')
-   var opt = document.createElement('option')
-      opt.text = 'open local program'
-      opt.value = opt.text
-      sel.add(opt)
-   var opt = document.createElement('option')
-      opt.text = 'open remote program'
-      opt.value = opt.text
-      sel.add(opt)
-   var opt = document.createElement('option')
-      opt.text = 'save local program'
-      opt.value = opt.text
-      sel.add(opt)
-   var opt = document.createElement('option')
-      opt.text = 'save local page'
-      opt.value = opt.text
-      sel.add(opt)
-   document.body.appendChild(sel)
-mods.ui.header = 2*sel.clientHeight
-//
-// modules menu
-//
-document.body.appendChild(document.createTextNode(' '))
-var sel = document.createElement('select')
-   sel.style.padding = mods.ui.padding
-   sel.addEventListener(('change'),function(evt){ // click?
-      switch (evt.target.value) {
-         case 'add server module':
-            window.callback = function(msg) {
-               mod_message_handler(msg,
-                  1.5*mods.ui.header,3*mods.ui.header)
-               }
-            var win = window.open('modules/index.html')
-            break
-         case 'add local module':
-            var file = document.getElementById('mod_input')
-            file.value = null
-            file.click()
-            break
-         case 'add remote module':
-            alert('remotes not yet implemented')
-            break
-         }
-      evt.target.value = 'modules'
-      })
-   var opt = document.createElement('option')
-      opt.text = 'modules'
-      opt.value = 'modules'
-      sel.add(opt)
-   var opt = document.createElement('option')
-      opt.text = 'add server module'
-      opt.value = opt.text
-      sel.add(opt)
-      optest(opt,'modules/index.html')
-   var opt = document.createElement('option')
-      opt.text = 'add local module'
-      opt.value = opt.text
-      sel.add(opt)
-   var opt = document.createElement('option')
-      opt.text = 'add remote module'
-      opt.value = opt.text
-      sel.add(opt)
-   document.body.appendChild(sel)
-//
-// edit menu
-//
-document.body.appendChild(document.createTextNode(' '))
-document.body.appendChild(document.createTextNode(' '))
-var sel = document.createElement('select')
-   sel.style.padding = mods.ui.padding
-   sel.addEventListener(('change'),function(evt){ // click?
-      evt.target.value = 'edit'
-      })
-   var opt = document.createElement('option')
-      opt.text = 'edit'
-      opt.value = opt.text
-      sel.add(opt)
-   var opt = document.createElement('option')
-      opt.text = 'cut'
-      opt.value = opt.text
-      opt.disabled = true
-      sel.add(opt)
-   var opt = document.createElement('option')
-      opt.text = 'copy'
-      opt.value = opt.text
-      opt.disabled = true
-      sel.add(opt)
-   var opt = document.createElement('option')
-      opt.text = 'paste'
-      opt.value = opt.text
-      opt.disabled = true
-      sel.add(opt)
-   var opt = document.createElement('option')
-      opt.text = 'nest'
-      opt.value = opt.text
-      opt.disabled = true
-      sel.add(opt)
-   document.body.appendChild(sel)
-//
-// options menu
-//
-document.body.appendChild(document.createTextNode(' '))
-var sel = document.createElement('select')
-   sel.style.padding = mods.ui.padding
-   sel.addEventListener(('change'),function(evt){ // click
-      switch (evt.target.value) {
-         case 'list all files':
-            var win = window.open('files.html')
-            break
-         case 'save all files':
-            var win = window.open('https://gitlab.cba.mit.edu/pub/mods')
-            break
-         }
-      evt.target.value = 'options'
-      })
-   var opt = document.createElement('option')
-      opt.text = 'options'
-      opt.value = 'options'
-      sel.add(opt)
-   var opt = document.createElement('option')
-      opt.text = 'preferences'
-      opt.value = opt.text
-      opt.disabled = true
-      sel.add(opt)
-   var opt = document.createElement('option')
-      opt.text = 'list all files'
-      opt.value = opt.text
-      sel.add(opt)
-      optest(opt,'files.html')
-   var opt = document.createElement('option')
-      opt.text = 'save all files'
-      opt.value = opt.text
-      sel.add(opt)
-   var opt = document.createElement('option')
-      opt.text = 'about'
-      opt.value = opt.text
-      opt.disabled = true
-      sel.add(opt)
-   document.body.appendChild(sel)
-//
 // prompt
 //
+mods.ui.header = 50
 document.body.appendChild(document.createTextNode(' '))
 var span = document.createElement('span')
    span.setAttribute('id','logo')
@@ -516,7 +391,7 @@ function logo(size) {
    logo.appendChild(new_circ)
    return logo
    }
-set_prompt('right click for menu')
+set_prompt('right click/long press for menu')
 //
 // SVG canvas for drawing
 //

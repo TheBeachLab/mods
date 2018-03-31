@@ -1,9 +1,9 @@
 //
-// load.js
-//    node js/load.js subdir
+// modules.js
+//    node js/modules.js subdir
 //
 // Neil Gershenfeld 
-// (c) Massachusetts Institute of Technology 2016
+// (c) Massachusetts Institute of Technology 2018
 // 
 // This work may be reproduced, modified, distributed, performed, and 
 // displayed for any purpose, but must acknowledge the mods
