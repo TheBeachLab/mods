@@ -2,7 +2,7 @@
 // mods.js
 //
 // Neil Gershenfeld
-// (c) Massachusetts Institute of Technology 2019
+// (c) Massachusetts Institute of Technology 2018
 //
 // This work may be reproduced, modified, distributed, performed, and
 // displayed for any purpose, but must acknowledge the mods
