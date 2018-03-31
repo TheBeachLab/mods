@@ -66,7 +66,7 @@ document.addEventListener('contextmenu',function(evt){
       textdiv.addEventListener('mouseout',function(evt){
          evt.target.style.fontWeight = 'normal'})
       textdiv.addEventListener('mousedown',click)
-      textdiv.addEventListener('touchstart',click)
+      textdiv.addEventListener('touchend',click)
       div.appendChild(textdiv)
       }
    //
@@ -106,7 +106,6 @@ document.addEventListener('contextmenu',function(evt){
             div.appendChild(document.createElement('br'))
             menu.appendChild(div)
             }
-         evt.preventDefault()
          document.body.removeChild(evt.target.parentNode)
          var menu = document.createElement('div')
          make_menu(menu)
@@ -198,7 +197,6 @@ document.addEventListener('contextmenu',function(evt){
             div.appendChild(document.createElement('br'))
             menu.appendChild(div)
             }
-         evt.preventDefault()
          document.body.removeChild(evt.target.parentNode)
          var menu = document.createElement('div')
          make_menu(menu)
