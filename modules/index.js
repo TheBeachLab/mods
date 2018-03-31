@@ -1,5 +1,5 @@
 var div = document.createElement('div')
-div.appendChild(document.createTextNode('123'))
+div.appendChild(document.createTextNode('\u00A0123'))
 div.addEventListener('mousedown',function(evt){
    document.body.removeChild(evt.target.parentNode)
    mod_message_handler('modules/event/delay',

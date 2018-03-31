@@ -113,14 +113,7 @@ document.addEventListener('contextmenu',function(evt){
       document.body.removeChild(evt.target.parentNode)
       var div = document.createElement('div')
       make_menu(div)
-      add_menu(div,'open server module here',function(evt){
-         /*
-         window.callback = function(msg) {
-            mod_message_handler(msg,
-               evt.clientY+document.body.scrollTop,
-               evt.clientX+document.body.scrollLeft)
-            }
-         */
+      add_menu(div,'open server module',function(evt){
          document.body.removeChild(evt.target.parentNode)
          var menu = document.createElement('div')
          make_menu(menu)
@@ -137,15 +130,6 @@ document.addEventListener('contextmenu',function(evt){
          req.open('GET','modules/index.js'+'?rnd='+Math.random())
          req.send()
 
-         })
-      add_menu(div,'open server module',function(evt){
-         document.body.removeChild(evt.target.parentNode)
-         window.callback = function(msg) {
-            mod_message_handler(msg,
-               evt.clientY+document.body.scrollTop,
-               evt.clientX+document.body.scrollLeft)
-            }
-         var win = window.open('modules/index.html')
          })
       add_menu(div,'open local module',function(evt){
          document.body.removeChild(evt.target.parentNode)
