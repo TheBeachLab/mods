@@ -25,7 +25,8 @@ var name = 'frep reflect'
 // initialization
 //
 var init = function() {
-   mod.location.value = 0
+   mod.origin0.value = 0
+   mod.origin1.value = 0
    mod.x.checked = true
    }
 //
@@ -46,7 +47,8 @@ var outputs = {
          var fn = mod.shape.function
          var variables = mod.shape.variables
          var type = mod.shape.type        
-         var location = parseFloat(mod.location.value)
+         var origin0 = parseFloat(mod.origin0.value)
+         var origin1 = parseFloat(mod.origin1.value)
          var limits = []
          for (var v = 0; v < mod.shape.limits.length; ++v) {
             limits[v] = []
@@ -56,57 +58,80 @@ var outputs = {
          if (mod.x.checked) {
             var xvar = variables[0]
             var re = new RegExp(xvar,'g')
-            fn = fn.replace(re,`(${2*location}-${xvar})`)
+            fn = fn.replace(re,`(${2*origin0}-${xvar})`)
             var dx = mod.shape.limits[0][1]-mod.shape.limits[0][0]
-            var dl = mod.shape.limits[0][0]-location
-            limits[0][0] = location-(dl+dx)
-            limits[0][1] = location-dl
+            var dl = mod.shape.limits[0][0]-origin0
+            limits[0][0] = origin0-(dl+dx)
+            limits[0][1] = origin0-dl
             }
          else if (mod.y.checked) {
             var yvar = variables[1]
             var re = new RegExp(yvar,'g')
-            fn = fn.replace(re,`(${2*location}-${yvar})`)
+            fn = fn.replace(re,`(${2*origin0}-${yvar})`)
             var dy = mod.shape.limits[1][1]-mod.shape.limits[1][0]
-            var dl = mod.shape.limits[1][0]-location
-            limits[1][0] = location-(dl+dy)
-            limits[1][1] = location-dl
+            var dl = mod.shape.limits[1][0]-origin0
+            limits[1][0] = origin0-(dl+dy)
+            limits[1][1] = origin0-dl
             }
          else if (mod.z.checked) {
             var zvar = variables[2]
             var re = new RegExp(zvar,'g')
-            fn = fn.replace(re,`(${2*location}-${zvar})`)
+            fn = fn.replace(re,`(${2*origin0}-${zvar})`)
             var dz = mod.shape.limits[2][1]-mod.shape.limits[2][0]
-            var dl = mod.shape.limits[2][0]-location
-            limits[2][0] = location-(dl+dz)
-            limits[2][1] = location-dl
+            var dl = mod.shape.limits[2][0]-origin0
+            limits[2][0] = origin0-(dl+dz)
+            limits[2][1] = origin0-dl
             }
          else if (mod.xy.checked) {
-            var xvar = variables[1]
-            var yvar = variables[2]
-            var re = new RegExp(zvar,'g')
-            fn = fn.replace(re,`(${2*location}-${zvar})`)
-            var dz = mod.shape.limits[2][1]-mod.shape.limits[2][0]
-            var dl = mod.shape.limits[2][0]-location
-            limits[2][0] = location-(dl+dz)
-            limits[2][1] = location-dl
+            var xvar = variables[0]
+            var yvar = variables[1]
+            var xre = new RegExp(xvar,'g')
+            var yre = new RegExp(yvar,'g')
+            fn = fn.replace(xre,'TEMP')
+            fn = fn.replace(yre,`(${2*origin0}-${xvar})`)
+            fn = fn.replace(/TEMP/g,`(${2*origin1}-${yvar})`)
+            var dx = mod.shape.limits[0][1]-mod.shape.limits[0][0]
+            var dy = mod.shape.limits[1][1]-mod.shape.limits[1][0]
+            var dxl = mod.shape.limits[0][0]-origin0
+            var dyl = mod.shape.limits[1][0]-origin1
+            limits[0][0] = origin1-(dyl+dy)
+            limits[0][1] = origin1-dyl
+            limits[1][0] = origin0-(dxl+dx)
+            limits[1][1] = origin0-dxl
             }
          else if (mod.xz.checked) {
+            var xvar = variables[0]
             var zvar = variables[2]
-            var re = new RegExp(zvar,'g')
-            fn = fn.replace(re,`(${2*location}-${zvar})`)
+            var xre = new RegExp(xvar,'g')
+            var zre = new RegExp(zvar,'g')
+            fn = fn.replace(xre,'TEMP')
+            fn = fn.replace(zre,`(${2*origin0}-${xvar})`)
+            fn = fn.replace(/TEMP/g,`(${2*origin1}-${zvar})`)
+            var dx = mod.shape.limits[0][1]-mod.shape.limits[0][0]
             var dz = mod.shape.limits[2][1]-mod.shape.limits[2][0]
-            var dl = mod.shape.limits[2][0]-location
-            limits[2][0] = location-(dl+dz)
-            limits[2][1] = location-dl
+            var dxl = mod.shape.limits[0][0]-origin0
+            var dzl = mod.shape.limits[2][0]-origin1
+            limits[0][0] = origin1-(dzl+dz)
+            limits[0][1] = origin1-dzl
+            limits[2][0] = origin0-(dxl+dx)
+            limits[2][1] = origin0-dxl
             }
          else if (mod.yz.checked) {
+            var yvar = variables[1]
             var zvar = variables[2]
-            var re = new RegExp(zvar,'g')
-            fn = fn.replace(re,`(${2*location}-${zvar})`)
+            var yre = new RegExp(yvar,'g')
+            var zre = new RegExp(zvar,'g')
+            fn = fn.replace(yre,'TEMP')
+            fn = fn.replace(zre,`(${2*origin0}-${yvar})`)
+            fn = fn.replace(/TEMP/g,`(${2*origin1}-${zvar})`)
+            var dy = mod.shape.limits[1][1]-mod.shape.limits[1][0]
             var dz = mod.shape.limits[2][1]-mod.shape.limits[2][0]
-            var dl = mod.shape.limits[2][0]-location
-            limits[2][0] = location-(dl+dz)
-            limits[2][1] = location-dl
+            var dyl = mod.shape.limits[1][0]-origin0
+            var dzl = mod.shape.limits[2][0]-origin1
+            limits[1][0] = origin1-(dzl+dz)
+            limits[1][1] = origin1-dzl
+            limits[2][0] = origin0-(dyl+dy)
+            limits[2][1] = origin0-dyl
             }
          var shape = {function:fn,variables:variables,limits:limits,type:type}
          mods.output(mod,'shape',shape)}
@@ -143,6 +168,19 @@ var interface = function(div){
       div.appendChild(input)
       mod.z = input
    div.appendChild(document.createElement('br'))
+   //
+   // origin 0
+   //
+   div.appendChild(document.createTextNode('origin 0: '))
+   var input = document.createElement('input')
+      input.type = 'text'
+      input.size = 6
+      div.appendChild(input)
+      mod.origin0 = input
+   div.appendChild(document.createElement('br'))
+   //
+   // axis
+   //
    div.appendChild(document.createTextNode('xy'))
    var input = document.createElement('input')
       input.type = 'radio'
@@ -166,14 +204,14 @@ var interface = function(div){
       mod.yz = input
    div.appendChild(document.createElement('br'))
    //
-   // location
+   // origin 1
    //
-   div.appendChild(document.createTextNode('location: '))
+   div.appendChild(document.createTextNode('origin 1: '))
    var input = document.createElement('input')
       input.type = 'text'
       input.size = 6
       div.appendChild(input)
-      mod.location = input
+      mod.origin1 = input
    div.appendChild(document.createElement('br'))
    //
    // output button
