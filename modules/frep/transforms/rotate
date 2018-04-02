@@ -72,9 +72,9 @@ var outputs = {
             var xre = new RegExp(xvar,'g')
             var yre = new RegExp(yvar,'g')
             fn = fn.replace(xre,
-               `(${ox})+(${xvar}-(${ox}))*Math.cos(${rz})+(TEMP-(${oy}))*Math.sin(${rz})`)
+               `((${ox})+(${xvar}-(${ox}))*Math.cos(${rz})+(TEMP-(${oy}))*Math.sin(${rz}))`)
             fn = fn.replace(yre,
-               `(${oy})-(${xvar}-(${ox}))*Math.sin(${rz})+(${yvar}-(${oy}))*Math.cos(${rz})`)
+               `((${oy})-(${xvar}-(${ox}))*Math.sin(${rz})+(${yvar}-(${oy}))*Math.cos(${rz}))`)
             fn = fn.replace(/TEMP/g,yvar)
             var x0 = limits[0][0]
             var x1 = limits[0][1]
