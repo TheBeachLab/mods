@@ -21,14 +21,13 @@ var mod = {};
 //
 // name
 //
-var name = 'frep volume renderer';
+var name = 'render GPU';
 //
 // initialization
 //
 var init = function() {
 	mod.steps.value=256.0;
 	mod.alphaCorrection.value=1.0;
-	mod.z.value=0.0;
 	mod.rendType=0.0;
 	mod.windowOpen=false;
 	mod.xLimit1 =-1.0 ;
@@ -47,7 +46,7 @@ var inputs = {
 
 		mod.shape=evt.detail;
 
-		outputs.messageLog.event(mod.shape.limits);
+		// outputs.messageLog.event(mod.shape.limits);
 
 		//get largerst range and rescale other ones to adjust limit mapping
 		var tempIndex=0;
@@ -85,8 +84,62 @@ var inputs = {
 		//
 		var str1 = mod.shape.function;
 		str1=str1.replace(/Math./g, '');
+			
+		//change all % to mod(,)
+		while(str1.indexOf("%")>-1) //While '%' is there
+		{
+			//get location
+			var modLocation=str1.indexOf("%");
+			//replace with ','
+			str1=str1.replace(/%/, ",");
+			outputs.messageLog.event("1:"+str1);
 
-		//turn all ints to float
+			//parse before
+			var counterBefore=modLocation;
+			var count=0;
+			if(str1[--counterBefore]==')')
+			{
+				count++;
+			}
+			while(count>0)
+			{
+				counterBefore--;
+				if(str1[counterBefore]==')')
+				{
+					count++;
+
+				}else if (str1[counterBefore]=='(')
+				{
+					count--;
+				}
+			}
+			
+			//parse after
+			var counterAfter=modLocation;
+			count=0;
+			if(str1[++counterAfter]=='(')
+			{
+				count++;
+			}
+			while(count>0)
+			{
+				counterAfter++;
+				if(str1[counterAfter]=='(')
+				{
+					count++;
+
+				}else if (str1[counterAfter]==')')
+				{
+					count--;
+				}
+			}
+			str1 = str1.substr(0, counterAfter) + ")" + str1.substr(counterAfter);
+			str1 = str1.substr(0, counterBefore) + "mod(" + str1.substr(counterBefore);
+			outputs.messageLog.event("2"+str1);
+
+		}
+
+		//turn all ints to floatS
 		var str='';
 		for(var i=0;i<str1.length;i++)
 		{
@@ -207,7 +260,7 @@ var interface = function(div){
 			//select menu for functions
 			var z = document.createElement("option");
 			z.setAttribute("value", "0");
-			var t = document.createTextNode('xray');
+			var t = document.createTextNode('specular');
 			z.appendChild(t);
 			input.appendChild(z);
 
@@ -219,19 +272,19 @@ var interface = function(div){
 
 			var z = document.createElement("option");
 			z.setAttribute("value", "2");
-			var t = document.createTextNode('normals');
+			var t = document.createTextNode('xray');
 			z.appendChild(t);
 			input.appendChild(z);
 
 			var z = document.createElement("option");
 			z.setAttribute("value", "3");
-			var t = document.createTextNode('light');
+			var t = document.createTextNode('normals');
 			z.appendChild(t);
 			input.appendChild(z);
 
 			var z = document.createElement("option");
 			z.setAttribute("value", "4");
-			var t = document.createTextNode('specular');
+			var t = document.createTextNode('light');
 			z.appendChild(t);
 			input.appendChild(z);
 		 
@@ -247,22 +300,6 @@ var interface = function(div){
 			// outputs.messageLog.event(input);
 
 	div.appendChild(document.createElement('br'));
-   //
-   // z slice
-   //
-   div.appendChild(document.createTextNode('z slice: '));
-   var input = document.createElement('input');
-      input.type = 'text';
-      input.size = 3;
-      input.addEventListener('input',function(){
-				if(mod.windowOpen)
-				{
-					mod.redraw();
-				}
-         });
-      div.appendChild(input);
-      mod.z = input;
-   div.appendChild(document.createElement('br'));
    //
    // view
    //   
@@ -397,15 +434,11 @@ function open_view_window() {
 		`
 			varying vec3 worldSpaceCoords;
 			varying vec4 projectedCoords;
-			varying mat4 viewMat;
-			varying mat4 projMat;
 
 			void main()
 			{
 				worldSpaceCoords = (modelMatrix * vec4(position + vec3(0.5, 0.5,0.5), 1.0 )).xyz;
 				gl_Position = projectionMatrix *  modelViewMatrix * vec4( position, 1.0 );
-				projMat = modelMatrix;
-				viewMat = modelViewMatrix;
 				projectedCoords =  projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
 			}
 			`;
@@ -420,14 +453,10 @@ function open_view_window() {
 			`
 				varying vec3 worldSpaceCoords;
 				varying vec4 projectedCoords;
-				varying mat4 viewMat;
-				varying mat4 projMat;
 				uniform sampler2D tex;
 				uniform float steps;
-				uniform float zSlice;
 				uniform float alphaCorrection;
 				uniform float rendType;
-				uniform mat4 cameraMat;
 				// The maximum distance through our rendering volume is sqrt(3).
 				// The maximum number of steps we take to travel a distance of 1 is 512.
 				// ceil( sqrt(3) * 512 ) = 887
@@ -477,21 +506,6 @@ function open_view_window() {
 					c.rgb = _Color * lightCol * NdotL + s;
 					return c;
 				}
-				mat4 rotationMatrix(vec3 axis, float angle) {
-					axis = normalize(axis);
-					float s = sin(angle);
-					float c = cos(angle);
-					float oc = 1.0 - c;
-					
-					return mat4(oc * axis.x * axis.x + c,           oc * axis.x * axis.y - axis.z * s,  oc * axis.z * axis.x + axis.y * s,  0.0,
-								oc * axis.x * axis.y + axis.z * s,  oc * axis.y * axis.y + c,           oc * axis.y * axis.z - axis.x * s,  0.0,
-								oc * axis.z * axis.x - axis.y * s,  oc * axis.y * axis.z + axis.x * s,  oc * axis.z * axis.z + c,           0.0,
-								0.0,                                0.0,                                0.0,                                1.0);
-				}
-				vec3 rotate(vec3 v, vec3 axis, float angle) {
-					mat4 m = rotationMatrix(axis, angle);
-					return (m * vec4(v, 1.0)).xyz;
-				}
 
 				//Acts like a texture3D using Z slices and trilinear filtering.
 				vec4 sampleAs3DTextureCustom( vec3 texCoord )
@@ -502,96 +516,62 @@ function open_view_window() {
 
 					//slice color red
 					vec4 m;
-					m=vec4(1.0,0.0,0.0,0.0);
+					m=vec4(0.0,0.0,0.0,0.0);
 
-					if(texCoord.z<=1.0-zSlice)
+					
+					if(`+mod.str+`>0.0)
 					{
-						if(`+mod.str+`>0.0)
+						m.a=1.0;
+						//xray
+						if(rendType==2.0)
 						{
-							m.a= 1.0;
+							m=vec4(1.0,1.0,1.0,0.1);
 						}
-					}
-
-					//filter top edge
-					if( texCoord.z<=1.0-zSlice-0.001 && m.a==1.0)
-					{
-						if((`+mod.str+`>0.00001))
+						//heightmap fixed
+						else if(rendType==1.0)
 						{
-							//xray
-							if(rendType==0.0)
-							{
-								m=vec4(1.0,1.0,1.0,0.1);
-							}
-							//heightmap fixed
-							else if(rendType==1.0)
-							{
-								//heightmap
-								m.r=texCoord.z;
-								m.g=texCoord.z;
-								m.b=texCoord.z;
-							}
-							//heightmap variable
-							// else if(rendType==2.0)
-							// {
-							// 	// vec3 tempVec= viewDirection * dot( texCoord.xyz, viewDirection );
-							// 	// m.r=tempVec.b;
-							// 	// m.g=tempVec.b;
-							// 	// // m.b=tempVec.b;
-
-							// 	// vec3 u = vec3(0.0,0.0,1.0); // first input vector
-							// 	// vec3 v = cameraDir; // other input vector
-							// 	// float x_angle = acos( dot( u.yz, v.yz ) );
-							// 	// float y_angle = acos( dot( u.xz, v.xz ) );
-							// 	// float z_angle = acos( dot( u.xy, v.xy ) );
-							// 	// vec3 tempRotateVec=rotate(texCoord, vec3 (1.0,0.0,0.0), x_angle );
-							// 	// tempRotateVec=rotate(tempRotateVec, vec3 (0.0,1.0,0.0), y_angle );
-							// 	// tempRotateVec=rotate(tempRotateVec, vec3 (0.0,0.0,1.0), z_angle );
-
-							// 	vec3 tempRotateVec=(cameraMat *  vec4(texCoord, 1.0)).xyz;
-
-							// 	m.r=tempRotateVec.x;
-							// 	m.g=tempRotateVec.y;
-							// 	m.b=tempRotateVec.z;
-							// }
-							// //normal
-							else if(rendType==2.0)
-							{
-								const float eps = 0.5;
-								vec3 p=vec3(X,Y,Z);
-								m.r=map(p + vec3(eps, 0, 0)	) - map(p - vec3(eps, 0, 0));
-								m.g=map(p + vec3(0, eps, 0)	) - map(p - vec3(0, eps, 0));
-								m.b=map(p + vec3(0, 0, eps)	) - map(p - vec3(0, 0, eps));
-
-							}
-							//light
-							else if(rendType==3.0)
-							{
-								const float eps = 0.01;
-								vec3 p=vec3(X,Y,Z);
-								float tempConst=0.05;
-								m.r=map(p + vec3(eps, 0, 0)	) - map(p - vec3(eps, 0, 0));
-								m.g=map(p + vec3(0, eps, 0)	) - map(p - vec3(0, eps, 0));
-								m.b=map(p + vec3(0, 0, eps)	) - map(p - vec3(0, 0, eps));
-
-								m.rgb=simpleLambert (m.rgb)+tempConst;
-
-							}
-							//specular
-							else if(rendType==4.0)
-							{
-								const float eps = 0.01;
-								vec3 p=vec3(X,Y,Z);
-								float tempConst=0.05;
-
-								m.r=map(p + vec3(eps, 0, 0)	) - map(p - vec3(eps, 0, 0));
-								m.g=map(p + vec3(0, eps, 0)	) - map(p - vec3(0, eps, 0));
-								m.b=map(p + vec3(0, 0, eps)	) - map(p - vec3(0, 0, eps));
-
-								m.rgb=specular (m.rgb)+tempConst;
-
-							}
+							//heightmap
+							m.r=texCoord.z;
+							m.g=texCoord.z;
+							m.b=texCoord.z;
 						}
+						// //normal
+						else if(rendType==3.0)
+						{
+							const float eps = 0.5;
+							vec3 p=vec3(X,Y,Z);
+							m.r=map(p + vec3(eps, 0, 0)	) - map(p - vec3(eps, 0, 0));
+							m.g=map(p + vec3(0, eps, 0)	) - map(p - vec3(0, eps, 0));
+							m.b=map(p + vec3(0, 0, eps)	) - map(p - vec3(0, 0, eps));
 
+						}
+						//light
+						else if(rendType==0.0)
+						{
+							const float eps = 0.01;
+							vec3 p=vec3(X,Y,Z);
+							float tempConst=0.05;
+							m.r=map(p + vec3(eps, 0, 0)	) - map(p - vec3(eps, 0, 0));
+							m.g=map(p + vec3(0, eps, 0)	) - map(p - vec3(0, eps, 0));
+							m.b=map(p + vec3(0, 0, eps)	) - map(p - vec3(0, 0, eps));
+
+							m.rgb=simpleLambert (m.rgb)+tempConst;
+
+						}
+						//specular
+						else if(rendType==4.0)
+						{
+							const float eps = 0.01;
+							vec3 p=vec3(X,Y,Z);
+							float tempConst=0.05;
+
+							m.r=map(p + vec3(eps, 0, 0)	) - map(p - vec3(eps, 0, 0));
+							m.g=map(p + vec3(0, eps, 0)	) - map(p - vec3(0, eps, 0));
+							m.b=map(p + vec3(0, 0, eps)	) - map(p - vec3(0, 0, eps));
+
+							m.rgb=specular (m.rgb)+tempConst;
+
+						}
 					}
 					return m ;
 				}
@@ -747,8 +727,6 @@ function init_window() {
 		side: THREE.FrontSide,
 		uniforms: {	tex:  { type: "t", value: rtTexture },
 					steps : {type: "1f" , value: mod.steps.value }, 
-					zSlice : {type: "1f" , value: mod.z.value }, 
-					cameraMat : {type: "m4" , value: camera.projectionMatrix},
 					rendType : {type: "1f" , value: mod.rendType},
 					xLimit1 : {type: "1f" , value: mod.xLimit1 }, 
 					xLimit2 : {type: "1f" , value: mod.xLimit2 }, 
@@ -888,10 +866,8 @@ function init_window() {
 		lookAtVector.applyQuaternion(camera.quaternion);
 
 		materialSecondPass.uniforms.steps.value = mod.steps.value;
-		materialSecondPass.uniforms.zSlice.value = mod.z.value;
 		materialSecondPass.uniforms.alphaCorrection.value = mod.alphaCorrection.value;
 		materialSecondPass.uniforms.rendType.value=mod.rendType;
-		materialSecondPass.uniforms.cameraMat.value=camera.projectionMatrix;
 		materialSecondPass.uniforms.xLimit1.value =mod.xLimit1 ;
 		materialSecondPass.uniforms.xLimit2.value =mod.xLimit2 ; 
 		materialSecondPass.uniforms.yLimit1.value =mod.yLimit1 ; 
@@ -932,8 +908,6 @@ function init_window() {
 			side: THREE.FrontSide,
 			uniforms: {	tex:  { type: "t", value: rtTexture },
 						steps : {type: "1f" , value: mod.steps.value }, 
-						zSlice : {type: "1f" , value: mod.z.value },
-						cameraMat : {type: "m4" , value: camera.projectionMatrix},
 						rendType : {type: "1f" , value: mod.rendType}, 
 						xLimit1 : {type: "1f" , value: mod.xLimit1 }, 
 						xLimit2 : {type: "1f" , value: mod.xLimit2 }, 
