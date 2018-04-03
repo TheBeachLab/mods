@@ -85,7 +85,7 @@ var outputs = {
             var yvar = variables[1]
             var re = new RegExp(yvar,'g')
             fn = fn.replace(re,`((${limits[1][0]})+${yvar}-(${ymin}))`)
-            var dx = limits[0][1]-limits[0][0]
+            var dy = limits[1][1]-limits[1][0]
             limits[1][0] = ymin
             limits[1][1] = ymin+dy
             }
@@ -95,15 +95,15 @@ var outputs = {
             var re = new RegExp(yvar,'g')
             fn = fn.replace(re,`(${yvar}-(${dy}))`)
             var dy = parseFloat(mod.dy.value)
-            limits[0][0] += dy
-            limits[0][1] += dy
+            limits[1][0] += dy
+            limits[1][1] += dy
             }
          if (mod.zmin.value != '') {
             var zmin = parseFloat(mod.zmin.value)
             var zvar = variables[2]
             var re = new RegExp(zvar,'g')
             fn = fn.replace(re,`((${limits[2][0]})+${zvar}-(${zmin}))`)
-            var dx = limits[0][1]-limits[0][0]
+            var dz = limits[2][1]-limits[2][0]
             limits[2][0] = zmin
             limits[2][1] = zmin+dz
             }
@@ -113,8 +113,8 @@ var outputs = {
             var re = new RegExp(zvar,'g')
             fn = fn.replace(re,`(${zvar}-(${dz}))`)
             var dz = parseFloat(mod.dz.value)
-            limits[0][0] += dz
-            limits[0][1] += dz
+            limits[2][0] += dz
+            limits[2][1] += dz
             }
          var shape = {function:fn,variables:variables,limits:limits,type:type}
          mods.output(mod,'shape',shape)}
