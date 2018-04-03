@@ -1,3 +1,5 @@
+program_label('frep')
+program_menu('   cuboct','programs/frep/cuboct')
 program_label('image')
 program_menu('   function','programs/image/function')
 program_menu('   motion detect','programs/image/motion%20detect')
