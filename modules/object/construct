@@ -111,7 +111,6 @@ var interface = function(div){
          })
       div.appendChild(btn)
    }
-   }
 //
 // local functions
 //
