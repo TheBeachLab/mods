@@ -94,10 +94,10 @@ var outputs = {
             var dy = mod.shape.limits[1][1]-mod.shape.limits[1][0]
             var dxl = mod.shape.limits[0][0]-origin0
             var dyl = mod.shape.limits[1][0]-origin1
-            limits[0][0] = origin1+dyl
-            limits[0][1] = origin1+dyl+dy
-            limits[1][0] = origin0+dxl
-            limits[1][1] = origin0+dxl+dx
+            limits[0][0] = origin0+dyl
+            limits[0][1] = origin0+dyl+dy
+            limits[1][0] = origin1+dxl
+            limits[1][1] = origin1+dxl+dx
             }
          else if (mod.xz.checked) {
             var xvar = variables[0]
