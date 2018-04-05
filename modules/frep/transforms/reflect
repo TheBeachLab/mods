@@ -111,10 +111,10 @@ var outputs = {
             var dz = mod.shape.limits[2][1]-mod.shape.limits[2][0]
             var dxl = mod.shape.limits[0][0]-origin0
             var dzl = mod.shape.limits[2][0]-origin1
-            limits[0][0] = origin1+dzl
-            limits[0][1] = origin1+dzl+dz
-            limits[2][0] = origin0+dxl
-            limits[2][1] = origin0+dxl+dx
+            limits[0][0] = origin0+dzl
+            limits[0][1] = origin0+dzl+dz
+            limits[2][0] = origin1+dxl
+            limits[2][1] = origin1+dxl+dx
             }
          else if (mod.yz.checked) {
             var yvar = variables[1]
@@ -128,10 +128,10 @@ var outputs = {
             var dz = mod.shape.limits[2][1]-mod.shape.limits[2][0]
             var dyl = mod.shape.limits[1][0]-origin0
             var dzl = mod.shape.limits[2][0]-origin1
-            limits[1][0] = origin1+dzl
-            limits[1][1] = origin1+dzl+dz
-            limits[2][0] = origin0+dyl
-            limits[2][1] = origin0+dyl+dy
+            limits[1][0] = origin0+dzl
+            limits[1][1] = origin0+dzl+dz
+            limits[2][0] = origin1+dyl
+            limits[2][1] = origin1+dyl+dy
             }
          var shape = {function:fn,variables:variables,limits:limits,type:type}
          mods.output(mod,'shape',shape)}
