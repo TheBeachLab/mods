@@ -451,6 +451,7 @@ function open_view_window() {
 	{
 		var txt =
 			`
+				const float PI = 3.1415926535897932384626433832795;
 				varying vec3 worldSpaceCoords;
 				varying vec4 projectedCoords;
 				uniform sampler2D tex;
