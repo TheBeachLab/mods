@@ -26,8 +26,8 @@ var name = 'color'
 //
 var init = function() {
    mod.red.value = 255
-   mod.green.value = 0
-   mod.blue.value = 0
+   mod.green.value = 255
+   mod.blue.value = 255
    }
 //
 // inputs
