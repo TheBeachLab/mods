@@ -20,7 +20,7 @@ var mod = {}
 //
 // name
 //
-var name = 'event generator'
+var name = 'generate event'
 //
 // initialization
 //
