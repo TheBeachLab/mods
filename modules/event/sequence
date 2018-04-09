@@ -27,6 +27,7 @@ var name = 'sequence event'
 var init = function() {
    mod.position.value = 0
    mod.sequence.value = '[[[255,0,0],[0,255,0]],[[0,0,255],[255,0,255]]]'
+   mod.stop = false
    }
 //
 // inputs
@@ -88,6 +89,18 @@ var interface = function(div){
          })
       div.appendChild(btn)
    //
+   // stop
+   //
+   var btn = document.createElement('button')
+      btn.style.padding = mods.ui.padding
+      btn.style.margin = 1
+      btn.appendChild(document.createTextNode('stop'))
+      btn.addEventListener('click',function(){
+         mod.stop = true
+         })
+      div.appendChild(btn)
+   div.appendChild(document.createElement('br'))
+   //
    // step
    //
    var btn = document.createElement('button')
@@ -103,6 +116,10 @@ var interface = function(div){
 // local functions
 //
 function step() {
+   if (mod.stop) {
+      mod.stop = false
+      return
+      }
    var pos = parseInt(mod.position.value)
    var sequence = eval(mod.sequence.value)
    outputs.event.event(sequence[pos])
