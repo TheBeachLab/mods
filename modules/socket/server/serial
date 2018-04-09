@@ -27,9 +27,9 @@ var name = 'WebSocket serial'
 var init = function() {
    mod.address.value = '127.0.0.1'
    mod.port.value = 1234
-   mod.device.value = 'ttyUSB0'
-   mod.baud.value = 9600
-   mod.flow_rtscts.checked = true
+   mod.device.value = 'COM3'
+   mod.baud.value = 115200
+   mod.flow_none.checked = true
    mod.socket = null
    socket_open()
    }
@@ -152,7 +152,6 @@ var interface = function(div){
    //
    // device
    //
-   div.appendChild(document.createTextNode('/dev/'))
    var input = document.createElement('input')
       input.type = 'text'
       input.size = 10
@@ -272,7 +271,7 @@ function serial_open() {
    else {
       var msg = {}
       msg.type = 'open'
-      msg.device = '/dev/'+mod.device.value
+      msg.device = mod.device.value
       msg.baud = mod.baud.value
       if (mod.flow_none.checked)
          msg.flow = 'none'
@@ -290,7 +289,7 @@ function serial_close() {
    else {
       var msg = {}
       msg.type = 'close'
-      msg.device = '/dev/'+mod.device.value
+      msg.device = mod.device.value
       mod.socket.send(JSON.stringify(msg))
       }
    }
