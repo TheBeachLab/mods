@@ -39,7 +39,7 @@ var inputs = {
 // outputs
 //
 var outputs = {
-   output:{type:'object',
+   output:{type:'',
       event:function(obj){
          mods.output(mod,'output',obj)
          }}}
