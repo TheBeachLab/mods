@@ -34,7 +34,7 @@ var inputs = {
    input:{type:'event',
       event:function(evt){
          mod.input = evt.detail
-         mod.event.value = evt.detail
+         mod.event.value = JSON.stringify(evt.detail)
          delay_event()
          }}}
 //
