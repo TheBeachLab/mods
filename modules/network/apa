@@ -33,9 +33,7 @@ var init = function() {
 var inputs = {
    port1:{type:'',label:'port 1',
       event:function(evt){
-         input_packet(1,evt.detail)},
-      callback(arg){
-         console.log('port 1 input callback')}},
+         input_packet(1,evt.detail)}},
    port2:{type:'',label:'port 2',
       event:function(evt){
          input_packet(2,evt.detail)}},
@@ -51,9 +49,7 @@ var inputs = {
 var outputs = {
    port1:{type:'',label:'port 1',
       event:function(packet){
-         mods.output(mod,'port1',packet)},
-      callback(arg){
-         console.log('port 1 output callback')}},
+         mods.output(mod,'port1',packet)}},
    port2:{type:'',label:'port 2',
       event:function(data){
          mods.output(mod,'port2',data)}},
