@@ -1495,4 +1495,48 @@ function window_touchup(evt) {
       window.removeEventListener('touchmove',window_touchmove)
       window.removeEventListener('touchend',window_touchup)
    }
+
+
+  function make_text_input (div, name, size) {
+    div.appendChild(document.createElement('br'))
+    div.appendChild(document.createTextNode(name + ': '))
+    var input = document.createElement('input')
+    input.type = 'text'
+    input.size = size
+    div.appendChild(input)
+
+    return input
+  }
+
+  function make_button_input (div, text) {
+    div.appendChild(document.createElement('br'))
+    var button = document.createElement('button')
+    button.style.padding = mods.ui.padding
+    button.style.margin = 1
+    button.appendChild(document.createTextNode(text))
+    div.appendChild(button)
+
+    return button
+  }
+
+  function make_checkbox_input (div, prefix) {
+    div.appendChild(document.createElement('br'))
+    div.appendChild(document.createTextNode(prefix + ': '))
+    var checkbox = document.createElement('input')
+    checkbox.type = 'checkbox'
+    div.appendChild(checkbox)
+
+    return checkbox
+  }
+
+  function make_text_display (div, prefix) {
+    div.appendChild(document.createElement('br'))
+    div.appendChild(document.createTextNode(prefix + ': '))
+    var span = document.createElement('span')
+    span.innerHTML = ''
+    div.appendChild(span)
+
+    return span
+  }
+  
 })()
