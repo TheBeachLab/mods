@@ -2,7 +2,7 @@
 // APA node module
 //
 // Neil Gershenfeld 
-// (c) Massachusetts Institute of Technology 2016
+// (c) Massachusetts Institute of Technology 2018
 // 
 // This work may be reproduced, modified, distributed, performed, and 
 // displayed for any purpose, but must acknowledge the mods
@@ -25,47 +25,38 @@ var name = 'APA node (not finished)'
 // initialization
 //
 var init = function() {
+   mod.orig.value = '{123^|key:property}'
    }
 //
 // inputs
 //
 var inputs = {
-   port1:{type:'packet',
-      label:'port 1',
+   port1:{type:'',label:'port 1',
       event:function(evt){
-         input_packet(1,evt.detail)
-         }},
-   port2:{type:'packet',
-      label:'port 2',
+         input_packet(1,evt.detail)}},
+   port2:{type:'',label:'port 2',
       event:function(evt){
-         input_packet(2,evt.detail)
-         }},
-   port3:{type:'packet',
-      label:'port 3',
+         input_packet(2,evt.detail)}},
+   port3:{type:'',label:'port 3',
       event:function(evt){
-         input_packet(3,evt.detail)
-         }},
-   orig:{type:'packet',
+         input_packet(3,evt.detail)}},
+   orig:{type:'',
       event:function(evt){
-         orig_packet(evt.detail)
-         }}}
+         orig_packet(evt.detail)}}}
 //
 // outputs
 //
 var outputs = {
-   port1:{type:'packet',
-      label:'port 1',
-      event:function(data){
-         mods.output(mod,'port1',data)}},
-   port2:{type:'packet',
-      label:'port 2',
+   port1:{type:'',label:'port 1',
+      event:function(packet){
+         mods.output(mod,'port1',packet)}},
+   port2:{type:'',label:'port 2',
       event:function(data){
          mods.output(mod,'port2',data)}},
-   port3:{type:'packet',
-      label:'port 3',
+   port3:{type:'',label:'port 3',
       event:function(data){
          mods.output(mod,'port3',data)}},
-   dest:{type:'packet',
+   dest:{type:'',
       event:function(data){
          mods.output(mod,'dest',data)}}}
 //
@@ -73,6 +64,9 @@ var outputs = {
 //
 var interface = function(div){
    mod.div = div
+   //
+   // inputs, outputs
+   //
    mod.in = []
    mod.out = []
    div.appendChild(document.createTextNode('\u00a0input port output'))
@@ -113,19 +107,43 @@ var interface = function(div){
       div.appendChild(input)
       mod.out[3] = input
    div.appendChild(document.createElement('br'))
+   //
+   // origination, destination
+   //
    div.appendChild(document.createTextNode('origination\u00a0\u00a0destination'))
    div.appendChild(document.createElement('br'))
    input = document.createElement('input')
       input.type = 'text'
       input.size = 10
       div.appendChild(input)
-      mod.orig= input
+      mod.orig = input
    div.appendChild(document.createTextNode('\u00a0\u00a0\u00a0'))
    input = document.createElement('input')
       input.type = 'text'
       input.size = 10
       div.appendChild(input)
       mod.dest = input
+   div.appendChild(document.createElement('br'))
+   //
+   // buttons
+   //
+   var btn = document.createElement('button')
+      btn.style.padding = mods.ui.padding
+      btn.style.margin = 1
+      btn.appendChild(document.createTextNode('output'))
+      btn.addEventListener('click',function(){
+         output_packet(1,mod.orig.value)
+         mod.orig.value = ''
+         })
+      div.appendChild(btn)
+   div.appendChild(document.createTextNode('\u00a0\u00a0\u00a0'))
+   var btn = document.createElement('button')
+      btn.style.padding = mods.ui.padding
+      btn.style.margin = 1
+      btn.appendChild(document.createTextNode('input'))
+      btn.addEventListener('click',function(){
+         })
+      div.appendChild(btn)
    }
 //
 // local functions
@@ -146,6 +164,8 @@ function orig_packet(packet) {
 //
 function output_packet(port,packet) {
    mod.out[port].value = packet
+   outputs['port'+port].event(packet)
+   mod.out[port].value = ''
    }
 //
 // dest_packet
