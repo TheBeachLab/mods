@@ -662,17 +662,23 @@ function mod_load_handler(event) {
    args.id = String(Math.random())
    args.top = 1.5*mods.ui.header
    args.left = 3*mods.ui.header
+   args.path = filename
    var div = add_module(args)
    return(div)
    }
 function add_module(args) {
    var idnumber = args.id
+   var path = ''
+    if (args.path) {
+      path = args.path
+    }
    var modules = document.getElementById('modules')
    //
    // container
    //
    var container = document.createElement('div')
       container.setAttribute("id",idnumber)
+      container.dataset.path = path
       container.style.position = "absolute"
       container.style.top = args.top
       container.style.left = args.left
@@ -717,6 +723,20 @@ function add_module(args) {
             editspan.style.fontWeight = 'normal'})
          editspan.addEventListener('mousedown',edit_module)
          divctrl.appendChild(editspan)
+
+	  var updatespan = document.createElement('span')
+    	updatespan.innerHTML = ' update '
+    	updatespan.addEventListener('mouseover', function (event) {
+      	set_prompt('click to update from source')
+      		updatespan.style.fontWeight = 'bold'
+    	})
+    	updatespan.addEventListener('mouseout', function (event) {
+      	set_prompt('')
+      	updatespan.style.fontWeight = 'normal'
+    	})
+    	updatespan.addEventListener('mousedown', refresh_module)
+    	divctrl.appendChild(updatespan)
+
       var delspan = document.createElement('span')
          delspan.innerHTML = ' delete '
          delspan.addEventListener('mouseover',function(event){
@@ -908,6 +928,88 @@ function delete_module(idnumber) {
    //
    set_prompt('')
    }
+
+  function refresh_module (evt) {
+    console.log('refresh from file')
+    // to pull state from existing node (it's a DIV)
+    var mod = evt.target.parentNode.parentNode
+    var idnumber = mod.id
+    var path = mod.dataset.path
+    var def = mod.dataset.definition
+    var top = mod.dataset.top
+    var left = mod.dataset.left
+    var name = mod.dataset.name
+
+    var ins = document.getElementById(
+      JSON.stringify({ id: idnumber, type: 'inputs' }))
+    var inlinks = []
+    for (var i = 1; i < ins.childNodes.length; ++i) {
+      var links = JSON.parse(ins.childNodes[i].dataset.links)
+      for (var l in links) { inlinks.push(links[l]) }
+    }
+    var outs = document.getElementById(
+      JSON.stringify({ id: idnumber, type: 'outputs' }))
+    var outlinks = []
+    for (var i = 1; i < outs.childNodes.length; ++i) {
+      var links = JSON.parse(outs.childNodes[i].dataset.links)
+      for (var l in links) { outlinks.push(links[l]) }
+    }
+
+    if (path == '' | !path) {
+      // catch delete of modules with no path
+      set_prompt('mods loaded from programs cannot be refreshed')
+      return 0
+    }
+
+    //
+    // delete module
+    //
+    delete_module(idnumber)
+    //
+    // add module by req to og file
+    //
+    var req = new XMLHttpRequest()
+    req.responseType = 'text'
+    req.onreadystatechange = function () {
+      if (req.readyState == XMLHttpRequest.DONE) {
+        var def = req.response
+        eval('var args = ' + def)
+        args.definition = def
+        args.id = idnumber
+        args.top = top
+        args.left = left
+        args.path = path
+        add_module(args)
+        //
+        // add links
+        //
+        for (var l in inlinks) {
+          eval('var link = ' + inlinks[l])
+          eval('var linksrc = ' + link.source)
+          eval('var linkdst = ' + link.dest)
+          var src = document.getElementById(
+            JSON.stringify({ id: linksrc.id, type: linksrc.type, name: linksrc.name }))
+          var dst = document.getElementById(
+            JSON.stringify({ id: linkdst.id, type: linkdst.type, name: linkdst.name }))
+          add_link(src, dst)
+        }
+        for (var l in outlinks) {
+          eval('var link = ' + outlinks[l])
+          eval('var linksrc = ' + link.source)
+          eval('var linkdst = ' + link.dest)
+          var src = document.getElementById(
+            JSON.stringify({ id: linksrc.id, type: linksrc.type, name: linksrc.name }))
+          var dst = document.getElementById(
+            JSON.stringify({ id: linkdst.id, type: linkdst.type, name: linkdst.name }))
+          add_link(src, dst)
+        }
+      }
+    } // fin readystatechange f'n
+
+    req.open('GET', path + '?rnd=' + Math.random())
+    req.send()
+  }
+
 function edit_module(evt) {
    var mod = evt.target.parentNode.parentNode
    var idnumber = mod.id
