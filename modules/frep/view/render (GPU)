@@ -27,7 +27,7 @@ var name = 'render GPU';
 //
 var init = function() {
 	mod.steps.value=256.0;
-	mod.alphaCorrection.value=1.0;
+	mod.alphaCorrection=10.0;
 	mod.rendType=0.0;
 	mod.windowOpen=false;
 	mod.xLimit1 =-1.0 ;
@@ -218,6 +218,16 @@ var outputs = {
 var interface = function(div){
    mod.div = div
    //
+   // on-screen drawing canvas
+   //
+   var canvas = document.createElement('canvas');
+      canvas.width = mods.ui.canvas;
+      canvas.height = mods.ui.canvas;
+      canvas.style.backgroundColor = 'rgb(0,0,0)';
+      div.appendChild(canvas);
+      mod.canvas = canvas;
+   div.appendChild(document.createElement('br'));
+   //
    // resolution
    //
    div.appendChild(document.createTextNode('resolution: '));
@@ -227,27 +237,11 @@ var interface = function(div){
       input.addEventListener('input',function(){
 			if(mod.windowOpen)
 			{
-				mod.redraw();
+				mod.redraw(true);
 			}
          });
       div.appendChild(input);
       mod.steps = input;
-   div.appendChild(document.createElement('br'));
-   //
-   // alpha correction
-   //
-   div.appendChild(document.createTextNode('Alpha Correction: '));
-   var input = document.createElement('input');
-      input.type = 'text';
-      input.size = 3;
-      input.addEventListener('input',function(){
-			if(mod.windowOpen)
-			{
-				mod.redraw();
-			}
-         });
-      div.appendChild(input);
-      mod.alphaCorrection = input;
    div.appendChild(document.createElement('br'));
    //
    // rendering style
@@ -336,6 +330,7 @@ function open_view_window() {
 	var center;
 	var meshSecondPass;
 	var boxGeometry;
+	var light;
    //
    // get function
    //
@@ -435,11 +430,14 @@ function open_view_window() {
 			varying vec3 worldSpaceCoords;
 			varying vec4 projectedCoords;
 
+
 			void main()
 			{
+				
 				worldSpaceCoords = (modelMatrix * vec4(position + vec3(0.5, 0.5,0.5), 1.0 )).xyz;
 				gl_Position = projectionMatrix *  modelViewMatrix * vec4( position, 1.0 );
 				projectedCoords =  projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+
 			}
 			`;
 	//
@@ -458,6 +456,7 @@ function open_view_window() {
 				uniform float steps;
 				uniform float alphaCorrection;
 				uniform float rendType;
+				uniform vec3 lightDir;
 				// The maximum distance through our rendering volume is sqrt(3).
 				// The maximum number of steps we take to travel a distance of 1 is 512.
 				// ceil( sqrt(3) * 512 ) = 887
@@ -483,28 +482,32 @@ function open_view_window() {
 					return `+mod.str+`;
 				}
 				vec3 simpleLambert (vec3 normal) {
-					vec3 lightDir = vec3(20.0,40.0,-40.0);	// Light direction
-					vec3 lightCol = vec3(1.0,1.0,1.0);		// Light color
-					vec3 _Color=vec3(0.2,0.5,1.0);
-				
+					// vec3 lightDir = vec3(20.0,-60.0,-40.0);	// Light direction
+					vec3 lightDir1 = vec3(20.0, 60.0,-40.0);	// Light direction
+					vec3 lightCol = vec3(0.5,0.5,0.5);		// Light color
+					vec3 _Color=vec3(0.2,0.5,0.8);
+
+					
 					float NdotL = max(dot(normal, lightDir),0.0);
+					float NdotL1 = max(dot(normal, lightDir1),0.0);
 					vec3 c;
-					c.rgb = _Color * lightCol * NdotL;
+					c.rgb = _Color * lightCol * (NdotL + NdotL1)+0.3;
 					return c;
 				}
 				vec3 specular (vec3 normal) {
-					vec3 lightDir = vec3(20.0,40.0,-40.0);	// Light direction
-					vec3 lightCol = vec3(1.0,1.0,1.0);		// Light color
+					// vec3 lightDir = vec3(20.0,-60.0,-40.0);	// Light direction
+					vec3 lightDir1 = vec3(20.0, 60.0,-40.0);	// Light direction
+					vec3 lightCol = vec3(0.5,0.5,0.5);		// Light color
 					vec3 _Color=vec3(0.2,0.5,1.0);
 					
-					float _SpecularPower=0.5;
-					float _Gloss=0.5;
-				
+					float _SpecularPower=5.0;
+					float _Gloss=3.0;
+					
 					float NdotL = max(dot(normal, lightDir),0.0);
 					vec3 c;
-					vec3 h = (lightDir - viewDirection) / 2.0;
+					vec3 h = (normalize(lightDir) - viewDirection) / 2.0;
 					float s = pow( dot(normal, h), _SpecularPower) * _Gloss;
-					c.rgb = _Color * lightCol * NdotL + s;
+					c.rgb = _Color * lightCol * NdotL + s ;
 					return c;
 				}
 
@@ -526,7 +529,7 @@ function open_view_window() {
 						//xray
 						if(rendType==2.0)
 						{
-							m=vec4(1.0,1.0,1.0,0.1);
+							m=vec4(1.0,1.0,1.0,0.01);
 						}
 						//heightmap fixed
 						else if(rendType==1.0)
@@ -536,7 +539,7 @@ function open_view_window() {
 							m.g=texCoord.z;
 							m.b=texCoord.z;
 						}
-						// //normal
+						// normal
 						else if(rendType==3.0)
 						{
 							const float eps = 0.5;
@@ -592,7 +595,6 @@ function open_view_window() {
 					//The direction from the front position to back position.
 					vec3 dir = backPos - frontPos;
 					
-
 					float rayLength = length(dir);
 
 					//Calculate how long to increment in each step.
@@ -601,7 +603,7 @@ function open_view_window() {
 					//The increment in each direction for each step.
 					vec3 deltaDirection = normalize(dir) * delta;
 
-					viewDirection=deltaDirection;//amira added
+					viewDirection=normalize(dir);//amira added
 
 					float deltaDirectionLength = length(deltaDirection);
 
@@ -720,8 +722,17 @@ function init_window() {
 	} );
 
 	var lookAtVector = new THREE.Vector3(0,0, -1);
-	lookAtVector.applyQuaternion(camera.quaternion);	
+	lookAtVector.applyQuaternion(camera.quaternion);
 
+	sceneFirstPass = new THREE.Scene();
+	sceneSecondPass = new THREE.Scene();
+
+	//outputs.messageLog.event('s');
+	light = new THREE.DirectionalLight( 0xffffff, 0.8 );
+	light.position.x=20.0;
+	light.position.y=-60.0;
+	light.position.z=-40.0;	
+;
 	materialSecondPass = new THREE.ShaderMaterial( {
 		vertexShader: document.getElementById( 'vertexShaderSecondPass' ).textContent,
 		fragmentShader: document.getElementById( 'fragmentShaderSecondPass' ).textContent,
@@ -735,14 +746,16 @@ function init_window() {
 					yLimit2 : {type: "1f" , value: mod.yLimit2 }, 
 					zLimit1 : {type: "1f" , value: mod.zLimit1 }, 
 					zLimit2 : {type: "1f" , value: mod.zLimit2 }, 
-					alphaCorrection : {type: "1f" , value: mod.alphaCorrection.value }}
+					alphaCorrection : {type: "1f" , value: mod.alphaCorrection},
+					// lightDir :{value:  light.position.copy( light.position )} 
+					lightDir :{value:  new THREE.Vector3(20.0,-60.0,-40.0)} 
+				}
 		});
 
 	
-	//outputs.messageLog.event('s');
+	
 
-	sceneFirstPass = new THREE.Scene();
-	sceneSecondPass = new THREE.Scene();
+	
 
 	boxGeometry = new THREE.BoxGeometry(1.0, 1.0, 1.0);
 	boxGeometry.doubleSided = true;
@@ -752,9 +765,36 @@ function init_window() {
 
 	sceneFirstPass.add( meshFirstPass );
 	sceneSecondPass.add( meshSecondPass );
+	sceneSecondPass.add( light );
 
 	renderer = new THREE.WebGLRenderer();
 	container.appendChild( renderer.domElement );
+
+	////////////////////////////////
+	// mod.canvas.appendChild( renderer.domElement ); //????
+
+	//grab the context from your destination canvas
+	var destCtx = mod.canvas.getContext('2d');
+	destCtx.clearRect(0,0,mod.canvas.width,mod.canvas.height)
+	//call its drawImage() function passing it the source canvas directly
+	destCtx.drawImage(container.childNodes[0], 0, 0);
+
+	// // select canvas elements
+    // var sourceCanvas = document.getElementsById("some-unique-id");
+    // var destCanvas = document.getElementsByClassName("some-class-selector")[0];
+
+    // //copy canvas by DataUrl
+    // var sourceImageData = sourceCanvas.toDataURL("image/png");
+    // var destCanvasContext = destCanvas.getContext('2d');
+
+    // var destinationImage = new Image;
+    // destinationImage.onload = function(){
+    //   destCanvasContext.drawImage(destinationImage,0,0);
+    // };
+	// destinationImage.src = sourceImageData;
+	
+	/////////////////////////////////////////////
+
 
 	//camera and controls
 	camera.aspect = win.innerWidth / win.innerHeight;
@@ -843,44 +883,68 @@ function init_window() {
 		camera.aspect = win.innerWidth / win.innerHeight;
 		camera.updateProjectionMatrix();
 
-		redraw();
+		redraw(false);
 	}
 
     ////////////////
-	function animate() {
-		requestAnimationFrame( animate );
-		render();
-	}
+	// function animate() {
+	// 	requestAnimationFrame( animate );
+	// 	render();
+	// }
 
 	/////////
-	function redraw(){
-		render();
+	function redraw(updateUniforms){
+		render(updateUniforms);
 	}
 	mod.redraw=redraw;
 
     //////////////////
-	function render() {
+	function render(updateUniforms ) {
 
-		var delta = clock.getDelta();
+		// var delta = clock.getDelta();
 
-		var lookAtVector = new THREE.Vector3(0,0, -1);
-		lookAtVector.applyQuaternion(camera.quaternion);
+		if(updateUniforms)
+		{
+			materialSecondPass.uniforms.steps.value = mod.steps.value;
+			materialSecondPass.uniforms.alphaCorrection.value = mod.alphaCorrection;
+			materialSecondPass.uniforms.rendType.value=mod.rendType;
+			materialSecondPass.uniforms.xLimit1.value =mod.xLimit1 ;
+			materialSecondPass.uniforms.xLimit2.value =mod.xLimit2 ; 
+			materialSecondPass.uniforms.yLimit1.value =mod.yLimit1 ; 
+			materialSecondPass.uniforms.yLimit2.value =mod.yLimit2 ; 
+			materialSecondPass.uniforms.zLimit1.value =mod.zLimit1 ; 
+			materialSecondPass.uniforms.zLimit2.value =mod.zLimit2 ;
+		}
 
-		materialSecondPass.uniforms.steps.value = mod.steps.value;
-		materialSecondPass.uniforms.alphaCorrection.value = mod.alphaCorrection.value;
-		materialSecondPass.uniforms.rendType.value=mod.rendType;
-		materialSecondPass.uniforms.xLimit1.value =mod.xLimit1 ;
-		materialSecondPass.uniforms.xLimit2.value =mod.xLimit2 ; 
-		materialSecondPass.uniforms.yLimit1.value =mod.yLimit1 ; 
-		materialSecondPass.uniforms.yLimit2.value =mod.yLimit2 ; 
-		materialSecondPass.uniforms.zLimit1.value =mod.zLimit1 ; 
-		materialSecondPass.uniforms.zLimit2.value =mod.zLimit2 ;
+		materialSecondPass.uniforms.lightDir.value=light.position.copy( light.position );
+		// console.log(light.position.copy( light.position ));
+		//new THREE.Vector3(20.0,-60.0,-40.0);
+		//light.position.copy( light.position );
 
 		//Render first pass and store the world space coords of the back face fragments into the texture.
 		renderer.render( sceneFirstPass, camera, rtTexture, true );
 
 		//Render the second pass and perform the volume rendering.
 		renderer.render( sceneSecondPass, camera );
+
+		//render into mod viewer
+		var w=win.innerWidth;
+		var h=win.innerHeight;
+		if (w > h) {
+			var x0 = 0;
+			var y0 = mod.canvas.height*.5*(1-h/w);
+			var wd = mod.canvas.width;
+			var hd = mod.canvas.width*h/w;
+			}
+		 else {
+			var x0 = mod.canvas.width*.5*(1-w/h);
+			var y0 = 0;
+			var wd = mod.canvas.height*w/h;
+			var hd = mod.canvas.height;
+			}
+		var destCtx = mod.canvas.getContext('2d');
+		// destCtx.clearRect(0,0,mod.canvas.width,mod.canvas.height)
+		destCtx.drawImage(container.childNodes[0],x0,y0,wd,hd);
 
 		
 		 
@@ -899,8 +963,6 @@ function init_window() {
 		div.innerHTML="";
 		div.innerHTML =fragmentShaderSecondPass();
 		
-		var lookAtVector = new THREE.Vector3(0,0, -1);
-		lookAtVector.applyQuaternion(camera.quaternion);
 
 		// outputs.messageLog.event('update shader1');
 		materialSecondPass = new THREE.ShaderMaterial( {
@@ -916,16 +978,19 @@ function init_window() {
 						yLimit2 : {type: "1f" , value: mod.yLimit2 }, 
 						zLimit1 : {type: "1f" , value: mod.zLimit1 }, 
 						zLimit2 : {type: "1f" , value: mod.zLimit2 }, 
-						alphaCorrection : {type: "1f" , value: mod.alphaCorrection.value}}
+						alphaCorrection : {type: "1f" , value: mod.alphaCorrection},
+						//lightDir :{value: light.position.copy( light.position )}
+						lightDir :{value: new THREE.Vector3(20.0,-60.0,-40.0)}
+					}
 			});
 
 		meshSecondPass.material=materialSecondPass;
 		meshSecondPass.material.needsUpdate = true;
 
-		redraw();
+		redraw(true);
 		//test performance
-		mod.tend = Date.now();
-		var dt = mod.tend-mod.tstart;
+		// mod.tend = Date.now();
+		// var dt = mod.tend-mod.tstart;
 		// outputs.messageLog.event(dt/1000);
 
 	}
@@ -953,19 +1018,19 @@ function init_window() {
 
 		camera.position.add(center);
 		camera.lookAt(center);
-		redraw();
+		redraw(false);
 	}
 
 	///
 	function zoomIn() {
 		camera.position.sub(center).multiplyScalar(0.9).add(center);
-		redraw();
+		redraw(false);
 	}
 
 	///
 	function zoomOut() {
 		camera.position.sub(center).multiplyScalar(1.1).add(center);
-		redraw();
+		redraw(false);
 	}
 }
 
