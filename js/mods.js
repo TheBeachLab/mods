@@ -486,6 +486,7 @@ function prog_load(prog) {
       args.id = idnumber
       args.top = module.top
       args.left = module.left
+      args.filename = module.filename
       add_module(args)
       }
    //
@@ -646,6 +647,7 @@ function mod_message_handler(filename,top,left) {
          args.id = String(Math.random())
          args.top = top
          args.left = left
+         args.filename = filename
          add_module(args)
          }
       }
@@ -662,6 +664,7 @@ function mod_load_handler(event) {
    args.id = String(Math.random())
    args.top = 1.5*mods.ui.header
    args.left = 3*mods.ui.header
+   args.filename = ""
    var div = add_module(args)
    return(div)
    }
@@ -678,6 +681,7 @@ function add_module(args) {
       container.style.left = args.left
       container.dataset.top = args.top
       container.dataset.left = args.left
+      container.dataset.filename = args.filename
       container.dataset.name = args.name
       container.style.zIndex = 0
       container.style.width = window.innerWidth
@@ -915,6 +919,7 @@ function edit_module(evt) {
    var top = mod.dataset.top
    var left = mod.dataset.left
    var name = mod.dataset.name
+   var filename = mod.dataset.filename
    var fontsize = 100
    var win = window.open('')
    var file = document.createElement('input')
@@ -943,6 +948,33 @@ function edit_module(evt) {
       update_module(idnumber)
       win.close()
       }
+   var btn = document.createElement('button')
+      btn.appendChild(document.createTextNode('reload from server'))
+      btn.style.padding = mods.ui.padding
+      btn.style.margin = 1
+      btn.addEventListener('click',function(){
+         console.log(filename)
+         if (filename == undefined) {
+            set_prompt('yes')
+            console.log('yes')
+            }
+         else {
+            set_prompt('no')
+            console.log('no')
+            }
+         win.close()
+         })
+      win.document.body.appendChild(btn)
+   var btn = document.createElement('button')
+      btn.appendChild(document.createTextNode('load from file'))
+      btn.style.padding = mods.ui.padding
+      btn.style.margin = 1
+      btn.addEventListener('click',function(){
+         var file = win.document.getElementById('edit_module_file')
+         file.value = null
+         file.click()
+         })
+      win.document.body.appendChild(btn)
    var btn = document.createElement('button')
       btn.appendChild(document.createTextNode('update and close'))
       btn.style.padding = mods.ui.padding
@@ -984,16 +1016,6 @@ function edit_module(evt) {
          })
       win.document.body.appendChild(btn)
    var btn = document.createElement('button')
-      btn.appendChild(document.createTextNode('reload'))
-      btn.style.padding = mods.ui.padding
-      btn.style.margin = 1
-      btn.addEventListener('click',function(){
-         var file = win.document.getElementById('edit_module_file')
-         file.value = null
-         file.click()
-         })
-      win.document.body.appendChild(btn)
-   var btn = document.createElement('button')
       btn.appendChild(document.createTextNode('increase font'))
       btn.style.padding = mods.ui.padding
       btn.style.margin = 1
@@ -1018,6 +1040,8 @@ function edit_module(evt) {
       text.style.height= '100%'
       text.value = def
       win.document.body.appendChild(text)
+   function reload_module(idnumber) {
+      }
    function update_module(idnumber) {
       //
       // save links
