@@ -128,6 +128,8 @@ document.addEventListener('contextmenu',function(evt){
       // open local module
       //
       add_menu(div,'open local module',function(evt){
+         mods.globals.top = evt.clientY+document.body.scrollTop
+         mods.globals.left = evt.clientX+document.body.scrollLeft
          document.body.removeChild(evt.target.parentNode)
          mods.globals.menu = null
          var file = document.getElementById('mod_input')
@@ -662,8 +664,8 @@ function mod_load_handler(event) {
    eval('var args = '+str)
    args.definition = str
    args.id = String(Math.random())
-   args.top = 1.5*mods.ui.header
-   args.left = 3*mods.ui.header
+   args.top = mods.globals.top
+   args.left = mods.globals.left
    args.filename = ""
    var div = add_module(args)
    return(div)
@@ -948,23 +950,16 @@ function edit_module(evt) {
       update_module(idnumber)
       win.close()
       }
-   var btn = document.createElement('button')
-      btn.appendChild(document.createTextNode('reload from server'))
-      btn.style.padding = mods.ui.padding
-      btn.style.margin = 1
-      btn.addEventListener('click',function(){
-         console.log(filename)
-         if (filename == undefined) {
-            set_prompt('yes')
-            console.log('yes')
-            }
-         else {
-            set_prompt('no')
-            console.log('no')
-            }
-         win.close()
-         })
-      win.document.body.appendChild(btn)
+   if (filename != "") {
+      var btn = document.createElement('button')
+         btn.appendChild(document.createTextNode('reload from server'))
+         btn.style.padding = mods.ui.padding
+         btn.style.margin = 1
+         btn.addEventListener('click',function(){
+            win.close()
+            })
+         win.document.body.appendChild(btn)
+      }
    var btn = document.createElement('button')
       btn.appendChild(document.createTextNode('load from file'))
       btn.style.padding = mods.ui.padding
