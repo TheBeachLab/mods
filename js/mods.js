@@ -956,6 +956,15 @@ function edit_module(evt) {
          btn.style.padding = mods.ui.padding
          btn.style.margin = 1
          btn.addEventListener('click',function(){
+         var req = new XMLHttpRequest()
+            req.responseType = 'text'
+            req.onreadystatechange = function() {
+               if (req.readyState == XMLHttpRequest.DONE) {
+                  var str = req.response
+                  }
+               }
+            req.open('GET',filename+'?rnd='+Math.random())
+            req.send()
             win.close()
             })
          win.document.body.appendChild(btn)
