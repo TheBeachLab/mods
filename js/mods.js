@@ -956,15 +956,17 @@ function edit_module(evt) {
          btn.style.padding = mods.ui.padding
          btn.style.margin = 1
          btn.addEventListener('click',function(){
-         var req = new XMLHttpRequest()
-            req.responseType = 'text'
-            req.onreadystatechange = function() {
-               if (req.readyState == XMLHttpRequest.DONE) {
-                  var str = req.response
-                  }
-               }
-            req.open('GET',filename+'?rnd='+Math.random())
-            req.send()
+           var req = new XMLHttpRequest()
+           req.responseType = 'text'
+           req.onreadystatechange = function() {
+              if (req.readyState == XMLHttpRequest.DONE) {
+                 text.value = req.response
+                 update_module(idnumber)
+                 }
+              }
+         req.open('GET',filename+'?rnd='+Math.random())
+         req.send()
+            
             win.close()
             })
          win.document.body.appendChild(btn)
@@ -1079,6 +1081,7 @@ function edit_module(evt) {
       args.id = idnumber
       args.top = top
       args.left = left
+      args.filename = filename
       add_module(args)
       //
       // add links
