@@ -483,7 +483,13 @@ function prog_load(prog) {
    for (var idnumber in prog.modules) {
       var module = prog.modules[idnumber]
       var str = module.definition
-      eval('var args = '+str)
+      try {
+         eval('var args = '+str)
+         }
+      catch (err) {
+         console.log(err.message)
+         return
+         }
       args.definition = str
       args.id = idnumber
       args.top = module.top
@@ -644,7 +650,13 @@ function mod_message_handler(filename,top,left) {
    req.onreadystatechange = function() {
       if (req.readyState == XMLHttpRequest.DONE) {
          var str = req.response
-         eval('var args = '+str)
+         try {
+            eval('var args = '+str)
+            }
+         catch (err) {
+            console.log(err.message)
+            return
+            }
          args.definition = str
          args.id = String(Math.random())
          args.top = top
@@ -661,7 +673,13 @@ function mod_message_handler(filename,top,left) {
    }
 function mod_load_handler(event) {
    str = event.target.result
-   eval('var args = '+str)
+   try {
+      eval('var args = '+str)
+      }
+   catch (err) {
+      console.log(err.message)
+      return
+      }
    args.definition = str
    args.id = String(Math.random())
    args.top = mods.globals.top
@@ -1076,7 +1094,13 @@ function edit_module(evt) {
       // add module
       //
       var def = text.value
-      eval('var args = '+def)
+      try {
+         eval('var args = '+str)
+         }
+      catch (err) {
+         console.log(err.message)
+         return
+         }
       args.definition = def
       args.id = idnumber
       args.top = top
