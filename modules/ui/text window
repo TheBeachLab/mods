@@ -1,5 +1,5 @@
 //
-// ui text
+// UI text window
 //
 // Neil Gershenfeld 
 // (c) Massachusetts Institute of Technology 2015,6
@@ -20,7 +20,7 @@ var mod = {}
 //
 // name
 //
-var name = 'UI text'
+var name = 'UI text window'
 //
 // initialization
 //
