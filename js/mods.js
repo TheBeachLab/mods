@@ -1095,7 +1095,7 @@ function edit_module(evt) {
       //
       var def = text.value
       try {
-         eval('var args = '+str)
+         eval('var args = '+def)
          }
       catch (err) {
          console.log(err.message)
