@@ -140,6 +140,7 @@ module_label('ui')
 module_menu('   bar graph','modules/ui/bar%20graph')
 module_menu('   button window','modules/ui/button%20window')
 module_menu('   color','modules/ui/color')
+module_menu('   label','modules/ui/label')
 module_menu('   slider','modules/ui/slider')
 module_menu('   text window','modules/ui/text%20window')
 
