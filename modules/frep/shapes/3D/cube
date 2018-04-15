@@ -1,5 +1,5 @@
 //
-// frep cube corners
+// frep cube
 //
 // Neil Gershenfeld
 // (c) Massachusetts Institute of Technology 2017
@@ -20,7 +20,7 @@ var mod = {}
 //
 // name
 //
-var name = 'frep cube corners'
+var name = 'frep cube'
 //
 // initialization
 //
