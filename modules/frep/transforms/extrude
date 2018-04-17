@@ -32,7 +32,7 @@ var init = function() {
 // inputs
 //
 var inputs = {
-   shape:{type:'',
+   shape:{type:'2D',
       event:function(evt){
          mod.shape = evt.detail
          outputs.shape.event()
@@ -41,7 +41,7 @@ var inputs = {
 // outputs
 //
 var outputs = {
-   shape:{type:'',
+   shape:{type:'3D',
       event:function(){
          var variables = []
          variables[0] = mod.shape.variables[0]
