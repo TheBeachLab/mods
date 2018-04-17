@@ -1,5 +1,6 @@
 //
-// frep circle
+// frep polygon 
+//    todo: tight bounding box calculation
 //
 // Neil Gershenfeld
 // (c) Massachusetts Institute of Technology 2018
@@ -20,13 +21,14 @@ var mod = {}
 //
 // name
 //
-var name = 'frep circle'
+var name = 'frep polygon'
 //
 // initialization
 //
 var init = function() {
    mod.x.value = '0'
    mod.y.value = '0'
+   mod.sides.value = '5'
    mod.radius.value = '1'
    }
 //
@@ -48,10 +50,16 @@ var outputs = {
       event:function(){
          var x = parseFloat(mod.x.value)
          var y = parseFloat(mod.y.value)
+         var sides = parseInt(mod.sides.value)
          var radius = parseFloat(mod.radius.value)
-         var fn = `((${radius})*(${radius})-((X-(${x}))*(X-(${x}))+(Y-(${y}))*(Y-(${y}))))`
+         var fn = `((${radius})-(X-(${x})))`
+         for (var s = 1; s < sides; ++s) {
+            var nx = Math.cos(s*2*Math.PI/sides)
+            var ny = Math.sin(s*2*Math.PI/sides)
+            var fn = `Math.min((${radius})-((X-(${x}))*(${nx})+(Y-(${y}))*(${ny})),${fn})`
+            }
          var variables = ['X','Y']
-         var limits = [[x-radius,x+radius],[y-radius,y+radius]]
+         var limits = [[x-2*radius,x+2*radius],[y-2*radius,y+2*radius]]
          var type = 'Magnitude'
          var shape = {function:fn,variables:variables,limits:limits,type:type}
          mods.output(mod,'shape',shape)}
@@ -60,8 +68,9 @@ var outputs = {
       event:function(){
          var x = parseFloat(mod.x.value)
          var y = parseFloat(mod.y.value)
+         var sides = parseFloat(mod.sides.value)
          var radius = parseFloat(mod.radius.value)
-         var vars = {x:x,y:y,radius:radius}
+         var vars = {x:x,y:y,sides:sides,radius:radius}
          mods.output(mod,'variables',vars)}
          }}
 //
@@ -89,7 +98,17 @@ var interface = function(div){
       mod.y = input
    div.appendChild(document.createElement('br'))
    //
-   // r
+   // sides
+   //
+   div.appendChild(document.createTextNode('sides: '))
+   var input = document.createElement('input')
+      input.type = 'text'
+      input.size = 3
+      div.appendChild(input)
+      mod.sides = input
+   div.appendChild(document.createElement('br'))
+   //
+   // radius
    //
    div.appendChild(document.createTextNode('radius: '))
    var input = document.createElement('input')
