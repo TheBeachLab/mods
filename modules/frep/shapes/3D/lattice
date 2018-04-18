@@ -1,5 +1,6 @@
 //
 // frep lattice
+//    todo: continuous open-cell distance
 //
 // Neil Gershenfeld
 // (c) Massachusetts Institute of Technology 2018
@@ -33,6 +34,8 @@ var init = function() {
    mod.xmax.value = '1'
    mod.ymax.value = '1'
    mod.zmax.value = '1'
+   mod.opencell.checked = true 
+   mod.closedcell.checked = false
    }
 //
 // inputs
@@ -62,7 +65,10 @@ var outputs = {
          var xfn = `(${thickness}-((X%${pitch})+${pitch})%${pitch})`
          var yfn = `(${thickness}-((Y%${pitch})+${pitch})%${pitch})`
          var zfn = `(${thickness}-((Z%${pitch})+${pitch})%${pitch})`
-         var fn = `Math.max(Math.max(${xfn},${yfn}),${zfn})`
+         if (mod.opencell.checked)
+            var fn = `(Math.sign(${xfn})+Math.sign(${yfn})+Math.sign(${zfn})-0.5)`
+         else
+            var fn = `Math.max(Math.max(${xfn},${yfn}),${zfn})`
          var xfn = `Math.min(X-(${xmin}),(${xmax})-X)`
          var yfn = `Math.min(Y-(${ymin}),(${ymax})-Y)`
          var zfn = `Math.min(Z-(${zmin}),(${zmax})-Z)`
@@ -166,6 +172,22 @@ var interface = function(div){
       input.size = 3
       div.appendChild(input)
       mod.zmax = input
+   div.appendChild(document.createElement('br'))
+   //
+   // type
+   //
+   div.appendChild(document.createTextNode('open cell'))
+   var input = document.createElement('input')
+      input.type = 'radio'
+      input.name = mod.div.id+'axis'
+      div.appendChild(input)
+      mod.opencell = input
+   div.appendChild(document.createTextNode(' closed cell'))
+   var input = document.createElement('input')
+      input.type = 'radio'
+      input.name = mod.div.id+'axis'
+      div.appendChild(input)
+      mod.closedcell = input
    div.appendChild(document.createElement('br'))
    //
    // output button
