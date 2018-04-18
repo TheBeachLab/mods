@@ -36,6 +36,8 @@ var init = function() {
 	mod.yLimit2 =1.0 ; 
 	mod.zLimit1 =-1.0 ; 
 	mod.zLimit2 =1.0 ;
+	mod.height=10.0;
+	mod.width=10.0;
    };
 //
 // inputs
@@ -100,19 +102,26 @@ var inputs = {
 			if(str1[--counterBefore]==')')
 			{
 				count++;
-			}
-			while(count>0)
-			{
-				counterBefore--;
-				if(str1[counterBefore]==')')
+				while(count>0)
 				{
-					count++;
+					counterBefore--;
+					if(str1[counterBefore]==')')
+					{
+						count++;
 
-				}else if (str1[counterBefore]=='(')
-				{
-					count--;
+					}else if (str1[counterBefore]=='(')
+					{
+						count--;
+					}
 				}
+			}else{
+				while(!isNaN(str1[counterBefore]) ||(str1[counterBefore]=='.')||(str1[counterBefore]=='X') ||(str1[counterBefore]=='Y')||(str1[counterBefore]=='Z'))
+				{
+					counterBefore--;
+				}
+
 			}
+			
 			
 			//parse after
 			var counterAfter=modLocation;
@@ -120,23 +129,28 @@ var inputs = {
 			if(str1[++counterAfter]=='(')
 			{
 				count++;
-			}
-			while(count>0)
-			{
-				counterAfter++;
-				if(str1[counterAfter]=='(')
+				while(count>0)
 				{
-					count++;
+					counterAfter++;
+					if(str1[counterAfter]=='(')
+					{
+						count++;
 
-				}else if (str1[counterAfter]==')')
+					}else if (str1[counterAfter]==')')
+					{
+						count--;
+					}
+				}
+			}else
+			{
+				while(!isNaN(str1[counterAfter]) ||(str1[counterAfter]=='.')||(str1[counterAfter]=='X') ||(str1[counterAfter]=='Y')||(str1[counterAfter]=='Z'))
 				{
-					count--;
+					counterAfter++;
 				}
 			}
+			
 			str1 = str1.substr(0, counterAfter) + ")" + str1.substr(counterAfter);
 			str1 = str1.substr(0, counterBefore) + "mod(" + str1.substr(counterBefore);
-			outputs.messageLog.event("2"+str1);
-
 		}
 
 		//turn all ints to floatS
@@ -193,6 +207,7 @@ var inputs = {
 		}
 		// outputs.messageLog.event(str);
 		mod.str=str;
+		outputs.messageLog.event(str1);
 
 		//if window open update shader function
 		if(mod.windowOpen)
@@ -771,7 +786,6 @@ function init_window() {
 	container.appendChild( renderer.domElement );
 
 	////////////////////////////////
-	// mod.canvas.appendChild( renderer.domElement ); //????
 
 	//grab the context from your destination canvas
 	var destCtx = mod.canvas.getContext('2d');
@@ -779,19 +793,6 @@ function init_window() {
 	//call its drawImage() function passing it the source canvas directly
 	destCtx.drawImage(container.childNodes[0], 0, 0);
 
-	// // select canvas elements
-    // var sourceCanvas = document.getElementsById("some-unique-id");
-    // var destCanvas = document.getElementsByClassName("some-class-selector")[0];
-
-    // //copy canvas by DataUrl
-    // var sourceImageData = sourceCanvas.toDataURL("image/png");
-    // var destCanvasContext = destCanvas.getContext('2d');
-
-    // var destinationImage = new Image;
-    // destinationImage.onload = function(){
-    //   destCanvasContext.drawImage(destinationImage,0,0);
-    // };
-	// destinationImage.src = sourceImageData;
 	
 	/////////////////////////////////////////////
 
@@ -802,6 +803,8 @@ function init_window() {
 	camera.position.x = 5;
 	camera.lookAt(new THREE.Vector3(0,0,0));
 	camera.updateProjectionMatrix();
+	renderer.setSize( win.innerWidth, win.innerHeight );
+
 	var Controls = (function(Controls) {
 		// "use strict";
 	
@@ -865,15 +868,22 @@ function init_window() {
 	Controls.addMouseHandler(renderer.domElement, drag, zoomIn, zoomOut);
 	
 
-	renderer.setSize( win.innerWidth, win.innerHeight );
-
-	win.addEventListener( 'resize', onWindowResize, false );
 	
-	 //animate();
+
+	//
+	// event handlers
+	//
+	// win.addEventListener('mousedown',mouse_down);
+	// win.addEventListener('mouseup',mouse_up);
+	// win.addEventListener('mousemove',mouse_move);
+	// win.addEventListener('wheel',mouse_wheel);
+	win.addEventListener( 'resize', onWindowResize, false );
+	win.addEventListener('contextmenu',context_menu);
+	
 	 render();
 	}
   
-  
+	
 	/////////////// 
 	function onWindowResize( event ) {
 
@@ -887,10 +897,83 @@ function init_window() {
 	}
 
     ////////////////
-	// function animate() {
-	// 	requestAnimationFrame( animate );
-	// 	render();
-	// }
+	function context_menu(evt) {
+		evt.preventDefault();
+		evt.stopPropagation();
+		return (false);
+	}
+
+	//
+   // mouse_down
+   //
+   	function mouse_down(evt) {	
+		evt.preventDefault();
+		evt.stopPropagation();
+		mod.button = evt.button;
+		mod.x = evt.clientX;
+		mod.y = evt.clientY;
+	}
+ //
+ // mouse_up
+ //
+	function mouse_up(evt) {
+		mod.button = undefined;
+		mod.x = evt.clientX;
+		mod.y = evt.clientY;
+	}
+	//
+	// mouse_move
+	//
+	function mouse_move(evt) {
+		evt.preventDefault();
+		evt.stopPropagation();
+		var dx = evt.clientX-mod.x;
+		var dy = evt.clientY-mod.y;
+		mod.x = evt.clientX;
+		mod.y = evt.clientY;
+		if (mod.button == 0) {
+			mod.x0 += 
+				Math.sin(mod.thetaz)*mod.height*dy/win.innerHeight
+				-Math.cos(mod.thetaz)*mod.width*dx/win.innerWidth;
+			mod.y0 += 
+				Math.cos(mod.thetaz)*mod.height*dy/win.innerHeight
+				+Math.sin(mod.thetaz)*mod.width*dx/win.innerWidth;
+			camera.position.x = mod.x0+Math.sin(mod.thetaz)*mod.r*Math.sin(mod.thetaxy);
+			camera.position.y = mod.y0+Math.cos(mod.thetaz)*mod.r*Math.sin(mod.thetaxy);
+			camera.position.z = mod.r*Math.cos(mod.thetaxy);
+			camera.position.z = mod.r*Math.cos(mod.thetaxy);
+				camera.up = new THREE.Vector3(Math.sin(mod.thetaz),Math.cos(mod.thetaz),0);
+				camera.lookAt(new THREE.Vector3(mod.x0,mod.y0,0));
+			camera.updateProjectionMatrix();
+			redraw(false);
+		}
+		else if (mod.button == 2) {
+			mod.thetaxy += dy/win.innerHeight
+			mod.thetaz += dx/win.innerWidth
+			camera.position.x = mod.x0+Math.sin(mod.thetaz)*mod.r*Math.sin(mod.thetaxy)
+			camera.position.y = mod.y0+Math.cos(mod.thetaz)*mod.r*Math.sin(mod.thetaxy)
+			camera.position.z = mod.r*Math.cos(mod.thetaxy)
+				camera.up = new THREE.Vector3(Math.sin(mod.thetaz),Math.cos(mod.thetaz),0)
+				camera.lookAt(new THREE.Vector3(mod.x0,mod.y0,0))
+			camera.updateProjectionMatrix()
+				renderer.render(scene,camera)
+		}
+	}
+	//
+	// mouse_wheel
+	//
+	function mouse_wheel(evt) {
+		evt.preventDefault();
+		evt.stopPropagation();
+		var dy = evt.deltaY/win.innerHeight;
+		mod.r += mod.height*dy;
+		camera.position.x = mod.x0+Math.sin(mod.thetaz)*mod.r*Math.sin(mod.thetaxy);
+		camera.position.y = mod.y0+Math.cos(mod.thetaz)*mod.r*Math.sin(mod.thetaxy);
+		camera.position.z = mod.r*Math.cos(mod.thetaxy);
+		camera.lookAt(new THREE.Vector3(mod.x0,mod.y0,0));
+		camera.updateProjectionMatrix();
+		redraw(false);
+	}
 
 	/////////
 	function redraw(updateUniforms){
@@ -943,11 +1026,7 @@ function init_window() {
 			var hd = mod.canvas.height;
 			}
 		var destCtx = mod.canvas.getContext('2d');
-		// destCtx.clearRect(0,0,mod.canvas.width,mod.canvas.height)
 		destCtx.drawImage(container.childNodes[0],x0,y0,wd,hd);
-
-		
-		 
 	}
 
 	//
