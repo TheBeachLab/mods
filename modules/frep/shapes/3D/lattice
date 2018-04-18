@@ -62,9 +62,9 @@ var outputs = {
          var ymax = parseFloat(mod.ymax.value)
          var zmin = parseFloat(mod.zmin.value)
          var zmax = parseFloat(mod.zmax.value)
-         var xfn = `(${thickness}-((X%${pitch})+${pitch})%${pitch})`
-         var yfn = `(${thickness}-((Y%${pitch})+${pitch})%${pitch})`
-         var zfn = `(${thickness}-((Z%${pitch})+${pitch})%${pitch})`
+         var xfn = `(${thickness}-((X-(${xmin}))%${pitch}))`
+         var yfn = `(${thickness}-((Y-(${ymin}))%${pitch}))`
+         var zfn = `(${thickness}-((Z-(${zmin}))%${pitch}))`
          if (mod.opencell.checked)
             var fn = `(Math.sign(${xfn})+Math.sign(${yfn})+Math.sign(${zfn})-0.5)`
          else
