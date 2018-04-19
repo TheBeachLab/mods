@@ -1,5 +1,6 @@
 //
 // APA node module
+//    todo: back-pressure
 //
 // Neil Gershenfeld 
 // (c) Massachusetts Institute of Technology 2018
@@ -20,12 +21,12 @@ var mod = {}
 //
 // name
 //
-var name = 'APA node (not finished)'
+var name = 'APA node'
 //
 // initialization
 //
 var init = function() {
-   mod.orig.value = '{123^|key:property}'
+   mod.orig.value = ''
    }
 //
 // inputs
@@ -42,7 +43,7 @@ var inputs = {
          input_packet(3,evt.detail)}},
    orig:{type:'',
       event:function(evt){
-         orig_packet(evt.detail)}}}
+         input_packet(0,evt.detail)}}}
 //
 // outputs
 //
@@ -51,14 +52,14 @@ var outputs = {
       event:function(packet){
          mods.output(mod,'port1',packet)}},
    port2:{type:'',label:'port 2',
-      event:function(data){
-         mods.output(mod,'port2',data)}},
+      event:function(packet){
+         mods.output(mod,'port2',packet)}},
    port3:{type:'',label:'port 3',
-      event:function(data){
-         mods.output(mod,'port3',data)}},
+      event:function(packet){
+         mods.output(mod,'port3',packet)}},
    dest:{type:'',
-      event:function(data){
-         mods.output(mod,'dest',data)}}}
+      event:function(packet){
+         mods.output(mod,'dest',packet)}}}
 //
 // interface
 //
@@ -132,7 +133,7 @@ var interface = function(div){
       btn.style.margin = 1
       btn.appendChild(document.createTextNode('output'))
       btn.addEventListener('click',function(){
-         output_packet(1,mod.orig.value)
+         orig_packet(mod.orig.value)
          mod.orig.value = ''
          })
       div.appendChild(btn)
@@ -142,6 +143,7 @@ var interface = function(div){
       btn.style.margin = 1
       btn.appendChild(document.createTextNode('input'))
       btn.addEventListener('click',function(){
+         mod.dest.value = ''
          })
       div.appendChild(btn)
    }
@@ -151,27 +153,23 @@ var interface = function(div){
 // input_packet
 //
 function input_packet(port,packet) {
-   mod.in[port].value = packet
-   }
-//
-// orig_packet
-//
-function orig_packet(packet) {
-   mod.orig.value = packet
-   }
-//
-// output_packet
-//
-function output_packet(port,packet) {
-   mod.out[port].value = packet
-   outputs['port'+port].event(packet)
-   mod.out[port].value = ''
-   }
-//
-// dest_packet
-//
-function dest_packet(packet) {
-   mod.dest.value = packet
+   mod.in[port].value = JSON.stringify(packet)
+   if (packet[0][0] == 0) {
+      var route = packet[0].slice(1)
+      route.push(port)
+      var payload = packet[1]
+      var newpacket = [route,payload]
+      mod.dest.value = JSON.stringify(newpacket)
+      outputs.dest.event(packet[1])
+      }
+   else {
+      var route = packet[0].slice(1)
+      route.push(port)
+      var payload = packet[1]
+      var newpacket = [route,payload]
+      mod.out[packet[0][0]].value = JSON.stringify(newpacket)
+      outputs["port"+packet[0][0]].event(newpacket)
+      }
    }
 //
 // return values
