@@ -43,7 +43,7 @@ var inputs = {}
 // outputs
 //
 var outputs = {
-   value:{type:'number',
+   value:{type:'',
       event:function(){
          mods.output(mod,'value',parseFloat(mod.range.value))}}}
 //
