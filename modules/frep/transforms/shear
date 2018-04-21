@@ -32,6 +32,7 @@ var init = function() {
    mod.xy.checked = true
    mod.xz.checked = false
    mod.yz.checked = false
+   mod.xyz.checked = false
    }
 //
 // inputs
@@ -86,6 +87,19 @@ var outputs = {
             limits[1][0] = limits[1][0]+Math.min(off0,off1)
             limits[1][1] = limits[1][1]+Math.max(off0,off1)
             }
+         else if (mod.xyz.checked) {
+            var xvar = variables[0]
+            var yvar = variables[1]
+            var zvar = variables[2]
+            var xre = new RegExp(xvar,'g')
+            var yre = new RegExp(yvar,'g')
+            fn = fn.replace(xre,`(${xvar}-(${off0})*((${var1})-${zvar})/(${dvar})-(${off1})*(${zvar}-(${var0}))/(${dvar}))`)
+            fn = fn.replace(yre,`(${yvar}-(${off0})*((${var1})-${zvar})/(${dvar})-(${off1})*(${zvar}-(${var0}))/(${dvar}))`)
+            limits[0][0] = limits[0][0]+Math.min(off0,off1)
+            limits[0][1] = limits[0][1]+Math.max(off0,off1)
+            limits[1][0] = limits[1][0]+Math.min(off0,off1)
+            limits[1][1] = limits[1][1]+Math.max(off0,off1)
+            }
          var shape = {function:fn,variables:variables,limits:limits,type:type}
          mods.output(mod,'shape',shape)}
          }}
@@ -103,61 +117,62 @@ var interface = function(div){
    var input = document.createElement('input')
       input.type = 'radio'
       input.name = mod.div.id+'axis'
-      input.id = mod.div.id+'xy'
       div.appendChild(input)
       mod.xy = input
    div.appendChild(document.createTextNode(' x(z)'))
    var input = document.createElement('input')
       input.type = 'radio'
       input.name = mod.div.id+'axis'
-      input.id = mod.div.id+'xz'
       div.appendChild(input)
       mod.xz = input
    div.appendChild(document.createTextNode(' y(z)'))
    var input = document.createElement('input')
       input.type = 'radio'
       input.name = mod.div.id+'axis'
-      input.id = mod.div.id+'yz'
       div.appendChild(input)
       mod.yz = input
+   div.appendChild(document.createTextNode(' xy(z)'))
+   var input = document.createElement('input')
+      input.type = 'radio'
+      input.name = mod.div.id+'axis'
+      div.appendChild(input)
+      mod.xyz = input
    div.appendChild(document.createElement('br'))
    //
    // variable 0
    //
-   div.appendChild(document.createTextNode('variable 0: '))
+   div.appendChild(document.createTextNode('at: '))
    var input = document.createElement('input')
       input.type = 'text'
-      input.size = 6
+      input.size = 3
       div.appendChild(input)
       mod.variable0 = input
-   div.appendChild(document.createElement('br'))
-   //
-   // variable 1
-   //
-   div.appendChild(document.createTextNode('variable 1: '))
-   var input = document.createElement('input')
-      input.type = 'text'
-      input.size = 6
-      div.appendChild(input)
-      mod.variable1 = input
-   div.appendChild(document.createElement('br'))
    //
    // offset 0
    //
-   div.appendChild(document.createTextNode('offset 0: '))
+   div.appendChild(document.createTextNode(' offset by: '))
    var input = document.createElement('input')
       input.type = 'text'
-      input.size = 6
+      input.size = 3
       div.appendChild(input)
       mod.offset0 = input
    div.appendChild(document.createElement('br'))
    //
-   // offset 1
+   // variable 1
    //
-   div.appendChild(document.createTextNode('offset 1: '))
+   div.appendChild(document.createTextNode('at: '))
    var input = document.createElement('input')
       input.type = 'text'
-      input.size = 6
+      input.size = 3
+      div.appendChild(input)
+      mod.variable1 = input
+   //
+   // offset 1
+   //
+   div.appendChild(document.createTextNode(' offset by: '))
+   var input = document.createElement('input')
+      input.type = 'text'
+      input.size = 3
       div.appendChild(input)
       mod.offset1 = input
    div.appendChild(document.createElement('br'))
