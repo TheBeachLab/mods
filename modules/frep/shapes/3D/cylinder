@@ -25,11 +25,14 @@ var name = 'frep cylinder'
 // initialization
 //
 var init = function() {
-   mod.x.value = '0'
-   mod.y.value = '0'
-   mod.z0.value = '0'
-   mod.z1.value = '1'
-   mod.r.value = '1'
+   mod.x.checked = true
+   mod.y.checked = false
+   mod.z.checked = false
+   mod.ox.value = '0'
+   mod.oy.value = '0'
+   mod.oz.value = '0'
+   mod.length.value = '2'
+   mod.radius.value = '1'
    }
 //
 // inputs
@@ -48,28 +51,44 @@ var inputs = {
 var outputs = {
    shape:{type:'',
       event:function(){
-         var x = parseFloat(mod.x.value)
-         var y = parseFloat(mod.y.value)
-         var z0 = parseFloat(mod.z0.value)
-         var z1 = parseFloat(mod.z1.value)
-         var r = parseFloat(mod.r.value)
-         var fn = `(${r}*${r}-((X-(${x}))*(X-(${x}))+(Y-(${y}))*(Y-(${y}))))`
-         fn = `Math.min((Z-(${z0})),(${fn}))`
-         fn = `Math.min(((${z1})-Z),(${fn}))`
-         var variables = ['X','Y','Z']
-         var limits = [[x-r,x+r],[y-r,y+r],[z0,z1]]
+         var ox = parseFloat(mod.ox.value)
+         var oy = parseFloat(mod.oy.value)
+         var oz = parseFloat(mod.oy.value)
+         var length = parseFloat(mod.length.value)
+         var radius = parseFloat(mod.radius.value)
+         if (mod.x.checked) {
+            var fn = `(${r}*${r}-((X-(${x}))*(X-(${x}))+(Y-(${y}))*(Y-(${y}))))`
+            fn = `Math.min((Z-(${z0})),(${fn}))`
+            fn = `Math.min(((${z1})-Z),(${fn}))`
+            var variables = ['X','Y','Z']
+            var limits = [[x-r,x+r],[y-r,y+r],[z0,z1]]
+            }
+         else if (mod.y.checked) {
+            var fn = `(${r}*${r}-((X-(${x}))*(X-(${x}))+(Y-(${y}))*(Y-(${y}))))`
+            fn = `Math.min((Z-(${z0})),(${fn}))`
+            fn = `Math.min(((${z1})-Z),(${fn}))`
+            var variables = ['X','Y','Z']
+            var limits = [[x-r,x+r],[y-r,y+r],[z0,z1]]
+            }
+         else if (mod.z.checked) {
+            var fn = `(${r}*${r}-((X-(${x}))*(X-(${x}))+(Y-(${y}))*(Y-(${y}))))`
+            fn = `Math.min((Z-(${z0})),(${fn}))`
+            fn = `Math.min(((${z1})-Z),(${fn}))`
+            var variables = ['X','Y','Z']
+            var limits = [[x-r,x+r],[y-r,y+r],[z0,z1]]
+            }
          var type = 'Magnitude'
          var shape = {function:fn,variables:variables,limits:limits,type:type}
          mods.output(mod,'shape',shape)}
          },
    variables:{type:'',
       event:function(){
-         var x = parseFloat(mod.x.value)
-         var y = parseFloat(mod.y.value)
-         var z0 = parseFloat(mod.z0.value)
-         var z1 = parseFloat(mod.z1.value)
-         var r = parseFloat(mod.r.value)
-         var vars = {x:x,y:y,r:r}
+         var ox = parseFloat(mod.ox.value)
+         var oy = parseFloat(mod.oy.value)
+         var oz = parseFloat(mod.oz.value)
+         var length = parseFloat(mod.length.value)
+         var radius = parseFloat(mod.radius.value)
+         var vars = {ox:ox,oy:oy,oz:oz,length:length,radius:radius}
          mods.output(mod,'variables',vars)}
          }}
 //
@@ -78,6 +97,35 @@ var outputs = {
 var interface = function(div){
    mod.div = div
    //
+   // direction 
+   //
+   div.appendChild(document.createTextNode('direction: '))
+   div.appendChild(document.createElement('br'))
+   div.appendChild(document.createTextNode('x'))
+   var input = document.createElement('input')
+      input.type = 'radio'
+      input.name = mod.div.id+'axis'
+      div.appendChild(input)
+      mod.x = input
+   div.appendChild(document.createTextNode('y'))
+   var input = document.createElement('input')
+      input.type = 'radio'
+      input.name = mod.div.id+'axis'
+      div.appendChild(input)
+      mod.y = input
+   div.appendChild(document.createTextNode('z'))
+   var input = document.createElement('input')
+      input.type = 'radio'
+      input.name = mod.div.id+'axis'
+      div.appendChild(input)
+      mod.z = input
+   div.appendChild(document.createElement('br'))
+   //
+   // origin
+   //
+   div.appendChild(document.createTextNode('origin:'))
+   div.appendChild(document.createElement('br'))
+   //
    // x
    //
    div.appendChild(document.createTextNode('x: '))
@@ -85,7 +133,7 @@ var interface = function(div){
       input.type = 'text'
       input.size = 3
       div.appendChild(input)
-      mod.x = input
+      mod.ox = input
    //
    // y
    //
@@ -94,36 +142,37 @@ var interface = function(div){
       input.type = 'text'
       input.size = 3
       div.appendChild(input)
-      mod.y = input
+      mod.oy = input
    div.appendChild(document.createElement('br'))
    //
-   // z0
+   // z
    //
-   div.appendChild(document.createTextNode('z0: '))
+   div.appendChild(document.createTextNode('z: '))
    var input = document.createElement('input')
       input.type = 'text'
       input.size = 3
       div.appendChild(input)
-      mod.z0 = input
-   //
-   // z1
-   //
-   div.appendChild(document.createTextNode(' z1: '))
-   var input = document.createElement('input')
-      input.type = 'text'
-      input.size = 3
-      div.appendChild(input)
-      mod.z1 = input
+      mod.oz = input
    div.appendChild(document.createElement('br'))
    //
-   // r
+   // length
    //
-   div.appendChild(document.createTextNode(' r: '))
+   div.appendChild(document.createTextNode('length: '))
    var input = document.createElement('input')
       input.type = 'text'
       input.size = 3
       div.appendChild(input)
-      mod.r = input
+      mod.length = input
+   div.appendChild(document.createElement('br'))
+   //
+   // radius
+   //
+   div.appendChild(document.createTextNode('radius: '))
+   var input = document.createElement('input')
+      input.type = 'text'
+      input.size = 3
+      div.appendChild(input)
+      mod.radius = input
    div.appendChild(document.createElement('br'))
    //
    // output button
