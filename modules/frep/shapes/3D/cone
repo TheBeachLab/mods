@@ -25,9 +25,9 @@ var name = 'frep cone'
 // initialization
 //
 var init = function() {
-   mod.x.checked = true
+   mod.x.checked = false
    mod.y.checked = false
-   mod.z.checked = false
+   mod.z.checked = true
    mod.ox.value = '0'
    mod.oy.value = '0'
    mod.oz.value = '0'

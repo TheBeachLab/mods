@@ -25,6 +25,9 @@ var name = 'frep pyramid'
 // initialization
 //
 var init = function() {
+   mod.x.checked = false
+   mod.y.checked = false
+   mod.z.checked = true
    mod.x0.value = '0'
    mod.x1.value = '1'
    mod.y0.value = '0'
@@ -55,15 +58,39 @@ var outputs = {
          var y1 = parseFloat(mod.y1.value)
          var z0 = parseFloat(mod.z0.value)
          var z1 = parseFloat(mod.z1.value)
-         var fnx0 = `X-(${x0})-((Z-(${z0}))/((${z1})-(${z0})))*((${x1})-(${x0}))/2`
-         var fny0 = `Y-(${y0})-((Z-(${z0}))/((${z1})-(${z0})))*((${y1})-(${y0}))/2`
-         var fnx1 = `(${x1})-X-((Z-(${z0}))/((${z1})-(${z0})))*((${x1})-(${x0}))/2`
-         var fny1 = `(${y1})-Y-((Z-(${z0}))/((${z1})-(${z0})))*((${y1})-(${y0}))/2`
-         var fn = `Math.min(${fnx0},${fnx1})`
-         fn = `Math.min(${fny0},${fn})`
-         fn = `Math.min(${fny1},${fn})`
-         fn = `Math.min(Z-(${z0}),${fn})`
-         fn = `Math.min((${z1})-Z,${fn})`
+         if (mod.x.checked) {
+            var fnx0 = `X-(${x0})-((Z-(${z0}))/((${z1})-(${z0})))*((${x1})-(${x0}))/2`
+            var fny0 = `Y-(${y0})-((Z-(${z0}))/((${z1})-(${z0})))*((${y1})-(${y0}))/2`
+            var fnx1 = `(${x1})-X-((Z-(${z0}))/((${z1})-(${z0})))*((${x1})-(${x0}))/2`
+            var fny1 = `(${y1})-Y-((Z-(${z0}))/((${z1})-(${z0})))*((${y1})-(${y0}))/2`
+            var fn = `Math.min(${fnx0},${fnx1})`
+            fn = `Math.min(${fny0},${fn})`
+            fn = `Math.min(${fny1},${fn})`
+            fn = `Math.min(X-(${x0}),${fn})`
+            fn = `Math.min((${x1})-X,${fn})`
+            }
+         else if (mod.y.checked) {
+            var fnx0 = `X-(${x0})-((Z-(${z0}))/((${z1})-(${z0})))*((${x1})-(${x0}))/2`
+            var fny0 = `Y-(${y0})-((Z-(${z0}))/((${z1})-(${z0})))*((${y1})-(${y0}))/2`
+            var fnx1 = `(${x1})-X-((Z-(${z0}))/((${z1})-(${z0})))*((${x1})-(${x0}))/2`
+            var fny1 = `(${y1})-Y-((Z-(${z0}))/((${z1})-(${z0})))*((${y1})-(${y0}))/2`
+            var fn = `Math.min(${fnx0},${fnx1})`
+            fn = `Math.min(${fny0},${fn})`
+            fn = `Math.min(${fny1},${fn})`
+            fn = `Math.min(Y-(${y0}),${fn})`
+            fn = `Math.min((${y1})-Y,${fn})`
+            }
+         else if (mod.z.checked) {
+            var fnx0 = `X-(${x0})-((Z-(${z0}))/((${z1})-(${z0})))*((${x1})-(${x0}))/2`
+            var fny0 = `Y-(${y0})-((Z-(${z0}))/((${z1})-(${z0})))*((${y1})-(${y0}))/2`
+            var fnx1 = `(${x1})-X-((Z-(${z0}))/((${z1})-(${z0})))*((${x1})-(${x0}))/2`
+            var fny1 = `(${y1})-Y-((Z-(${z0}))/((${z1})-(${z0})))*((${y1})-(${y0}))/2`
+            var fn = `Math.min(${fnx0},${fnx1})`
+            fn = `Math.min(${fny0},${fn})`
+            fn = `Math.min(${fny1},${fn})`
+            fn = `Math.min(Z-(${z0}),${fn})`
+            fn = `Math.min((${z1})-Z,${fn})`
+            }
          var variables = ['X','Y','Z']
          var limits = [[x0,x1],[y0,y1],[z0,z1]]
          var type = 'Magnitude'
@@ -86,6 +113,30 @@ var outputs = {
 //
 var interface = function(div){
    mod.div = div
+   //
+   // direction 
+   //
+   div.appendChild(document.createTextNode('direction: '))
+   div.appendChild(document.createElement('br'))
+   div.appendChild(document.createTextNode('x'))
+   var input = document.createElement('input')
+      input.type = 'radio'
+      input.name = mod.div.id+'axis'
+      div.appendChild(input)
+      mod.x = input
+   div.appendChild(document.createTextNode('y'))
+   var input = document.createElement('input')
+      input.type = 'radio'
+      input.name = mod.div.id+'axis'
+      div.appendChild(input)
+      mod.y = input
+   div.appendChild(document.createTextNode('z'))
+   var input = document.createElement('input')
+      input.type = 'radio'
+      input.name = mod.div.id+'axis'
+      div.appendChild(input)
+      mod.z = input
+   div.appendChild(document.createElement('br'))
    //
    // x0
    //
