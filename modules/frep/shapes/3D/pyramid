@@ -59,24 +59,24 @@ var outputs = {
          var z0 = parseFloat(mod.z0.value)
          var z1 = parseFloat(mod.z1.value)
          if (mod.x.checked) {
-            var fnx0 = `X-(${x0})-((Z-(${z0}))/((${z1})-(${z0})))*((${x1})-(${x0}))/2`
-            var fny0 = `Y-(${y0})-((Z-(${z0}))/((${z1})-(${z0})))*((${y1})-(${y0}))/2`
-            var fnx1 = `(${x1})-X-((Z-(${z0}))/((${z1})-(${z0})))*((${x1})-(${x0}))/2`
-            var fny1 = `(${y1})-Y-((Z-(${z0}))/((${z1})-(${z0})))*((${y1})-(${y0}))/2`
-            var fn = `Math.min(${fnx0},${fnx1})`
-            fn = `Math.min(${fny0},${fn})`
-            fn = `Math.min(${fny1},${fn})`
+            var fny0 = `Y-(${y0})-((X-(${x0}))/((${x1})-(${x0})))*((${y1})-(${y0}))/2`
+            var fnz0 = `Z-(${z0})-((X-(${x0}))/((${x1})-(${x0})))*((${z1})-(${z0}))/2`
+            var fny1 = `(${y1})-Y-((X-(${x0}))/((${x1})-(${x0})))*((${y1})-(${y0}))/2`
+            var fnz1 = `(${z1})-Z-((X-(${x0}))/((${x1})-(${x0})))*((${z1})-(${z0}))/2`
+            var fn = `Math.min(${fny0},${fny1})`
+            fn = `Math.min(${fnz0},${fn})`
+            fn = `Math.min(${fnz1},${fn})`
             fn = `Math.min(X-(${x0}),${fn})`
             fn = `Math.min((${x1})-X,${fn})`
             }
          else if (mod.y.checked) {
-            var fnx0 = `X-(${x0})-((Z-(${z0}))/((${z1})-(${z0})))*((${x1})-(${x0}))/2`
-            var fny0 = `Y-(${y0})-((Z-(${z0}))/((${z1})-(${z0})))*((${y1})-(${y0}))/2`
-            var fnx1 = `(${x1})-X-((Z-(${z0}))/((${z1})-(${z0})))*((${x1})-(${x0}))/2`
-            var fny1 = `(${y1})-Y-((Z-(${z0}))/((${z1})-(${z0})))*((${y1})-(${y0}))/2`
+            var fnx0 = `X-(${x0})-((Y-(${y0}))/((${y1})-(${y0})))*((${x1})-(${x0}))/2`
+            var fnz0 = `Z-(${z0})-((Y-(${y0}))/((${y1})-(${y0})))*((${z1})-(${z0}))/2`
+            var fnx1 = `(${x1})-X-((Y-(${y0}))/((${y1})-(${y0})))*((${x1})-(${x0}))/2`
+            var fnz1 = `(${z1})-Z-((Y-(${y0}))/((${y1})-(${y0})))*((${z1})-(${z0}))/2`
             var fn = `Math.min(${fnx0},${fnx1})`
-            fn = `Math.min(${fny0},${fn})`
-            fn = `Math.min(${fny1},${fn})`
+            fn = `Math.min(${fnz0},${fn})`
+            fn = `Math.min(${fnz1},${fn})`
             fn = `Math.min(Y-(${y0}),${fn})`
             fn = `Math.min((${y1})-Y,${fn})`
             }
