@@ -36,7 +36,7 @@ var init = function() {
 // inputs
 //
 var inputs = {
-   shape:{type:'',
+   shape:{type:'2D',
       event:function(evt){
          mod.shape = evt.detail
          outputs.shape.event()
@@ -59,28 +59,29 @@ revolve
       y = z
 */
 var outputs = {
-   shape:{type:'',
+   shape:{type:'3D',
       event:function(){
          var fn = mod.shape.function
-         var variables = mod.shape.variables
+         var variables = []
+         variables[0] = mod.shape.variables[0]
+         variables[1] = mod.shape.variables[1]
+         variables[2] = 'Z'
          var type = mod.shape.type        
          var ox = parseFloat(mod.ox.value)
          var oy = parseFloat(mod.oy.value)
          var oz = parseFloat(mod.oz.value)
          var limits = []
-         for (var v = 0; v < mod.shape.limits.length; ++v) {
-            limits[v] = []
-            limits[v][0] = mod.shape.limits[v][0]
-            limits[v][1] = mod.shape.limits[v][1]
-            }
          if (mod.x.checked) {
             var xvar = variables[0]
+            var yvar = variables[1]
             var re = new RegExp(xvar,'g')
-            fn = fn.replace(re,`(${2*origin0}-(${xvar}))`)
-            var dx = mod.shape.limits[0][1]-mod.shape.limits[0][0]
-            var dl = mod.shape.limits[0][0]-origin0
-            limits[0][0] = origin0-(dl+dx)
-            limits[0][1] = origin0-dl
+            fn = fn.replace(re,`((${ox})+Math.sqrt((${xvar}-(${ox}))*(${xvar}-(${ox}))+(Z-(${oz}))*(Z-(${oz}))))`)
+            limits[0][0] = xmax
+            limits[0][1] = 2*ox-xmax
+            limits[1][0] = ymin-oy
+            limits[1][1] = ymax-oy
+            limits[2][0] = 
+            limits[2][1] = 
             }
          else if (mod.y.checked) {
             var yvar = variables[1]
@@ -99,57 +100,6 @@ var outputs = {
             var dl = mod.shape.limits[2][0]-origin0
             limits[2][0] = origin0-(dl+dz)
             limits[2][1] = origin0-dl
-            }
-         else if (mod.xy.checked) {
-            var xvar = variables[0]
-            var yvar = variables[1]
-            var xre = new RegExp(xvar,'g')
-            var yre = new RegExp(yvar,'g')
-            fn = fn.replace(xre,'TEMP')
-            fn = fn.replace(yre,`((${origin1})+(${xvar})-(${origin0}))`)
-            fn = fn.replace(/TEMP/g,`((${origin0})+(${yvar})-(${origin1}))`)
-            var dx = mod.shape.limits[0][1]-mod.shape.limits[0][0]
-            var dy = mod.shape.limits[1][1]-mod.shape.limits[1][0]
-            var dxl = mod.shape.limits[0][0]-origin0
-            var dyl = mod.shape.limits[1][0]-origin1
-            limits[0][0] = origin0+dyl
-            limits[0][1] = origin0+dyl+dy
-            limits[1][0] = origin1+dxl
-            limits[1][1] = origin1+dxl+dx
-            }
-         else if (mod.xz.checked) {
-            var xvar = variables[0]
-            var zvar = variables[2]
-            var xre = new RegExp(xvar,'g')
-            var zre = new RegExp(zvar,'g')
-            fn = fn.replace(xre,'TEMP')
-            fn = fn.replace(zre,`((${origin1})+(${xvar})-(${origin0}))`)
-            fn = fn.replace(/TEMP/g,`((${origin0})+(${zvar})-(${origin1}))`)
-            var dx = mod.shape.limits[0][1]-mod.shape.limits[0][0]
-            var dz = mod.shape.limits[2][1]-mod.shape.limits[2][0]
-            var dxl = mod.shape.limits[0][0]-origin0
-            var dzl = mod.shape.limits[2][0]-origin1
-            limits[0][0] = origin0+dzl
-            limits[0][1] = origin0+dzl+dz
-            limits[2][0] = origin1+dxl
-            limits[2][1] = origin1+dxl+dx
-            }
-         else if (mod.yz.checked) {
-            var yvar = variables[1]
-            var zvar = variables[2]
-            var yre = new RegExp(yvar,'g')
-            var zre = new RegExp(zvar,'g')
-            fn = fn.replace(yre,'TEMP')
-            fn = fn.replace(zre,`((${origin1})+(${yvar})-(${origin0}))`)
-            fn = fn.replace(/TEMP/g,`((${origin0})+(${zvar})-(${origin1}))`)
-            var dy = mod.shape.limits[1][1]-mod.shape.limits[1][0]
-            var dz = mod.shape.limits[2][1]-mod.shape.limits[2][0]
-            var dyl = mod.shape.limits[1][0]-origin0
-            var dzl = mod.shape.limits[2][0]-origin1
-            limits[1][0] = origin0+dzl
-            limits[1][1] = origin0+dzl+dz
-            limits[2][0] = origin1+dyl
-            limits[2][1] = origin1+dyl+dy
             }
          var shape = {function:fn,variables:variables,limits:limits,type:type}
          mods.output(mod,'shape',shape)}
