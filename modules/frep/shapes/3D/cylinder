@@ -55,27 +55,27 @@ var outputs = {
          var oy = parseFloat(mod.oy.value)
          var oz = parseFloat(mod.oy.value)
          var length = parseFloat(mod.length.value)
-         var radius = parseFloat(mod.radius.value)
+         var r = parseFloat(mod.radius.value)
          if (mod.x.checked) {
-            var fn = `(${r}*${r}-((X-(${x}))*(X-(${x}))+(Y-(${y}))*(Y-(${y}))))`
-            fn = `Math.min((Z-(${z0})),(${fn}))`
-            fn = `Math.min(((${z1})-Z),(${fn}))`
+            var fn = `(${r}*${r}-((Y-(${oy}))*(Y-(${oy}))+(Z-(${oz}))*(Z-(${oz}))))`
+            fn = `Math.min((X-(${ox})),(${fn}))`
+            fn = `Math.min(((${ox+length})-X),(${fn}))`
             var variables = ['X','Y','Z']
-            var limits = [[x-r,x+r],[y-r,y+r],[z0,z1]]
+            var limits = [[ox,ox+length],[oy-r,oy+r],[oz-r,oz+r]]
             }
          else if (mod.y.checked) {
-            var fn = `(${r}*${r}-((X-(${x}))*(X-(${x}))+(Y-(${y}))*(Y-(${y}))))`
-            fn = `Math.min((Z-(${z0})),(${fn}))`
-            fn = `Math.min(((${z1})-Z),(${fn}))`
+            var fn = `(${r}*${r}-((X-(${ox}))*(X-(${ox}))+(Z-(${oz}))*(Z-(${oz}))))`
+            fn = `Math.min((Y-(${oy})),(${fn}))`
+            fn = `Math.min(((${oy+length})-Y),(${fn}))`
             var variables = ['X','Y','Z']
-            var limits = [[x-r,x+r],[y-r,y+r],[z0,z1]]
+            var limits = [[ox-r,ox+r],[oy,oy+length],[oz-r,oz+r]]
             }
          else if (mod.z.checked) {
-            var fn = `(${r}*${r}-((X-(${x}))*(X-(${x}))+(Y-(${y}))*(Y-(${y}))))`
-            fn = `Math.min((Z-(${z0})),(${fn}))`
-            fn = `Math.min(((${z1})-Z),(${fn}))`
+            var fn = `(${r}*${r}-((X-(${ox}))*(X-(${ox}))+(Y-(${oy}))*(Y-(${oy}))))`
+            fn = `Math.min((Z-(${oz})),(${fn}))`
+            fn = `Math.min(((${oz+length})-Z),(${fn}))`
             var variables = ['X','Y','Z']
-            var limits = [[x-r,x+r],[y-r,y+r],[z0,z1]]
+            var limits = [[ox-r,ox+r],[oy-r,oy+r],[oz,oz+length]]
             }
          var type = 'Magnitude'
          var shape = {function:fn,variables:variables,limits:limits,type:type}
