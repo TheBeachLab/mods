@@ -936,6 +936,9 @@ function edit_module(evt) {
    var mod = evt.target.parentNode.parentNode
    var idnumber = mod.id
    var def = mod.dataset.definition
+   console.log(def)
+   console.log(def.indexOf("// initialization"))
+   console.log(def.indexOf("// inputs"))
    var top = mod.dataset.top
    var left = mod.dataset.left
    var name = mod.dataset.name
