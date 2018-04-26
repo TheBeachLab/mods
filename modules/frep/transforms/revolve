@@ -44,20 +44,6 @@ var inputs = {
 //
 // outputs
 //
-/*
-revolve
-   axis x y z
-   origin x y z
-   x
-      x = rxz
-      y = y
-   y
-      x = x
-      y = ryz
-   z
-      x = rxy
-      y = z
-*/
 var outputs = {
    shape:{type:'3D',
       event:function(){
@@ -74,26 +60,22 @@ var outputs = {
          var xmax = mod.shape.limits[0][1]
          var ymin = mod.shape.limits[1][0]
          var ymax = mod.shape.limits[1][1]
+         var xvar = variables[0]
+         var yvar = variables[1]
+         var xre = new RegExp(xvar,'g')
+         var yre = new RegExp(yvar,'g')
          var limits = []
          if (mod.x.checked) {
-            var xvar = variables[0]
-            var yvar = variables[1]
-            var re = new RegExp(yvar,'g')
-            fn = fn.replace(re,`((${oy})+Math.sqrt((${yvar}-(${oy}))*(${yvar}-(${oy}))+(Z-(${oz}))*(Z-(${oz}))))`)
+            fn = fn.replace(yre,`((${oy})+Math.sqrt((${yvar}-(${oy}))*(${yvar}-(${oy}))+(Z-(${oz}))*(Z-(${oz}))))`)
             limits[0] = [xmin,xmax]
             limits[1] = [oy-(ymax-oy),oy+(ymax-oy)]
             limits[2] = [oz-(ymax-oy),oz+(ymax-oy)]
             }
          else if (mod.y.checked) {
-            var xvar = variables[0]
-            var yvar = variables[1]
-            var re = new RegExp(xvar,'g')
-            fn = fn.replace(re,`((${ox})+Math.sqrt((${xvar}-(${ox}))*(${xvar}-(${ox}))+(Z-(${oz}))*(Z-(${oz}))))`)
+            fn = fn.replace(xre,`((${ox})+Math.sqrt((${xvar}-(${ox}))*(${xvar}-(${ox}))+(Z-(${oz}))*(Z-(${oz}))))`)
             limits[0] = [ox-(xmax-ox),ox+(xmax-ox)]
             limits[1] = [ymin,ymax]
             limits[2] = [oz-(xmax-ox),oz+(xmax-ox)]
-            }
-         else if (mod.y.checked) {
             }
          else if (mod.z.checked) {
             }
