@@ -936,7 +936,10 @@ function edit_module(evt) {
    var mod = evt.target.parentNode.parentNode
    var idnumber = mod.id
    var def = mod.dataset.definition
-
+   //
+   // UI scraping development
+   //
+   /*
    //
    // split definition
    //
@@ -955,7 +958,6 @@ function edit_module(evt) {
    //
    // find initializations
    //
-
    var interface = document.getElementById(JSON.stringify({id:idnumber,type:'interface'}))
    for (var c in interface.childNodes) {
       if (interface.childNodes[c].value != undefined) {
@@ -963,7 +965,6 @@ function edit_module(evt) {
          console.log(interface.childNodes[c].value)
          }
       }
-
    while (line < lines.length) {
       if (lines[line].indexOf(".value =") != -1) {
          console.log(lines[line])
@@ -976,7 +977,7 @@ function edit_module(evt) {
       if (line == lines.length)
          return
       }
-   
+   */
    var top = mod.dataset.top
    var left = mod.dataset.left
    var name = mod.dataset.name
