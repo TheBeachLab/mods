@@ -1,5 +1,5 @@
 //
-// frep revolve
+// frep revolve (incomplete)
 //
 // Neil Gershenfeld
 // (c) Massachusetts Institute of Technology 2018
@@ -20,7 +20,7 @@ var mod = {}
 //
 // name
 //
-var name = 'frep revolve'
+var name = 'frep revolve (incomplete)'
 //
 // initialization
 //
@@ -76,30 +76,16 @@ var outputs = {
             var yvar = variables[1]
             var re = new RegExp(xvar,'g')
             fn = fn.replace(re,`((${ox})+Math.sqrt((${xvar}-(${ox}))*(${xvar}-(${ox}))+(Z-(${oz}))*(Z-(${oz}))))`)
-            limits[0][0] = xmax
-            limits[0][1] = 2*ox-xmax
-            limits[1][0] = ymin-oy
+            limits[0][0] = ox+(xmax-ox)
+            limits[0][1] = ox-(xmax-ox)
+            limits[1][0] = oy+(ymin-oy)
             limits[1][1] = ymax-oy
-            limits[2][0] = 
-            limits[2][1] = 
+            limits[2][0] = oz+(xmax-ox)
+            limits[2][1] = oz-(xmax-ox)
             }
          else if (mod.y.checked) {
-            var yvar = variables[1]
-            var re = new RegExp(yvar,'g')
-            fn = fn.replace(re,`(${2*origin0}-(${yvar}))`)
-            var dy = mod.shape.limits[1][1]-mod.shape.limits[1][0]
-            var dl = mod.shape.limits[1][0]-origin0
-            limits[1][0] = origin0-(dl+dy)
-            limits[1][1] = origin0-dl
             }
          else if (mod.z.checked) {
-            var zvar = variables[2]
-            var re = new RegExp(zvar,'g')
-            fn = fn.replace(re,`(${2*origin0}-(${zvar}))`)
-            var dz = mod.shape.limits[2][1]-mod.shape.limits[2][0]
-            var dl = mod.shape.limits[2][0]-origin0
-            limits[2][0] = origin0-(dl+dz)
-            limits[2][1] = origin0-dl
             }
          var shape = {function:fn,variables:variables,limits:limits,type:type}
          mods.output(mod,'shape',shape)}

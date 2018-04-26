@@ -936,9 +936,47 @@ function edit_module(evt) {
    var mod = evt.target.parentNode.parentNode
    var idnumber = mod.id
    var def = mod.dataset.definition
-   console.log(def)
-   console.log(def.indexOf("// initialization"))
-   console.log(def.indexOf("// inputs"))
+
+   //
+   // split definition
+   //
+   var lines = def.split('\n')
+   //
+   // find initialization
+   //
+   var line = 0
+   while (line < lines.length) {
+      if (lines[line].indexOf("// initialization") == 0)
+         break
+      line += 1
+      if (line == lines.length)
+         return
+      }
+   //
+   // find initializations
+   //
+
+   var interface = document.getElementById(JSON.stringify({id:idnumber,type:'interface'}))
+   for (var c in interface.childNodes) {
+      if (interface.childNodes[c].value != undefined) {
+         console.log(interface.childNodes[c])
+         console.log(interface.childNodes[c].value)
+         }
+      }
+
+   while (line < lines.length) {
+      if (lines[line].indexOf(".value =") != -1) {
+         console.log(lines[line])
+         }
+      if (lines[line].indexOf(".checked =") != -1)
+         console.log(lines[line])
+      if (lines[line].indexOf("// inputs") == 0)
+         break
+      line += 1
+      if (line == lines.length)
+         return
+      }
+   
    var top = mod.dataset.top
    var left = mod.dataset.left
    var name = mod.dataset.name
