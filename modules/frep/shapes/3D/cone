@@ -53,7 +53,7 @@ var outputs = {
       event:function(){
          var ox = parseFloat(mod.ox.value)
          var oy = parseFloat(mod.oy.value)
-         var oz = parseFloat(mod.oy.value)
+         var oz = parseFloat(mod.oz.value)
          var length = parseFloat(mod.length.value)
          var r = parseFloat(mod.radius.value)
          if (mod.x.checked) {
