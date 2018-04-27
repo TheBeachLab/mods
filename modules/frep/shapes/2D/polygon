@@ -54,8 +54,8 @@ var outputs = {
          var radius = parseFloat(mod.radius.value)
          var fn = `((${radius})-(X-(${x})))`
          for (var s = 1; s < sides; ++s) {
-            var nx = Math.cos(s*2*Math.PI/sides)
-            var ny = Math.sin(s*2*Math.PI/sides)
+            var nx = Math.cos(s*2*Math.PI/sides).toFixed(4)
+            var ny = Math.sin(s*2*Math.PI/sides).toFixed(4)
             var fn = `Math.min((${radius})-((X-(${x}))*(${nx})+(Y-(${y}))*(${ny})),${fn})`
             }
          var variables = ['X','Y']
