@@ -184,12 +184,10 @@ var inputs = {
 							{
 								str+=str1[k];
 								i=k;
-								console.log(str1[k]);
 
 								k++;
 
 								str+=str1[k];
-								console.log(str1[k]);
 								i=k;
 
 							}else
