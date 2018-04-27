@@ -28,9 +28,7 @@ var init = function() {
    mod.x.checked = false
    mod.y.checked = false
    mod.z.checked = true
-   mod.ox.value = 0
-   mod.oy.value = 0
-   mod.oz.value = 0
+   mod.origin.value = 0
    }
 //
 // inputs
@@ -53,9 +51,7 @@ var outputs = {
          variables[1] = mod.shape.variables[1]
          variables[2] = 'Z'
          var type = mod.shape.type        
-         var ox = parseFloat(mod.ox.value)
-         var oy = parseFloat(mod.oy.value)
-         var oz = parseFloat(mod.oz.value)
+         var o = parseFloat(mod.origin.value)
          var xmin = mod.shape.limits[0][0]
          var xmax = mod.shape.limits[0][1]
          var ymin = mod.shape.limits[1][0]
@@ -66,18 +62,23 @@ var outputs = {
          var yre = new RegExp(yvar,'g')
          var limits = []
          if (mod.x.checked) {
-            fn = fn.replace(yre,`((${oy})+Math.sqrt((${yvar}-(${oy}))*(${yvar}-(${oy}))+(Z-(${oz}))*(Z-(${oz}))))`)
+            fn = fn.replace(yre,`((${o})+Math.sqrt((${yvar}-(${o}))*(${yvar}-(${o}))+Z*Z)))`)
             limits[0] = [xmin,xmax]
-            limits[1] = [oy-(ymax-oy),oy+(ymax-oy)]
-            limits[2] = [oz-(ymax-oy),oz+(ymax-oy)]
+            limits[1] = [o-(ymax-o),o+(ymax-o)]
+            limits[2] = [-(ymax-o),+(ymax-o)]
             }
          else if (mod.y.checked) {
-            fn = fn.replace(xre,`((${ox})+Math.sqrt((${xvar}-(${ox}))*(${xvar}-(${ox}))+(Z-(${oz}))*(Z-(${oz}))))`)
-            limits[0] = [ox-(xmax-ox),ox+(xmax-ox)]
+            fn = fn.replace(xre,`((${o})+Math.sqrt((${xvar}-(${o}))*(${xvar}-(${o}))+Z*Z)))`)
+            limits[0] = [o-(xmax-o),o+(xmax-o)]
             limits[1] = [ymin,ymax]
-            limits[2] = [oz-(xmax-ox),oz+(xmax-ox)]
+            limits[2] = [-(xmax-o),+(xmax-o)]
             }
          else if (mod.z.checked) {
+            fn = fn.replace(yre,`Z`)
+            fn = fn.replace(xre,`((${o})+Math.sqrt((${xvar}-(${o}))*(${xvar}-(${o}))+Y*Y)))`)
+            limits[0] = [o-(xmax-o),o+(xmax-o)]
+            limits[1] = [-(ymax-o),+(ymax-o)]
+            limits[2] = [ymin,ymax]
             }
          var shape = {function:fn,variables:variables,limits:limits,type:type}
          mods.output(mod,'shape',shape)}
@@ -118,26 +119,11 @@ var interface = function(div){
    // origin
    //
    div.appendChild(document.createTextNode('origin:'))
-   div.appendChild(document.createElement('br'))
-   div.appendChild(document.createTextNode('x: '))
    var input = document.createElement('input')
       input.type = 'text'
       input.size = 3
       div.appendChild(input)
-      mod.ox = input
-   div.appendChild(document.createTextNode(' y: '))
-   var input = document.createElement('input')
-      input.type = 'text'
-      input.size = 3
-      div.appendChild(input)
-      mod.oy = input
-   div.appendChild(document.createElement('br'))
-   div.appendChild(document.createTextNode('z: '))
-   var input = document.createElement('input')
-      input.type = 'text'
-      input.size = 3
-      div.appendChild(input)
-      mod.oz = input
+      mod.origin = input
    div.appendChild(document.createElement('br'))
    //
    // output button
