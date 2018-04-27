@@ -262,18 +262,18 @@ document.addEventListener('contextmenu',function(evt){
       var div = document.createElement('div')
       make_menu(div)
       //
-      // list files
+      // view files
       //
-      add_menu(div,'list files',function(evt){
+      add_menu(div,'view files',function(evt){
          document.body.removeChild(evt.target.parentNode)
          mods.globals.menu = null
          var win = window.open('files.html')
          })
       document.body.appendChild(div)
       //
-      // save files
+      // view project
       //
-      add_menu(div,'save files',function(evt){
+      add_menu(div,'view project',function(evt){
          document.body.removeChild(evt.target.parentNode)
          mods.globals.menu = null
          var win = window.open('https://gitlab.cba.mit.edu/pub/mods')
