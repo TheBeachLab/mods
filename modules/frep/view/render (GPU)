@@ -177,10 +177,28 @@ var inputs = {
 					//add till not num
 					for(var k=j+1;k<str1.length;k++)
 					{
-						if(!isNaN(str1[k]))
+						if( ( !isNaN(str1[k]) )||str1[k]=='e')
 						{
-							str+=str1[k];
-							i=k;
+							//fix for scientific notation
+							if(str1[k]=='e' && str1[k+1]=='-')
+							{
+								str+=str1[k];
+								i=k;
+								console.log(str1[k]);
+
+								k++;
+
+								str+=str1[k];
+								console.log(str1[k]);
+								i=k;
+
+							}else
+							{
+								str+=str1[k];
+								i=k;
+
+							}
+							
 						}
 						else
 						{
@@ -206,7 +224,7 @@ var inputs = {
 		}
 		
 		mod.str=str;
-		outputs.messageLog.event(str1);
+		outputs.messageLog.event(str);
 
 		//if window open update shader function
 		if(mod.windowOpen)
@@ -495,6 +513,7 @@ function open_view_window() {
 				float orgMin=0.0;
 				float orgMax=1.0;
 				vec3 viewDirection;
+				
 
 
 				float map(vec3 p)
@@ -1240,3 +1259,5 @@ return ({
    interface:interface
    });
 }());
+
+
