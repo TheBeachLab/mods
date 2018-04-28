@@ -1,5 +1,5 @@
 //
-// frep repeat
+// frep repeat rotary
 //
 // Neil Gershenfeld
 // (c) Massachusetts Institute of Technology 2018
@@ -20,7 +20,7 @@ var mod = {}
 //
 // name
 //
-var name = 'frep repeat'
+var name = 'frep repeat rotary'
 //
 // initialization
 //
