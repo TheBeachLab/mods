@@ -74,8 +74,8 @@ var outputs = {
          number
          limits
          */
-         fn = fn.replace(xre,`((${ox})+Math.sqrt((${xvar}-(${ox}))*(${xvar}-(${ox}))+(TEMP-(${oy}))*(TEMP-(${oy})))*Math.cos((${tmin})+(Math.atan2(TEMP-(${oy}),${xvar}-(${ox}))-(${tmin}))%(${angle})))`)
-         fn = fn.replace(yre,`((${oy})+Math.sqrt((${xvar}-(${ox}))*(${xvar}-(${ox}))+(TEMP-(${oy}))*(TEMP-(${oy})))*Math.sin((${tmin})+(Math.atan2(TEMP-(${oy}),${xvar}-(${ox}))-(${tmin}))%(${angle})))`)
+         fn = fn.replace(xre,`((${ox})+Math.sqrt((${xvar}-(${ox}))*(${xvar}-(${ox}))+(TEMP-(${oy}))*(TEMP-(${oy})))*Math.cos((${tmin})+(2*Math.PI+Math.atan2(TEMP-(${oy}),${xvar}-(${ox}))-(${tmin}))%(${angle})))`)
+         fn = fn.replace(yre,`((${oy})+Math.sqrt((${xvar}-(${ox}))*(${xvar}-(${ox}))+(TEMP-(${oy}))*(TEMP-(${oy})))*Math.sin((${tmin})+(2*Math.PI+Math.atan2(TEMP-(${oy}),${xvar}-(${ox}))-(${tmin}))%(${angle})))`)
          fn = fn.replace(/TEMP/g,yvar)
          limits[0][0] = ox-(xmax-ox)
          limits[0][1] = ox+(xmax-ox)
