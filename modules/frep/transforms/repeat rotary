@@ -27,8 +27,7 @@ var name = 'frep repeat rotary'
 var init = function() {
    mod.ox.value = 0
    mod.oy.value = 0
-   mod.angle.value = 10
-   mod.number.value = 10
+   mod.angle.value = 45
    }
 //
 // inputs
@@ -50,7 +49,6 @@ var outputs = {
          var type = mod.shape.type        
          var ox = parseFloat(mod.ox.value)
          var oy = parseFloat(mod.oy.value)
-         var number = parseInt(mod.number.value)
          var angle = Math.PI*parseFloat(mod.angle.value)/180
          var limits = []
          for (var v = 0; v < mod.shape.limits.length; ++v) {
@@ -69,18 +67,18 @@ var outputs = {
          var tmin = Math.atan2(ymin-oy,xmin-ox)
          var tmax = Math.atan2(ymax-oy,xmin-ox)
          var dt = tmax-tmin
-         /*
-         atan2: -pi,pi
-         number
-         limits
-         */
          fn = fn.replace(xre,`((${ox})+Math.sqrt((${xvar}-(${ox}))*(${xvar}-(${ox}))+(TEMP-(${oy}))*(TEMP-(${oy})))*Math.cos((${tmin})+(2*Math.PI+Math.atan2(TEMP-(${oy}),${xvar}-(${ox}))-(${tmin}))%(${angle})))`)
          fn = fn.replace(yre,`((${oy})+Math.sqrt((${xvar}-(${ox}))*(${xvar}-(${ox}))+(TEMP-(${oy}))*(TEMP-(${oy})))*Math.sin((${tmin})+(2*Math.PI+Math.atan2(TEMP-(${oy}),${xvar}-(${ox}))-(${tmin}))%(${angle})))`)
          fn = fn.replace(/TEMP/g,yvar)
-         limits[0][0] = ox-(xmax-ox)
-         limits[0][1] = ox+(xmax-ox)
-         limits[1][0] = oy-(xmax-ox)
-         limits[1][1] = oy+(xmax-ox)
+         var r00 = Math.sqrt((xmin-ox)*(xmin-ox)+(ymin-oy)*(ymin-oy))
+         var r01 = Math.sqrt((xmin-ox)*(xmin-ox)+(ymax-oy)*(ymax-oy))
+         var r10 = Math.sqrt((xmax-ox)*(xmax-ox)+(ymin-oy)*(ymin-oy))
+         var r11 = Math.sqrt((xmax-ox)*(xmax-ox)+(ymax-oy)*(ymax-oy))
+         var rmax = Math.max(r00,r01,r10,r11)
+         limits[0][0] = ox-rmax
+         limits[0][1] = ox+rmax
+         limits[1][0] = oy-rmax
+         limits[1][1] = oy+rmax
          var shape = {function:fn,variables:variables,limits:limits,type:type}
          mods.output(mod,'shape',shape)}
          }}
@@ -105,16 +103,6 @@ var interface = function(div){
       input.size = 6
       div.appendChild(input)
       mod.oy = input
-   div.appendChild(document.createElement('br'))
-   //
-   // number 
-   //
-   div.appendChild(document.createTextNode('number: '))
-   var input = document.createElement('input')
-      input.type = 'text'
-      input.size = 6
-      div.appendChild(input)
-      mod.number = input
    div.appendChild(document.createElement('br'))
    //
    // angle 
