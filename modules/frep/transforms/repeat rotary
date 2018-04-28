@@ -25,8 +25,9 @@ var name = 'frep repeat rotary'
 // initialization
 //
 var init = function() {
-   mod.x.checked = true
-   mod.spacing.value = 0
+   mod.ox.value = 0
+   mod.oy.value = 0
+   mod.angle.value = 10
    mod.number.value = 10
    }
 //
@@ -41,55 +42,45 @@ var inputs = {
 //
 // outputs
 //
-/*
-   (x-x0)%spacing
-   x1 = min + num*space
-   x1-X
-*/
 var outputs = {
    shape:{type:'',
       event:function(){
          var fn = mod.shape.function
          var variables = mod.shape.variables
          var type = mod.shape.type        
-         var spacing = parseFloat(mod.spacing.value)
+         var ox = parseFloat(mod.ox.value)
+         var oy = parseFloat(mod.oy.value)
          var number = parseInt(mod.number.value)
+         var angle = Math.PI*parseFloat(mod.angle.value)/180
          var limits = []
          for (var v = 0; v < mod.shape.limits.length; ++v) {
             limits[v] = []
             limits[v][0] = mod.shape.limits[v][0]
             limits[v][1] = mod.shape.limits[v][1]
             }
-         if (mod.x.checked) {
-            var xvar = variables[0]
-            var xmin = limits[0][0]
-            var xmax = limits[0][1]
-            var re = new RegExp(xvar,'g')
-            fn = fn.replace(re,`((${xmin})+(${xvar}-(${xmin}))%(${spacing+xmax-xmin}))`)
-            fn = `Math.min(${xvar}-(${xmin}),${fn})`
-            fn = `Math.min((${xmin+number*(spacing+xmax-xmin)})-${xvar},${fn})`
-            limits[0][1] = xmin+number*(xmax-xmin)+(number-1)*spacing
-            }
-         else if (mod.y.checked) {
-            var yvar = variables[1]
-            var ymin = limits[1][0]
-            var ymax = limits[1][1]
-            var re = new RegExp(yvar,'g')
-            fn = fn.replace(re,`((${ymin})+(${yvar}-(${ymin}))%(${spacing+ymax-ymin}))`)
-            fn = `Math.min(${yvar}-(${ymin}),${fn})`
-            fn = `Math.min((${ymin+number*(spacing+ymax-ymin)})-${yvar},${fn})`
-            limits[1][1] = ymin+number*(ymax-ymin)+(number-1)*spacing
-            }
-         else if (mod.z.checked) {
-            var zvar = variables[2]
-            var zmin = limits[2][0]
-            var zmax = limits[2][1]
-            var re = new RegExp(zvar,'g')
-            fn = fn.replace(re,`((${zmin})+(${zvar}-(${zmin}))%(${spacing+zmax-zmin}))`)
-            fn = `Math.min(${zvar}-(${zmin}),${fn})`
-            fn = `Math.min((${zmin+number*(spacing+zmax-zmin)})-${zvar},${fn})`
-            limits[2][1] = zmin+number*(zmax-zmin)+(number-1)*spacing
-            }
+         var xvar = variables[0]
+         var yvar = variables[1]
+         var xmin = limits[0][0]
+         var xmax = limits[0][1]
+         var ymin = limits[1][0]
+         var ymax = limits[1][1]
+         var xre = new RegExp(xvar,'g')
+         var yre = new RegExp(yvar,'g')
+         var tmin = Math.atan2(ymin-oy,xmin-ox)
+         var tmax = Math.atan2(ymax-oy,xmin-ox)
+         var dt = tmax-tmin
+         /*
+         atan2: -pi,pi
+         number
+         limits
+         */
+         fn = fn.replace(xre,`((${ox})+Math.sqrt((${xvar}-(${ox}))*(${xvar}-(${ox}))+(TEMP-(${oy}))*(TEMP-(${oy})))*Math.cos((${tmin})+(Math.atan2(TEMP-(${oy}),${xvar}-(${ox}))-(${tmin}))%(${angle})))`)
+         fn = fn.replace(yre,`((${oy})+Math.sqrt((${xvar}-(${ox}))*(${xvar}-(${ox}))+(TEMP-(${oy}))*(TEMP-(${oy})))*Math.sin((${tmin})+(Math.atan2(TEMP-(${oy}),${xvar}-(${ox}))-(${tmin}))%(${angle})))`)
+         fn = fn.replace(/TEMP/g,yvar)
+         limits[0][0] = ox-(xmax-ox)
+         limits[0][1] = ox+(xmax-ox)
+         limits[1][0] = oy-(xmax-ox)
+         limits[1][1] = oy+(xmax-ox)
          var shape = {function:fn,variables:variables,limits:limits,type:type}
          mods.output(mod,'shape',shape)}
          }}
@@ -99,40 +90,21 @@ var outputs = {
 var interface = function(div){
    mod.div = div
    //
-   // axis
+   // origin
    //
-   div.appendChild(document.createTextNode('axis: '))
-   div.appendChild(document.createTextNode('x'))
-   var input = document.createElement('input')
-      input.type = 'radio'
-      input.name = mod.div.id+'axis'
-      input.id = mod.div.id+'x'
-      div.appendChild(input)
-      mod.x = input
-   div.appendChild(document.createTextNode(' y'))
-   var input = document.createElement('input')
-      input.type = 'radio'
-      input.name = mod.div.id+'axis'
-      input.id = mod.div.id+'y'
-      div.appendChild(input)
-      mod.y = input
-   div.appendChild(document.createTextNode(' z'))
-   var input = document.createElement('input')
-      input.type = 'radio'
-      input.name = mod.div.id+'axis'
-      input.id = mod.div.id+'z'
-      div.appendChild(input)
-      mod.z = input
-   div.appendChild(document.createElement('br'))
-   //
-   // spacing
-   //
-   div.appendChild(document.createTextNode('spacing: '))
+   div.appendChild(document.createTextNode('x origin: '))
    var input = document.createElement('input')
       input.type = 'text'
       input.size = 6
       div.appendChild(input)
-      mod.spacing = input
+      mod.ox = input
+   div.appendChild(document.createElement('br'))
+   div.appendChild(document.createTextNode('y origin: '))
+   var input = document.createElement('input')
+      input.type = 'text'
+      input.size = 6
+      div.appendChild(input)
+      mod.oy = input
    div.appendChild(document.createElement('br'))
    //
    // number 
@@ -143,6 +115,16 @@ var interface = function(div){
       input.size = 6
       div.appendChild(input)
       mod.number = input
+   div.appendChild(document.createElement('br'))
+   //
+   // angle 
+   //
+   div.appendChild(document.createTextNode('angle: '))
+   var input = document.createElement('input')
+      input.type = 'text'
+      input.size = 6
+      div.appendChild(input)
+      mod.angle = input
    div.appendChild(document.createElement('br'))
    }
 //
