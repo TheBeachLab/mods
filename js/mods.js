@@ -965,19 +965,23 @@ function edit_module(evt) {
          var end = lines[line].indexOf(".value")
          var key = lines[line].slice(start,end)
          var value = mods.mod[idnumber][key]['value']
-         console.log(key+' '+value)
+         lines[line] = "   mods."+key+".value = '"+value+"'"
          }
       else if (lines[line].indexOf(".checked =") != -1) {
          var start = 4+lines[line].indexOf("mod.")
          var end = lines[line].indexOf(".checked")
          var key = lines[line].slice(start,end)
          var value = mods.mod[idnumber][key]['checked']
-         console.log(key+' '+value)
+         lines[line] = "   mods."+key+".value = "+value
          }
       if (lines[line].indexOf("var inputs") == 0)
          break
       line += 1
       }
+   def = lines.join('\n')
+   //
+   // open edit window
+   //
    var top = mod.dataset.top
    var left = mod.dataset.left
    var name = mod.dataset.name
