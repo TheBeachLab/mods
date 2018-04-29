@@ -936,13 +936,12 @@ function delete_module(idnumber) {
    //
    set_prompt('')
    }
-function edit_module(evt) {
-   var mod = evt.target.parentNode.parentNode
-   var idnumber = mod.id
-   var def = mod.dataset.definition
+function update_module_definition(id) {
    //
-   // UI scraping development
+   // get definition
    //
+   var module = document.getElementById(id)
+   var def = module.dataset.definition
    //
    // split definition
    //
@@ -964,21 +963,26 @@ function edit_module(evt) {
          var start = 4+lines[line].indexOf("mod.")
          var end = lines[line].indexOf(".value")
          var key = lines[line].slice(start,end)
-         var value = mods.mod[idnumber][key]['value']
+         var value = mods.mod[id][key]['value']
          lines[line] = "   mods."+key+".value = '"+value+"'"
          }
       else if (lines[line].indexOf(".checked =") != -1) {
          var start = 4+lines[line].indexOf("mod.")
          var end = lines[line].indexOf(".checked")
          var key = lines[line].slice(start,end)
-         var value = mods.mod[idnumber][key]['checked']
+         var value = mods.mod[id][key]['checked']
          lines[line] = "   mods."+key+".value = "+value
          }
       if (lines[line].indexOf("var inputs") == 0)
          break
       line += 1
       }
-   def = lines.join('\n')
+   return(lines.join('\n'))
+   }
+function edit_module(evt) {
+   var mod = evt.target.parentNode.parentNode
+   var idnumber = mod.id
+   var def = update_module_definition(idnumber)
    //
    // open edit window
    //
