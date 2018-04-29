@@ -818,9 +818,10 @@ function add_module(args) {
          div.dataset.links = JSON.stringify([])
          div.dataset.name = v
          divin.appendChild(div)
-         var evtid = JSON.stringify(
-            {id:idnumber,type:'input',name:v})
-         window.addEventListener(evtid,args.inputs[v].event)
+         div.dataset.id = JSON.stringify(
+            {id:idnumber,type:'input',name:v,
+            rnd:Math.random()}) // randomize for unique events
+         window.addEventListener(div.dataset.id,args.inputs[v].event)
          }
       container.appendChild(divin)
       if ((Object.keys(args.inputs).length) == 0)
@@ -872,9 +873,10 @@ function add_module(args) {
          div.dataset.links = JSON.stringify([])
          div.dataset.name = v
          divout.appendChild(div)
-         var evtid = JSON.stringify(
-            {id:idnumber,type:'output',name:v})
-         window.addEventListener(evtid,args.outputs[v].event)
+         div.dataset.id = JSON.stringify(
+            {id:idnumber,type:'output',name:v,
+            rnd:Math.random()}) // randomize for unique events
+         window.addEventListener(div.dataset.id,args.outputs[v].event)
          }
       container.appendChild(divout)
       if ((Object.keys(args.outputs).length) == 0)
@@ -1016,17 +1018,16 @@ function edit_module(evt) {
          btn.style.padding = mods.ui.padding
          btn.style.margin = 1
          btn.addEventListener('click',function(){
-           var req = new XMLHttpRequest()
-           req.responseType = 'text'
-           req.onreadystatechange = function() {
-              if (req.readyState == XMLHttpRequest.DONE) {
-                 text.value = req.response
-                 update_module(idnumber)
-                 }
-              }
-         req.open('GET',filename+'?rnd='+Math.random())
-         req.send()
-            
+            var req = new XMLHttpRequest()
+            req.responseType = 'text'
+            req.onreadystatechange = function() {
+               if (req.readyState == XMLHttpRequest.DONE) {
+                  text.value = req.response
+                  update_module(idnumber)
+                  }
+               }
+            req.open('GET',filename+'?rnd='+Math.random())
+            req.send()
             win.close()
             })
          win.document.body.appendChild(btn)
@@ -1360,9 +1361,9 @@ mods.output = function(mod,varname,val) {
    for (var l in links) {
       var link = JSON.parse(links[l])
       var dest = JSON.parse(link.dest)
-      var evtid = JSON.stringify(
-         {id:dest.id,type:'input',name:dest.name})
-      var evt = new CustomEvent(evtid,{detail:val})
+      var divin = document.getElementById(JSON.stringify(
+         {id:dest.id,type:'inputs',name:dest.name}))
+      var evt = new CustomEvent(divin.dataset.id,{detail:val})
       window.dispatchEvent(evt)
       }
    }
