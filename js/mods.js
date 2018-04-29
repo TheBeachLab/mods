@@ -526,7 +526,8 @@ function save_program() {
          var module = modules.childNodes[c]
          var idnumber = module.id
          prog.modules[idnumber] = {
-            definition:module.dataset.definition,
+            definition:update_module_definition(
+               idnumber,module.dataset.definition),
             top:module.dataset.top,
             left:module.dataset.left,
             inputs:{},
@@ -570,7 +571,8 @@ function save_page() {
          var module = modules.childNodes[c]
          var idnumber = module.id
          prog.modules[idnumber] = {
-            definition:module.dataset.definition,
+            definition:update_module_definition(
+               idnumber,module.dataset.definition),
             top:module.dataset.top,
             left:module.dataset.left,
             inputs:{},
@@ -964,14 +966,14 @@ function update_module_definition(id) {
          var end = lines[line].indexOf(".value")
          var key = lines[line].slice(start,end)
          var value = mods.mod[id][key]['value']
-         lines[line] = "   mods."+key+".value = '"+value+"'"
+         lines[line] = "   mod."+key+".value = '"+value+"'"
          }
       else if (lines[line].indexOf(".checked =") != -1) {
          var start = 4+lines[line].indexOf("mod.")
          var end = lines[line].indexOf(".checked")
          var key = lines[line].slice(start,end)
          var value = mods.mod[id][key]['checked']
-         lines[line] = "   mods."+key+".value = "+value
+         lines[line] = "   mod."+key+".checked = "+value
          }
       if (lines[line].indexOf("var inputs") == 0)
          break
