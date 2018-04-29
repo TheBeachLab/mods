@@ -250,6 +250,7 @@ function save_mask(mask) {
 // return values
 //
 return ({
+   mod:mod,
    name:name,
    init:init,
    inputs:inputs,

@@ -595,6 +595,7 @@ function open_view_window() {
 // return values
 //
 return ({
+   mod:mod,
    name:name,
    init:init,
    inputs:inputs,

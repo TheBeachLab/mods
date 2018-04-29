@@ -113,7 +113,7 @@ var interface = function(div){
        div.appendChild(document.createElement('br'))
        var select = document.createElement('select')
        select.setAttribute('style', 'width:150px');
-	   var el = document.createElement('option')
+      var el = document.createElement('option')
           el.textContent = 'Printer not found'
           el.value = 'Printer not found'
           select.appendChild(el)
@@ -205,6 +205,7 @@ function socket_send(msg) {
 // return values
 //
 return ({
+   mod:mod,
    name:name,
    init:init,
    inputs:inputs,

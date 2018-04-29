@@ -228,7 +228,7 @@ function show_path() {
    // update
    //
    function update() {
-	   renderer.render(scene,camera)
+      renderer.render(scene,camera)
       }
    }
 //
@@ -355,22 +355,22 @@ function init_window() {
          camera.position.y = mod.y0+Math.cos(mod.thetaz)*mod.r*Math.sin(mod.thetaxy)
          camera.position.z = mod.r*Math.cos(mod.thetaxy)
          camera.position.z = mod.r*Math.cos(mod.thetaxy)
-	      camera.up = new THREE.Vector3(Math.sin(mod.thetaz),Math.cos(mod.thetaz),0)
-	      camera.lookAt(new THREE.Vector3(mod.x0,mod.y0,0))
+         camera.up = new THREE.Vector3(Math.sin(mod.thetaz),Math.cos(mod.thetaz),0)
+         camera.lookAt(new THREE.Vector3(mod.x0,mod.y0,0))
          camera.updateProjectionMatrix()
-	      renderer.render(scene,camera)
-	      }
+         renderer.render(scene,camera)
+         }
       else if (mod.button == 2) {
          mod.thetaxy += dy/mod.win.innerHeight
          mod.thetaz += dx/mod.win.innerWidth
          camera.position.x = mod.x0+Math.sin(mod.thetaz)*mod.r*Math.sin(mod.thetaxy)
          camera.position.y = mod.y0+Math.cos(mod.thetaz)*mod.r*Math.sin(mod.thetaxy)
          camera.position.z = mod.r*Math.cos(mod.thetaxy)
-	      camera.up = new THREE.Vector3(Math.sin(mod.thetaz),Math.cos(mod.thetaz),0)
-	      camera.lookAt(new THREE.Vector3(mod.x0,mod.y0,0))
+         camera.up = new THREE.Vector3(Math.sin(mod.thetaz),Math.cos(mod.thetaz),0)
+         camera.lookAt(new THREE.Vector3(mod.x0,mod.y0,0))
          camera.updateProjectionMatrix()
-	      renderer.render(scene,camera)
-	      }
+         renderer.render(scene,camera)
+         }
       }
    //
    // mouse_wheel
@@ -383,9 +383,9 @@ function init_window() {
       camera.position.x = mod.x0+Math.sin(mod.thetaz)*mod.r*Math.sin(mod.thetaxy)
       camera.position.y = mod.y0+Math.cos(mod.thetaz)*mod.r*Math.sin(mod.thetaxy)
       camera.position.z = mod.r*Math.cos(mod.thetaxy)
-	   camera.lookAt(new THREE.Vector3(mod.x0,mod.y0,0))
+      camera.lookAt(new THREE.Vector3(mod.x0,mod.y0,0))
       camera.updateProjectionMatrix()
-	   renderer.render(scene,camera)
+      renderer.render(scene,camera)
       }
    }
 //
@@ -457,24 +457,24 @@ function old_open_view_window() {
       //
       // add scene
       //
-	   scene = new THREE.Scene()
-	   mod.scene = scene
-	   var width = win.innerWidth
-	   var height = win.innerHeight
-	   var aspect = width/height
-	   var near = 0.1
-	   var far = 1000000
-	   camera = new THREE.PerspectiveCamera(90,aspect,near,far)
-	   mod.camera = camera
-	   scene.add(camera)
-	   //
-	   // add renderer
-	   //
+      scene = new THREE.Scene()
+      mod.scene = scene
+      var width = win.innerWidth
+      var height = win.innerHeight
+      var aspect = width/height
+      var near = 0.1
+      var far = 1000000
+      camera = new THREE.PerspectiveCamera(90,aspect,near,far)
+      mod.camera = camera
+      scene.add(camera)
+      //
+      // add renderer
+      //
       renderer = new THREE.WebGLRenderer({antialias:true})
       mod.renderer = renderer
       renderer.setClearColor(0xffffff)
-	   renderer.setSize(width,height)
-	   container.appendChild(renderer.domElement)
+      renderer.setSize(width,height)
+      container.appendChild(renderer.domElement)
       //
       // show the path if available
       //
@@ -527,22 +527,22 @@ function old_open_view_window() {
          camera.position.y = mod.y0+Math.cos(mod.thetaz)*mod.r*Math.sin(mod.thetaxy)
          camera.position.z = mod.r*Math.cos(mod.thetaxy)
          camera.position.z = mod.r*Math.cos(mod.thetaxy)
-	      camera.up = new THREE.Vector3(Math.sin(mod.thetaz),Math.cos(mod.thetaz),0)
-	      camera.lookAt(new THREE.Vector3(mod.x0,mod.y0,0))
+         camera.up = new THREE.Vector3(Math.sin(mod.thetaz),Math.cos(mod.thetaz),0)
+         camera.lookAt(new THREE.Vector3(mod.x0,mod.y0,0))
          camera.updateProjectionMatrix()
-	      renderer.render(scene,camera)
-	      }
+         renderer.render(scene,camera)
+         }
       else if (mod.button == 2) {
          mod.thetaxy += dy/win.innerHeight
          mod.thetaz += dx/win.innerWidth
          camera.position.x = mod.x0+Math.sin(mod.thetaz)*mod.r*Math.sin(mod.thetaxy)
          camera.position.y = mod.y0+Math.cos(mod.thetaz)*mod.r*Math.sin(mod.thetaxy)
          camera.position.z = mod.r*Math.cos(mod.thetaxy)
-	      camera.up = new THREE.Vector3(Math.sin(mod.thetaz),Math.cos(mod.thetaz),0)
-	      camera.lookAt(new THREE.Vector3(mod.x0,mod.y0,0))
+         camera.up = new THREE.Vector3(Math.sin(mod.thetaz),Math.cos(mod.thetaz),0)
+         camera.lookAt(new THREE.Vector3(mod.x0,mod.y0,0))
          camera.updateProjectionMatrix()
-	      renderer.render(scene,camera)
-	      }
+         renderer.render(scene,camera)
+         }
       }
    //
    // mouse_wheel
@@ -555,15 +555,16 @@ function old_open_view_window() {
       camera.position.x = mod.x0+Math.sin(mod.thetaz)*mod.r*Math.sin(mod.thetaxy)
       camera.position.y = mod.y0+Math.cos(mod.thetaz)*mod.r*Math.sin(mod.thetaxy)
       camera.position.z = mod.r*Math.cos(mod.thetaxy)
-	   camera.lookAt(new THREE.Vector3(mod.x0,mod.y0,0))
+      camera.lookAt(new THREE.Vector3(mod.x0,mod.y0,0))
       camera.updateProjectionMatrix()
-	   renderer.render(scene,camera)
+      renderer.render(scene,camera)
       }
    }
 //
 // return values
 //
 return ({
+   mod:mod,
    name:name,
    init:init,
    inputs:inputs,

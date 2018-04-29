@@ -123,6 +123,7 @@ var interface = function(div){
 // return values
 //
 return ({
+   mod:mod,
    name:name,
    init:init,
    inputs:inputs,

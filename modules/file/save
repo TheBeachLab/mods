@@ -78,6 +78,7 @@ function save_file() {
 // return values
 //
 return ({
+   mod:mod,
    name:name,
    init:init,
    inputs:inputs,

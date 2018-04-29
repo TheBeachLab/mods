@@ -116,6 +116,7 @@ function text_load_handler(event) {
 // return values
 //
 return ({
+   mod:mod,
    name:name,
    init:init,
    inputs:inputs,

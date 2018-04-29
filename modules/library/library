@@ -86,6 +86,7 @@ function list_library() {
 // return values
 //
 return ({
+   mod:mod,
    name:name,
    init:init,
    inputs:inputs,

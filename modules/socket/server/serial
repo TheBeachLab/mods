@@ -309,6 +309,7 @@ function serial_send_string(str) {
 // return values
 //
 return ({
+   mod:mod,
    name:name,
    init:init,
    inputs:inputs,

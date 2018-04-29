@@ -945,6 +945,11 @@ function update_module_definition(id) {
    var module = document.getElementById(id)
    var def = module.dataset.definition
    //
+   // check for mod
+   //
+   if (mods.mod[id] == undefined)
+      return def
+   //
    // split definition
    //
    var lines = def.split('\n')

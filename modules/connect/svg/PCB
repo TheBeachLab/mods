@@ -81,8 +81,8 @@ var interface = function(div){
       btn.style.margin = 1
       btn.appendChild(document.createTextNode('Get Top Traces'))
       btn.addEventListener('click', function () {
-	  extract_top_SVGs()
-	 })
+     extract_top_SVGs()
+    })
    div.appendChild(btn)
 
    div.appendChild(document.createElement('br'))
@@ -90,8 +90,8 @@ var interface = function(div){
       btn.style.margin = 1
       btn.appendChild(document.createTextNode('Get Bottom Traces'))
       btn.addEventListener('click', function () {
-	  extract_bottom_SVGs()
-	 })
+     extract_bottom_SVGs()
+    })
    div.appendChild(btn)
    div.appendChild(document.createElement('br'))
 
@@ -99,8 +99,8 @@ var interface = function(div){
       btn.style.margin = 1
       btn.appendChild(document.createTextNode('Get Outline'))
       btn.addEventListener('click', function () {
-	  extract_outline_SVGs()
-	 })
+     extract_outline_SVGs()
+    })
       div.appendChild(btn)
 
    }
@@ -179,6 +179,7 @@ function extract_outline_SVGs() {
 // return values
 //
 return ({
+   mod:mod,
    name:name,
    init:init,
    inputs:inputs,

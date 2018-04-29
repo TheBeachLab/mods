@@ -116,6 +116,7 @@ function add_outputs(settings,variables) {
 // return values
 //
 return ({
+   mod:mod,
    name:name,
    init:init,
    inputs:inputs,

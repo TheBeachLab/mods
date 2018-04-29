@@ -13,39 +13,40 @@
 // closure
 //
 (function() {
-	// globals
-	var mod = {}
+   // globals
+   var mod = {}
 
-	// name
-	var name = 'event logger'
+   // name
+   var name = 'event logger'
 
-	var init = function(){
-		mod.identifier.value = 'kx'
-	}
+   var init = function(){
+      mod.identifier.value = 'kx'
+   }
 
-	var inputs = {
-		event: {
-			type: 'any',
-			event: function(evt) {
-				console.log(mod.identifier.value, ': ', evt.detail)
-			}
-		}
-	}
+   var inputs = {
+      event: {
+         type: 'any',
+         event: function(evt) {
+            console.log(mod.identifier.value, ': ', evt.detail)
+         }
+      }
+   }
 
-	var outputs = {
-	}
+   var outputs = {
+   }
 
-	var interface = function(div){
-		mod.div = div
+   var interface = function(div){
+      mod.div = div
 
-		mod.identifier = make_text_input(div, 'identifier', 12)
-	}
+      mod.identifier = make_text_input(div, 'identifier', 12)
+   }
 
-	return ({
-		name:name,
-		init:init,
-		inputs:inputs,
-		outputs:outputs,
-		interface:interface
-	})
+   return ({
+      mod:mod,
+      name:name,
+      init:init,
+      inputs:inputs,
+      outputs:outputs,
+      interface:interface
+   })
 }())
