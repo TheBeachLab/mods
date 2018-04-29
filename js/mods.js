@@ -28,6 +28,7 @@ mods.ui = {source:null,
    link_highlight:'rgb(255,0,0)'
    }
 mods.globals = {}
+mods.mod = {}
 //
 // right click menu
 //
@@ -690,6 +691,7 @@ function mod_load_handler(event) {
    }
 function add_module(args) {
    var idnumber = args.id
+   mods.mod[idnumber] = args.mod
    var modules = document.getElementById('modules')
    //
    // container
@@ -941,45 +943,41 @@ function edit_module(evt) {
    //
    // UI scraping development
    //
-   /*
    //
    // split definition
    //
    var lines = def.split('\n')
    //
-   // find initialization
+   // find init function
    //
    var line = 0
    while (line < lines.length) {
-      if (lines[line].indexOf("// initialization") == 0)
+      if (lines[line].indexOf("var init") == 0)
          break
       line += 1
-      if (line == lines.length)
-         return
       }
    //
-   // find initializations
+   // read initializations up to inputs function
    //
-   var interface = document.getElementById(JSON.stringify({id:idnumber,type:'interface'}))
-   for (var c in interface.childNodes) {
-      if (interface.childNodes[c].value != undefined) {
-         console.log(interface.childNodes[c])
-         console.log(interface.childNodes[c].value)
-         }
-      }
    while (line < lines.length) {
       if (lines[line].indexOf(".value =") != -1) {
-         console.log(lines[line])
+         var start = 4+lines[line].indexOf("mod.")
+         var end = lines[line].indexOf(".value")
+         var key = lines[line].slice(start,end)
+         var value = mods.mod[idnumber][key]['value']
+         console.log(key+' '+value)
          }
-      if (lines[line].indexOf(".checked =") != -1)
-         console.log(lines[line])
-      if (lines[line].indexOf("// inputs") == 0)
+      else if (lines[line].indexOf(".checked =") != -1) {
+         var start = 4+lines[line].indexOf("mod.")
+         var end = lines[line].indexOf(".checked")
+         var key = lines[line].slice(start,end)
+         var value = mods.mod[idnumber][key]['checked']
+         console.log(key+' '+value)
+         }
+      if (lines[line].indexOf("var inputs") == 0)
          break
       line += 1
-      if (line == lines.length)
-         return
       }
-   */
    var top = mod.dataset.top
    var left = mod.dataset.left
    var name = mod.dataset.name

@@ -126,6 +126,7 @@ function construct_output() {
 // return values
 //
 return ({
+   mod:mod,
    name:name,
    init:init,
    inputs:inputs,
