@@ -82,9 +82,14 @@ var inputs = {
       
       //
       //turn function string to glsl
-      //
+	  //
+	  
+	  //remove all Math.
       var str1 = mod.shape.function;
-      str1=str1.replace(/Math./g, '');
+	  str1=str1.replace(/Math./g, '');
+	  
+	  //change atan2 functions to atan
+	  str1=str1.replace(/atan2/g, "atan");
          
       //change all % to mod(,)
       while(str1.indexOf("%")>-1) //While '%' is there
