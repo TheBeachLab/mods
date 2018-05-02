@@ -1,0 +1,197 @@
+//
+// frep involute gear
+//
+// Neil Gershenfeld
+// (c) Massachusetts Institute of Technology 2018
+//
+// This work may be reproduced, modified, distributed, performed, and
+// displayed for any purpose, but must acknowledge the mods
+// project. Copyright is retained and must be preserved. The work is
+// provided as is; no warranty is provided, and users accept all
+// liability.
+//
+// closure
+//
+(function(){
+//
+// module globals
+//
+var mod = {}
+//
+// name
+//
+var name = 'frep involute gear'
+//
+// initialization
+//
+var init = function() {
+   mod.module.value = '1'
+   mod.angle.value = '20'
+   mod.teeth.value = '10'
+   }
+//
+// inputs
+//
+var inputs = {
+   variables:{type:'',
+      event:function(evt){
+         for (var p in evt.detail)
+            mod[p].value = evt.detail[p]
+         outputs.variables.event()
+         outputs.shape.event()
+         }}}
+//
+// outputs
+//
+var outputs = {
+   shape:{type:'',
+      event:function(){
+         var module = parseFloat(mod.module.value)
+         var angle = Math.PI*parseFloat(mod.angle.value)/180
+         var teeth = parseFloat(mod.teeth.value)
+         //
+         // pitch radius
+         //
+         var rp = module*teeth/2 
+         mod.info.innerHTML = `pitch radius: ${rp.toFixed(3)} mm<br>`
+         //
+         // base radius
+         //
+         var rb = rp*Math.cos(angle)
+         mod.info.innerHTML += `base radius: ${rb.toFixed(3)} mm<br>`
+         //
+         // addendum height
+         //
+         var ha = 1.0*module
+         mod.info.innerHTML += `outer radius: ${(rp+ha).toFixed(3)} mm<br>`
+         //
+         // dedendum height
+         //
+         var hd = 1.25*module
+         mod.info.innerHTML += `root radius: ${(rp-hd).toFixed(3)} mm<br>`
+         //
+         // involute angle
+         //
+         var ai = Math.tan(angle)-angle 
+         mod.info.innerHTML += `inv angle: ${(ai*180/Math.PI).toFixed(3)} deg<br>`
+         //
+         // pitch angle
+         //
+         var ap = Math.PI/teeth
+         mod.info.innerHTML += `pitch angle: ${(ap*180/Math.PI).toFixed(3)} deg<br>`
+         //
+         // shapes
+         //
+         //var fn = `((${rp})*(${rp})-(X*X+Y*Y))`
+         var fn = `Math.sqrt(X*X+Y*Y)-(${rp}-${hd})`
+         var fn = `Math.min(${fn},${rp}+${ha}-Math.sqrt(X*X+Y*Y))`
+         var fn = `Math.min(${fn},((Math.PI+Math.atan2(Y,X))%${ap})-${ap/2})`
+         var variables = ['X','Y']
+         var limits = [[-rp-ha,+rp+ha],[-rp-ha,+rp+ha]]
+         var type = 'Magnitude'
+         var shape = {function:fn,variables:variables,limits:limits,type:type}
+         mods.output(mod,'shape',shape)}},
+
+/*
+involute rolling angle: theta
+involute angle: inv alpha: ia
+   inv alpha = ia = phi = tan(alpha) - alpha
+involute radius: r
+
+formulas
+
+pitch dia d = nm
+pitch radius rp = nm/2
+pitch = pi m
+pitch angle = 2 pi / n
+addendum = m
+dedendum = 1.25m
+pressure angle alpha = acos(rb/rp)
+cos(alpha) = rb/rp
+involute angle alpha = phi = tan(alpha) - alpha
+tan(alpha) = rolling angle theta
+rb^2 + rb^2 theta^2 = r^2
+theta = alpha + phi
+phi = sqrt((r/rb)^2 - 1) - acos(rb/r) (r > rb)
+x = rb cos(theta) - rb theta sin(theta)
+y = rb sin(theta) - rb theta cos(theta)
+*/
+
+   variables:{type:'',
+      event:function(){
+         var module = parseFloat(mod.module.value)
+         var angle = parseFloat(mod.angle.value)
+         var teeth = parseFloat(mod.teeth.value)
+         var vars = {module:module,angle:angle,teeth:teeth}
+         mods.output(mod,'variables',vars)}
+         }}
+//
+// interface
+//
+var interface = function(div){
+   mod.div = div
+   //
+   // module
+   //
+   div.appendChild(document.createTextNode('module (mm): '))
+   var input = document.createElement('input')
+      input.type = 'text'
+      input.size = 3
+      div.appendChild(input)
+      mod.module = input
+   div.appendChild(document.createElement('br'))
+   //
+   // angle
+   //
+   div.appendChild(document.createTextNode('pressure angle: '))
+   var input = document.createElement('input')
+      input.type = 'text'
+      input.size = 3
+      div.appendChild(input)
+      mod.angle = input
+   div.appendChild(document.createElement('br'))
+   //
+   // teeth 
+   //
+   div.appendChild(document.createTextNode('number of teeth: '))
+   var input = document.createElement('input')
+      input.type = 'text'
+      input.size = 3
+      div.appendChild(input)
+      mod.teeth = input
+   div.appendChild(document.createElement('br'))
+   //
+   // info
+   //
+   var info = document.createElement('span')
+      div.appendChild(info)
+      mod.info = info
+   //
+   // output button
+   //
+   var btn = document.createElement('button')
+      btn.style.padding = mods.ui.padding
+      btn.style.margin = 1
+      btn.appendChild(document.createTextNode('output'))
+      btn.addEventListener('click',function(){
+         outputs.variables.event()
+         outputs.shape.event()
+         })
+      div.appendChild(btn)
+   }
+//
+// local functions
+//
+;
+//
+// return values
+//
+return ({
+   mod:mod,
+   name:name,
+   init:init,
+   inputs:inputs,
+   outputs:outputs,
+   interface:interface
+   })
+}())
