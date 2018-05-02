@@ -77,15 +77,31 @@ var outputs = {
          //
          // pitch angle
          //
-         var ap = Math.PI/teeth
+         var ap = 2*Math.PI/teeth
          mod.info.innerHTML += `pitch angle: ${(ap*180/Math.PI).toFixed(3)} deg<br>`
          //
          // shapes
          //
          //var fn = `((${rp})*(${rp})-(X*X+Y*Y))`
+         //
+         // must be outside of root
+         //
          var fn = `Math.sqrt(X*X+Y*Y)-(${rp}-${hd})`
+         //
+         // must be inside tip
+         //
          var fn = `Math.min(${fn},${rp}+${ha}-Math.sqrt(X*X+Y*Y))`
-         var fn = `Math.min(${fn},((Math.PI+Math.atan2(Y,X))%${ap})-${ap/2})`
+         //
+         // angle must be above bottom involute
+         //
+         var fn = `Math.min(${fn},(Math.atan2(Y,X)%.75+${ap/4+ai})-(Math.sqrt(Math.pow(Math.max(${rb},Math.sqrt(X*X+Y*Y))/${rb},2)-1)-Math.acos(${rb}/Math.max(${rb},Math.sqrt(X*X+Y*Y)))))`
+         //
+         // angle must be below top involute
+         //
+         var fn = `Math.min(${fn},-(Math.sqrt(Math.pow(Math.max(${rb},Math.sqrt(X*X+Y*Y))/${rb},2)-1)-Math.acos(${rb}/Math.max(${rb},Math.sqrt(X*X+Y*Y))))-(-${ap/4+ai}+Math.atan2(Y,X)%.75))`
+         //
+         // output
+         //
          var variables = ['X','Y']
          var limits = [[-rp-ha,+rp+ha],[-rp-ha,+rp+ha]]
          var type = 'Magnitude'
@@ -93,28 +109,8 @@ var outputs = {
          mods.output(mod,'shape',shape)}},
 
 /*
-involute rolling angle: theta
-involute angle: inv alpha: ia
-   inv alpha = ia = phi = tan(alpha) - alpha
-involute radius: r
-
-formulas
-
-pitch dia d = nm
-pitch radius rp = nm/2
-pitch = pi m
-pitch angle = 2 pi / n
-addendum = m
-dedendum = 1.25m
-pressure angle alpha = acos(rb/rp)
-cos(alpha) = rb/rp
-involute angle alpha = phi = tan(alpha) - alpha
-tan(alpha) = rolling angle theta
-rb^2 + rb^2 theta^2 = r^2
-theta = alpha + phi
-phi = sqrt((r/rb)^2 - 1) - acos(rb/r) (r > rb)
-x = rb cos(theta) - rb theta sin(theta)
-y = rb sin(theta) - rb theta cos(theta)
+angle = +-(sqrt((r/rb)^2 - 1) - acos(rb/r)) (r > rb)
+(x % n + n) % n
 */
 
    variables:{type:'',
