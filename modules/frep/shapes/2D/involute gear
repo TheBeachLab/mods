@@ -82,23 +82,21 @@ var outputs = {
          //
          // shapes
          //
-         //var fn = `((${rp})*(${rp})-(X*X+Y*Y))`
-         //
-         // must be outside of root
-         //
-         var fn = `Math.sqrt(X*X+Y*Y)-(${rp}-${hd})`
-         //
          // must be inside tip
          //
-         var fn = `Math.min(${fn},${rp}+${ha}-Math.sqrt(X*X+Y*Y))`
+         var fn = `${rp}+${ha}-Math.sqrt(X*X+Y*Y)`
          //
          // angle must be above bottom involute
          //
-         var fn = `Math.min(${fn},(Math.atan2(Y,X)%.75+${ap/4+ai})-(Math.sqrt(Math.pow(Math.max(${rb},Math.sqrt(X*X+Y*Y))/${rb},2)-1)-Math.acos(${rb}/Math.max(${rb},Math.sqrt(X*X+Y*Y)))))`
+         var fn = `Math.min(${fn},(Math.PI+Math.atan2(Y,X))%${ap}-(Math.sqrt(Math.pow(Math.max(${rb},Math.sqrt(X*X+Y*Y))/${rb},2)-1)-Math.acos(${rb}/Math.max(${rb},Math.sqrt(X*X+Y*Y)))))`
          //
          // angle must be below top involute
          //
-         var fn = `Math.min(${fn},-(Math.sqrt(Math.pow(Math.max(${rb},Math.sqrt(X*X+Y*Y))/${rb},2)-1)-Math.acos(${rb}/Math.max(${rb},Math.sqrt(X*X+Y*Y))))-(-${ap/4+ai}+Math.atan2(Y,X)%.75))`
+         var fn = `Math.min(${fn},-(Math.sqrt(Math.pow(Math.max(${rb},Math.sqrt(X*X+Y*Y))/${rb},2)-1)-Math.acos(${rb}/Math.max(${rb},Math.sqrt(X*X+Y*Y))))-(-${ap/2+2*ai}+(Math.PI+Math.atan2(Y,X))%${ap}))`
+         //
+         // root circle
+         //
+         var fn = `Math.max(${fn},${rp-hd}-Math.sqrt(X*X+Y*Y))`
          //
          // output
          //
