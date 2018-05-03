@@ -50,45 +50,68 @@ var outputs = {
          var angle = Math.PI*parseFloat(mod.angle.value)/180
          var teeth = parseFloat(mod.teeth.value)
          //
+         // pitch
+         //
+         var p = Math.PI*module
+         mod.info.innerHTML = `pitch: ${p.toFixed(3)} mm<br>`
+         //
+         // length
+         //
+         var l = p*teeth
+         mod.info.innerHTML += `length: ${l.toFixed(3)} mm<br>`
+         //
          // addendum height
          //
          var ha = 1.0*module
-         mod.info.innerHTML += `outer radius: ${(rp+ha).toFixed(3)} mm<br>`
          //
          // dedendum height
          //
          var hd = 1.1*module
-         mod.info.innerHTML += `root radius: ${(rp-hd).toFixed(3)} mm<br>`
+         mod.info.innerHTML += `pitch height: ${hd.toFixed(3)} mm<br>`
          //
-         // pitch angle
+         // triangle base
          //
-         var ap = 2*Math.PI/teeth
-         mod.info.innerHTML += `pitch angle: ${(ap*180/Math.PI).toFixed(3)} deg<br>`
+         var bt = (ha+hd)*Math.tan(angle)
+         //
+         // pitch base
+         //
+         var bp = ha*Math.tan(angle)
+         //
+         // slope
+         //
+         var s = 1/Math.tan(angle)
          //
          // shapes
          //
-         // must be inside tip
+         // left
          //
-         var fn = `${rp}+${ha}-Math.sqrt(X*X+Y*Y)`
+         var fn = `${s}*X-Y`
          //
-         // angle must be above bottom involute
+         // right
          //
-         var fn = `Math.min(${fn},(Math.PI+Math.atan2(Y,X))%${ap}-(Math.sqrt(Math.pow(Math.max(${rb},Math.sqrt(X*X+Y*Y))/${rb},2)-1)-Math.acos(${rb}/Math.max(${rb},Math.sqrt(X*X+Y*Y)))))`
+         var fn = `Math.min(${fn},${s}*(${p/2+2*(bt-bp)}-X)-Y)`
          //
-         // angle must be below top involute
+         // top
          //
-         var fn = `Math.min(${fn},-(Math.sqrt(Math.pow(Math.max(${rb},Math.sqrt(X*X+Y*Y))/${rb},2)-1)-Math.acos(${rb}/Math.max(${rb},Math.sqrt(X*X+Y*Y))))-(-${ap/2+2*ai}+(Math.PI+Math.atan2(Y,X))%${ap}))`
+         var fn = `Math.min(${fn},${ha+hd}-Y)`
          //
-         // root circle
+         // bottom
          //
-         var fn = `Math.max(${fn},${rp-hd}-Math.sqrt(X*X+Y*Y))`
+         var fn = `Math.min(${fn},Y)`
          //
-         // todo: fillets
+         // repeat
+         //
+         fn = fn.replace(/X/g,`(X%${p})`)
+         //
+         // bound
+         //
+         var fn = `Math.min(${fn},X)`
+         var fn = `Math.min(${fn},${l}-X)`
          //
          // output
          //
          var variables = ['X','Y']
-         var limits = [[-rp-ha,+rp+ha],[-rp-ha,+rp+ha]]
+         var limits = [[0,l],[0,ha+hd]]
          var type = 'Magnitude'
          var shape = {function:fn,variables:variables,limits:limits,type:type}
          mods.output(mod,'shape',shape)}},
