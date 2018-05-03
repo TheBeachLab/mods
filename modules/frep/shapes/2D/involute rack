@@ -1,5 +1,5 @@
 //
-// frep involute gear
+// frep involute rack
 //
 // Neil Gershenfeld
 // (c) Massachusetts Institute of Technology 2018
@@ -20,7 +20,7 @@ var mod = {}
 //
 // name
 //
-var name = 'frep involute gear'
+var name = 'frep involute rack'
 //
 // initialization
 //
@@ -50,16 +50,6 @@ var outputs = {
          var angle = Math.PI*parseFloat(mod.angle.value)/180
          var teeth = parseFloat(mod.teeth.value)
          //
-         // pitch radius
-         //
-         var rp = module*teeth/2 
-         mod.info.innerHTML = `pitch radius: ${rp.toFixed(3)} mm<br>`
-         //
-         // base radius
-         //
-         var rb = rp*Math.cos(angle)
-         mod.info.innerHTML += `base radius: ${rb.toFixed(3)} mm<br>`
-         //
          // addendum height
          //
          var ha = 1.0*module
@@ -69,11 +59,6 @@ var outputs = {
          //
          var hd = 1.1*module
          mod.info.innerHTML += `root radius: ${(rp-hd).toFixed(3)} mm<br>`
-         //
-         // involute angle
-         //
-         var ai = Math.tan(angle)-angle 
-         mod.info.innerHTML += `inv angle: ${(ai*180/Math.PI).toFixed(3)} deg<br>`
          //
          // pitch angle
          //
