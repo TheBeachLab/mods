@@ -67,7 +67,7 @@ var outputs = {
          //
          // dedendum height
          //
-         var hd = 1.25*module
+         var hd = 1.1*module
          mod.info.innerHTML += `root radius: ${(rp-hd).toFixed(3)} mm<br>`
          //
          // involute angle
