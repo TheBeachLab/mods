@@ -98,6 +98,8 @@ var outputs = {
          //
          var fn = `Math.max(${fn},${rp-hd}-Math.sqrt(X*X+Y*Y))`
          //
+         // todo: fillets
+         //
          // output
          //
          var variables = ['X','Y']
