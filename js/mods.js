@@ -29,8 +29,35 @@ mods.ui = {source:null,
    }
 mods.globals = {}
 mods.mod = {}
+
+
 //
-// right click menu
+// scroll wheel
+//
+document.body.style.transform = 'scale(1)'
+//document.addEventListener('wheel',scroll_wheel)
+svg.addEventListener('wheel',scroll_wheel)
+function scroll_wheel(evt) {
+   evt.preventDefault()
+   evt.stopPropagation()
+   var transform = document.body.style.transform
+   var scale = transform.split('(')[1]
+   scale = parseFloat(scale.split(')')[0])
+   if (evt.deltaY > 0)
+      scale *= 1.1
+   else
+      scale /= 1.1
+   document.body.style.transform = 'scale('+scale+')'
+   }
+
+
+
+//
+// left click
+//
+
+//
+// right click
 //
 document.addEventListener('contextmenu',function(evt){
    evt.preventDefault()
