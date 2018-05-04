@@ -28,6 +28,8 @@ var init = function() {
    mod.module.value = '1'
    mod.angle.value = '20'
    mod.teeth.value = '10'
+   mod.addendum.value = '1'
+   mod.dedendum.value = '1.1'
    }
 //
 // inputs
@@ -49,6 +51,8 @@ var outputs = {
          var module = parseFloat(mod.module.value)
          var angle = Math.PI*parseFloat(mod.angle.value)/180
          var teeth = parseFloat(mod.teeth.value)
+         var addendum = parseFloat(mod.addendum.value)
+         var dedendum = parseFloat(mod.dedendum.value)
          //
          // pitch radius
          //
@@ -62,23 +66,21 @@ var outputs = {
          //
          // addendum height
          //
-         var ha = 1.0*module
+         var ha = addendum*module
          mod.info.innerHTML += `outer radius: ${(rp+ha).toFixed(3)} mm<br>`
          //
          // dedendum height
          //
-         var hd = 1.1*module
+         var hd = dedendum*module
          mod.info.innerHTML += `root radius: ${(rp-hd).toFixed(3)} mm<br>`
          //
          // involute angle
          //
          var ai = Math.tan(angle)-angle 
-         mod.info.innerHTML += `inv angle: ${(ai*180/Math.PI).toFixed(3)} deg<br>`
          //
          // pitch angle
          //
          var ap = 2*Math.PI/teeth
-         mod.info.innerHTML += `pitch angle: ${(ap*180/Math.PI).toFixed(3)} deg<br>`
          //
          // shapes
          //
@@ -155,6 +157,26 @@ var interface = function(div){
       input.size = 3
       div.appendChild(input)
       mod.teeth = input
+   div.appendChild(document.createElement('br'))
+   //
+   // addendum
+   //
+   div.appendChild(document.createTextNode('addendum: '))
+   var input = document.createElement('input')
+      input.type = 'text'
+      input.size = 3
+      div.appendChild(input)
+      mod.addendum = input
+   div.appendChild(document.createElement('br'))
+   //
+   // dedendum 
+   //
+   div.appendChild(document.createTextNode('dedendum: '))
+   var input = document.createElement('input')
+      input.type = 'text'
+      input.size = 3
+      div.appendChild(input)
+      mod.dedendum = input
    div.appendChild(document.createElement('br'))
    //
    // info
