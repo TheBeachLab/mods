@@ -48,23 +48,21 @@ function mods_transform() {
       var ytrans = parseFloat(transform.slice(left+1,right))
    return({s:scale,x:xtrans,y:ytrans})
    }
-document.body.style.transformOrigin = `0px 0px`
-document.body.style.transform = 'translate(0px,0px) scale(1)'
 //
 // scroll wheel
 //
+document.body.style.transform = 'scale(1) translate(0px,0px)'
 document.addEventListener('wheel',function(evt) {
    if (evt.shiftKey) {
       evt.preventDefault()
       evt.stopPropagation()
       var t = mods_transform()
-      if (evt.deltaY > 0) {
-         var scale = t.s*1.1
-         }
-      else {
-         var scale = t.s/1.1
-         }
-      document.body.style.transform = `translate(${t.x}px,${t.y}px) scale(${scale})`
+      if (evt.deltaY > 0)
+         t.s *= 1.1
+      else
+         t.s *= 0.9
+      document.body.style.transformOrigin = `{evt.pageX}px {evt.pageY}px`
+      document.body.style.transform = `scale(${t.s}) translate(${t.x}px,${t.y}px)`
       }
    })
 //
@@ -95,6 +93,7 @@ document.addEventListener('mousemove',function(evt) {
       xtrans = mods.ui.xtrans+(evt.pageX-mods.ui.xpan)/t.s
       ytrans = mods.ui.ytrans+(evt.pageY-mods.ui.ypan)/t.s
       document.body.style.transform = `scale(${t.s}) translate(${xtrans}px,${ytrans}px)`
+      document.body.style.transformOrigin = `${evt.pageX}px ${evt.pageY}px`
       }
    else {
       mods.ui.xpan = undefined
