@@ -34,20 +34,34 @@ mods.mod = {}
 //
 // scroll wheel
 //
-document.body.style.transform = 'scale(1)'
-//document.addEventListener('wheel',scroll_wheel)
-svg.addEventListener('wheel',scroll_wheel)
+document.body.style.transform = 'scale(1) translate(0)'
+document.addEventListener('wheel',scroll_wheel)
 function scroll_wheel(evt) {
-   evt.preventDefault()
-   evt.stopPropagation()
-   var transform = document.body.style.transform
-   var scale = transform.split('(')[1]
-   scale = parseFloat(scale.split(')')[0])
-   if (evt.deltaY > 0)
-      scale *= 1.1
-   else
-      scale /= 1.1
-   document.body.style.transform = 'scale('+scale+')'
+   if (evt.shiftKey) {
+      evt.preventDefault()
+      evt.stopPropagation()
+      // evt.deltaY
+      // evt.clientX
+      // evt.pageX
+      var transform = document.body.style.transform
+      var index = transform.indexOf('scale')
+      var left = transform.indexOf('(',index)
+      var right = transform.indexOf(')',index)
+      var scale = parseFloat(transform.slice(left+1,right))
+      var index = transform.indexOf('translate')
+      var left = transform.indexOf('(',index)
+      var right = transform.indexOf(')',index)
+      var translate = parseFloat(transform.slice(left+1,right))
+      if (evt.deltaY > 0)
+         scale *= 1.1
+      else
+         scale /= 1.1
+      if (evt.deltaY > 0)
+         translate += 1
+      else
+         translate -= 1
+      document.body.style.transform = 'scale('+scale+') translate('+translate+'px)'
+      }
    }
 
 
