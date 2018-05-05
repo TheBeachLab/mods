@@ -46,13 +46,12 @@ function mods_transform() {
       var left = transform.indexOf(',',right)
       var right = transform.indexOf('px',left)
       var ty = parseFloat(transform.slice(left+1,right))
-   //var origin = document.body.style.transformOrigin
-   //   var pxx = origin.indexOf('px')
-   //   var ox = parseFloat(origin.slice(0,pxx))
-   //   var pxy = origin.indexOf('px',pxx+2)
-   //   var oy = parseFloat(origin.slice(pxx+2,pxy))
-   //return({s:s,tx:tx,ty:tx,ox:ox,oy:oy})
-   return({s:s,tx:tx,ty:tx})
+   var origin = document.body.style.transformOrigin
+      var pxx = origin.indexOf('px')
+      var ox = parseFloat(origin.slice(0,pxx))
+      var pxy = origin.indexOf('px',pxx+2)
+      var oy = parseFloat(origin.slice(pxx+2,pxy))
+   return({s:s,tx:tx,ty:tx,ox:ox,oy:oy})
    }
 document.body.style.transform = 'translate(0px,0px) scale(1)'
 document.body.style.transformOrigin = '0px 0px'
@@ -64,20 +63,12 @@ document.addEventListener('wheel',function(evt) {
       evt.preventDefault()
       evt.stopPropagation()
       var t = mods_transform()
-      if (evt.deltaY > 0) {
+      if (evt.deltaY > 0)
          var scale = t.s*1.1
-         //var x = t.x-t.s*0.1*evt.pageX
-         //var y = t.y-t.s*0.1*evt.pageY
-         }
-      else {
+      else
          var scale = t.s*0.9
-         //var x = t.x+t.s*0.1*evt.pageX
-         //var y = t.y+t.s*0.1*evt.pageY
-         }
-      var tx = (evt.pageX-t.tx)/scale*(-scale+t.s)+t.tx
-      var ty = (evt.pageY-t.ty)/scale*(-scale+t.s)+t.ty
-      //document.body.style.transformOrigin = `${evt.pageX}px ${evt.pageY}px`
-      document.body.style.transform = `translate(${tx}px,${ty}px) scale(${scale})`
+      document.body.style.transformOrigin = `${evt.pageX}px ${evt.pageY}px`
+      document.body.style.transform = `translate(${t.tx}px,${t.ty}px) scale(${scale})`
       }
    })
 //
@@ -97,19 +88,17 @@ document.addEventListener('mousemove',function(evt) {
    //
    // shift-drag for pan
    //
-   if (false) {
-   //if (evt.shiftKey) {
+   if (evt.shiftKey) {
       var t = mods_transform()
       if (mods.ui.xpan == undefined) {
          mods.ui.xpan = evt.pageX
          mods.ui.ypan = evt.pageY
-         mods.ui.xtrans = t.x
-         mods.ui.ytrans = t.y
+         mods.ui.xtrans = t.tx
+         mods.ui.ytrans = t.ty
          }
-      xtrans = mods.ui.xtrans+(evt.pageX-mods.ui.xpan)/t.s
-      ytrans = mods.ui.ytrans+(evt.pageY-mods.ui.ypan)/t.s
-      document.body.style.transform = `scale(${t.s}) translate(${xtrans}px,${ytrans}px)`
-      document.body.style.transformOrigin = `${evt.pageX}px ${evt.pageY}px`
+      xtrans = mods.ui.xtrans+(evt.pageX-mods.ui.xpan)
+      ytrans = mods.ui.ytrans+(evt.pageY-mods.ui.ypan)
+      document.body.style.transform = `translate(${xtrans}px,${ytrans}px) scale(${t.s})`
       }
    else {
       mods.ui.xpan = undefined
