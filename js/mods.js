@@ -74,8 +74,8 @@ document.addEventListener('wheel',function(evt) {
          //var x = t.x+t.s*0.1*evt.pageX
          //var y = t.y+t.s*0.1*evt.pageY
          }
-      var tx = evt.pageX*(-scale+t.s)+t.tx
-      var ty = evt.pageY*(-scale+t.s)+t.ty
+      var tx = (evt.pageX-t.tx)/scale*(-scale+t.s)+t.tx
+      var ty = (evt.pageY-t.ty)/scale*(-scale+t.s)+t.ty
       //document.body.style.transformOrigin = `${evt.pageX}px ${evt.pageY}px`
       document.body.style.transform = `translate(${tx}px,${ty}px) scale(${scale})`
       }
