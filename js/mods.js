@@ -38,17 +38,23 @@ function mods_transform() {
    var index = transform.indexOf('scale')
       var left = transform.indexOf('(',index)
       var right = transform.indexOf(')',index)
-      var scale = parseFloat(transform.slice(left+1,right))
+      var s = parseFloat(transform.slice(left+1,right))
    var index = transform.indexOf('translate')
       var left = transform.indexOf('(',index)
       var right = transform.indexOf('px',left)
-      var xtrans = parseFloat(transform.slice(left+1,right))
+      var tx = parseFloat(transform.slice(left+1,right))
       var left = transform.indexOf(',',right)
       var right = transform.indexOf('px',left)
-      var ytrans = parseFloat(transform.slice(left+1,right))
-   return({s:scale,x:xtrans,y:ytrans})
+      var ty = parseFloat(transform.slice(left+1,right))
+   //var origin = document.body.style.transformOrigin
+   //   var pxx = origin.indexOf('px')
+   //   var ox = parseFloat(origin.slice(0,pxx))
+   //   var pxy = origin.indexOf('px',pxx+2)
+   //   var oy = parseFloat(origin.slice(pxx+2,pxy))
+   //return({s:s,tx:tx,ty:tx,ox:ox,oy:oy})
+   return({s:s,tx:tx,ty:tx})
    }
-document.body.style.transform = 'scale(1) translate(0px,0px)'
+document.body.style.transform = 'translate(0px,0px) scale(1)'
 document.body.style.transformOrigin = '0px 0px'
 //
 // scroll wheel
@@ -68,8 +74,10 @@ document.addEventListener('wheel',function(evt) {
          //var x = t.x+t.s*0.1*evt.pageX
          //var y = t.y+t.s*0.1*evt.pageY
          }
-      document.body.style.transformOrigin = `${evt.pageX}px ${evt.pageY}px`
-      document.body.style.transform = `translate(${x}px,${y}px) scale(${scale})`
+      var tx = evt.pageX*(-scale+t.s)+t.tx
+      var ty = evt.pageY*(-scale+t.s)+t.ty
+      //document.body.style.transformOrigin = `${evt.pageX}px ${evt.pageY}px`
+      document.body.style.transform = `translate(${tx}px,${ty}px) scale(${scale})`
       }
    })
 //
