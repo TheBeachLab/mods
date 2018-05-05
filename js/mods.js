@@ -56,14 +56,12 @@ document.addEventListener('wheel',function(evt) {
    if (evt.shiftKey) {
       evt.preventDefault()
       evt.stopPropagation()
-      // evt.deltaY
-      // evt.clientX
-      // evt.pageX
       var t = mods_transform()
       if (evt.deltaY > 0)
          t.s *= 1.1
       else
          t.s /= 1.1
+      document.body.style.transformOrigin = `${evt.pageX}px ${evt.pageY}px`
       document.body.style.transform = `scale(${t.s}) translate(${t.x}px,${t.y}px)`
       }
    })
@@ -71,9 +69,6 @@ document.addEventListener('wheel',function(evt) {
 // mouse events
 //
 document.addEventListener('mousedown',function(evt) {
-   //console.log(evt.clientX)
-   //console.log(evt.pageX)
-   //console.log(evt.screenX)
    if ((evt.which == 1) && (evt.shiftKey)) {
       console.log('down shift')
       }
@@ -98,6 +93,7 @@ document.addEventListener('mousemove',function(evt) {
       xtrans = mods.ui.xtrans+(evt.pageX-mods.ui.xpan)/t.s
       ytrans = mods.ui.ytrans+(evt.pageY-mods.ui.ypan)/t.s
       document.body.style.transform = `scale(${t.s}) translate(${xtrans}px,${ytrans}px)`
+      document.body.style.transformOrigin = `${evt.pageX}px ${evt.pageY}px`
       }
    else {
       mods.ui.xpan = undefined
