@@ -30,9 +30,13 @@ mods.ui = {source:null,
 mods.globals = {}
 mods.mod = {}
 //
+// UI
+//
+document.body.style.overflow = "hidden"
+//
 // scroll wheel
 //
-document.body.style.transform = 'scale(1) translate(0)'
+document.body.style.transform = 'translate(0px,0px) scale(1)'
 document.addEventListener('wheel',function(evt) {
    if (evt.shiftKey) {
       evt.preventDefault()
@@ -42,13 +46,13 @@ document.addEventListener('wheel',function(evt) {
       // evt.pageX
       var transform = document.body.style.transform
       var index = transform.indexOf('scale')
-      var left = transform.indexOf('(',index)
-      var right = transform.indexOf(')',index)
-      var scale = parseFloat(transform.slice(left+1,right))
+         var left = transform.indexOf('(',index)
+         var right = transform.indexOf(')',index)
+         var scale = parseFloat(transform.slice(left+1,right))
       var index = transform.indexOf('translate')
-      var left = transform.indexOf('(',index)
-      var right = transform.indexOf(')',index)
-      var translate = parseFloat(transform.slice(left+1,right))
+         var left = transform.indexOf('(',index)
+         var right = transform.indexOf(')',index)
+         var translate = parseFloat(transform.slice(left+1,right))
       if (evt.deltaY > 0)
          scale *= 1.1
       else
@@ -57,33 +61,60 @@ document.addEventListener('wheel',function(evt) {
          translate += 1
       else
          translate -= 1
-      document.body.style.transform = 'scale('+scale+') translate('+translate+'px)'
+      document.body.style.transform = 'translate('+translate+'px) scale('+scale+')'
       }
    })
 //
-// left click
+// mouse events
 //
 document.addEventListener('mousedown',function(evt) {
-   console.log('down')
-   console.log(evt.clientX)
-   console.log(evt.pageX)
-   console.log(evt.screenX)
+   //console.log(evt.clientX)
+   //console.log(evt.pageX)
+   //console.log(evt.screenX)
    if ((evt.which == 1) && (evt.shiftKey)) {
       console.log('down shift')
       }
    })
 document.addEventListener('mouseup',function(evt) {
-   console.log('up')
    if ((evt.which == 1) && (evt.shiftKey)) {
       console.log('up shift')
       }
    })
 document.addEventListener('mousemove',function(evt) {
-   console.log('move')
-   console.log(evt.pageX)
+   //
+   // shift-drag for pan
+   //
+   if (evt.shiftKey) {
+      var transform = document.body.style.transform
+      var index = transform.indexOf('scale')
+         var left = transform.indexOf('(',index)
+         var right = transform.indexOf(')',left)
+         var scale = parseFloat(transform.slice(left+1,right))
+      var index = transform.indexOf('translate')
+         var left = transform.indexOf('(',index)
+         var right = transform.indexOf('px',left)
+         var xtrans = parseFloat(transform.slice(left+1,right))
+         var left = transform.indexOf(',',right)
+         var right = transform.indexOf('px',left)
+         var ytrans = parseFloat(transform.slice(left+1,right))
+      if (mods.ui.xpan == undefined) {
+         mods.ui.xpan = evt.pageX
+         mods.ui.ypan = evt.pageY
+         mods.ui.xtrans = xtrans
+         mods.ui.ytrans = ytrans
+         }
+      xtrans = mods.ui.xtrans+(evt.pageX-mods.ui.xpan)
+      ytrans = mods.ui.ytrans+(evt.pageY-mods.ui.ypan)
+      document.body.style.transform = `translate(${xtrans}px,${ytrans}px) scale(${scale})`
+      }
+   else {
+      mods.ui.xpan = undefined
+      mods.ui.xtrans = undefined
+      mods.ui.ytrans = undefined
+      }
    })
 //
-// right click
+// context menu
 //
 document.addEventListener('contextmenu',function(evt){
    evt.preventDefault()
@@ -428,7 +459,7 @@ function logo(size) {
    logo.appendChild(new_circ)
    return logo
    }
-set_prompt('right click/two finger/long press for menu')
+set_prompt('right click/two finger/long press for menu; shift-scroll for zoom, shift-drag for pan')
 //
 // SVG canvas for drawing
 //
