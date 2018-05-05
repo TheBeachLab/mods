@@ -48,21 +48,28 @@ function mods_transform() {
       var ytrans = parseFloat(transform.slice(left+1,right))
    return({s:scale,x:xtrans,y:ytrans})
    }
+document.body.style.transform = 'scale(1) translate(0px,0px)'
+document.body.style.transformOrigin = '0px 0px'
 //
 // scroll wheel
 //
-document.body.style.transform = 'scale(1) translate(0px,0px)'
 document.addEventListener('wheel',function(evt) {
    if (evt.shiftKey) {
       evt.preventDefault()
       evt.stopPropagation()
       var t = mods_transform()
-      if (evt.deltaY > 0)
-         t.s *= 1.1
-      else
-         t.s *= 0.9
-      document.body.style.transformOrigin = `{evt.pageX}px {evt.pageY}px`
-      document.body.style.transform = `scale(${t.s}) translate(${t.x}px,${t.y}px)`
+      if (evt.deltaY > 0) {
+         var scale = t.s*1.1
+         //var x = t.x-t.s*0.1*evt.pageX
+         //var y = t.y-t.s*0.1*evt.pageY
+         }
+      else {
+         var scale = t.s*0.9
+         //var x = t.x+t.s*0.1*evt.pageX
+         //var y = t.y+t.s*0.1*evt.pageY
+         }
+      document.body.style.transformOrigin = `${evt.pageX}px ${evt.pageY}px`
+      document.body.style.transform = `translate(${x}px,${y}px) scale(${scale})`
       }
    })
 //
@@ -82,7 +89,8 @@ document.addEventListener('mousemove',function(evt) {
    //
    // shift-drag for pan
    //
-   if (evt.shiftKey) {
+   if (false) {
+   //if (evt.shiftKey) {
       var t = mods_transform()
       if (mods.ui.xpan == undefined) {
          mods.ui.xpan = evt.pageX
