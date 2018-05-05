@@ -29,14 +29,11 @@ mods.ui = {source:null,
    }
 mods.globals = {}
 mods.mod = {}
-
-
 //
 // scroll wheel
 //
 document.body.style.transform = 'scale(1) translate(0)'
-document.addEventListener('wheel',scroll_wheel)
-function scroll_wheel(evt) {
+document.addEventListener('wheel',function(evt) {
    if (evt.shiftKey) {
       evt.preventDefault()
       evt.stopPropagation()
@@ -62,14 +59,29 @@ function scroll_wheel(evt) {
          translate -= 1
       document.body.style.transform = 'scale('+scale+') translate('+translate+'px)'
       }
-   }
-
-
-
+   })
 //
 // left click
 //
-
+document.addEventListener('mousedown',function(evt) {
+   console.log('down')
+   console.log(evt.clientX)
+   console.log(evt.pageX)
+   console.log(evt.screenX)
+   if ((evt.which == 1) && (evt.shiftKey)) {
+      console.log('down shift')
+      }
+   })
+document.addEventListener('mouseup',function(evt) {
+   console.log('up')
+   if ((evt.which == 1) && (evt.shiftKey)) {
+      console.log('up shift')
+      }
+   })
+document.addEventListener('mousemove',function(evt) {
+   console.log('move')
+   console.log(evt.pageX)
+   })
 //
 // right click
 //
