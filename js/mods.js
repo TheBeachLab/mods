@@ -33,10 +33,25 @@ mods.mod = {}
 // UI
 //
 document.body.style.overflow = "hidden"
+function mods_transform() {
+   var transform = document.body.style.transform
+   var index = transform.indexOf('scale')
+      var left = transform.indexOf('(',index)
+      var right = transform.indexOf(')',index)
+      var scale = parseFloat(transform.slice(left+1,right))
+   var index = transform.indexOf('translate')
+      var left = transform.indexOf('(',index)
+      var right = transform.indexOf('px',left)
+      var xtrans = parseFloat(transform.slice(left+1,right))
+      var left = transform.indexOf(',',right)
+      var right = transform.indexOf('px',left)
+      var ytrans = parseFloat(transform.slice(left+1,right))
+   return({s:scale,x:xtrans,y:ytrans})
+   }
 //
 // scroll wheel
 //
-document.body.style.transform = 'translate(0px,0px) scale(1)'
+document.body.style.transform = 'scale(1) translate(0px,0px)'
 document.addEventListener('wheel',function(evt) {
    if (evt.shiftKey) {
       evt.preventDefault()
@@ -44,24 +59,12 @@ document.addEventListener('wheel',function(evt) {
       // evt.deltaY
       // evt.clientX
       // evt.pageX
-      var transform = document.body.style.transform
-      var index = transform.indexOf('scale')
-         var left = transform.indexOf('(',index)
-         var right = transform.indexOf(')',index)
-         var scale = parseFloat(transform.slice(left+1,right))
-      var index = transform.indexOf('translate')
-         var left = transform.indexOf('(',index)
-         var right = transform.indexOf(')',index)
-         var translate = parseFloat(transform.slice(left+1,right))
+      var t = mods_transform()
       if (evt.deltaY > 0)
-         scale *= 1.1
+         t.s *= 1.1
       else
-         scale /= 1.1
-      if (evt.deltaY > 0)
-         translate += 1
-      else
-         translate -= 1
-      document.body.style.transform = 'translate('+translate+'px) scale('+scale+')'
+         t.s /= 1.1
+      document.body.style.transform = `scale(${t.s}) translate(${t.x}px,${t.y}px)`
       }
    })
 //
@@ -85,32 +88,19 @@ document.addEventListener('mousemove',function(evt) {
    // shift-drag for pan
    //
    if (evt.shiftKey) {
-      var transform = document.body.style.transform
-      var index = transform.indexOf('scale')
-         var left = transform.indexOf('(',index)
-         var right = transform.indexOf(')',left)
-         var scale = parseFloat(transform.slice(left+1,right))
-      var index = transform.indexOf('translate')
-         var left = transform.indexOf('(',index)
-         var right = transform.indexOf('px',left)
-         var xtrans = parseFloat(transform.slice(left+1,right))
-         var left = transform.indexOf(',',right)
-         var right = transform.indexOf('px',left)
-         var ytrans = parseFloat(transform.slice(left+1,right))
+      var t = mods_transform()
       if (mods.ui.xpan == undefined) {
          mods.ui.xpan = evt.pageX
          mods.ui.ypan = evt.pageY
-         mods.ui.xtrans = xtrans
-         mods.ui.ytrans = ytrans
+         mods.ui.xtrans = t.x
+         mods.ui.ytrans = t.y
          }
-      xtrans = mods.ui.xtrans+(evt.pageX-mods.ui.xpan)
-      ytrans = mods.ui.ytrans+(evt.pageY-mods.ui.ypan)
-      document.body.style.transform = `translate(${xtrans}px,${ytrans}px) scale(${scale})`
+      xtrans = mods.ui.xtrans+(evt.pageX-mods.ui.xpan)/t.s
+      ytrans = mods.ui.ytrans+(evt.pageY-mods.ui.ypan)/t.s
+      document.body.style.transform = `scale(${t.s}) translate(${xtrans}px,${ytrans}px)`
       }
    else {
       mods.ui.xpan = undefined
-      mods.ui.xtrans = undefined
-      mods.ui.ytrans = undefined
       }
    })
 //
