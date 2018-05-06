@@ -123,8 +123,9 @@ document.addEventListener('contextmenu',function(evt){
    function make_menu(div) {
       mods.globals.menu = div
       div.style.position = "absolute"
-      div.style.top = evt.clientY+document.body.scrollTop
-      div.style.left = evt.clientX+document.body.scrollLeft
+      var t = mods_transform()
+      div.style.top = (evt.pageY-t.ty-t.oy)/t.s+t.oy
+      div.style.left = (evt.pageX-t.tx-t.ox)/t.s+t.ox
       div.style.zIndex = 0
       div.style.cursor = 'default'
       div.style.backgroundColor = "rgb(220,255,255)"
@@ -204,8 +205,9 @@ document.addEventListener('contextmenu',function(evt){
       // open local module
       //
       add_menu(div,'open local module',function(evt){
-         mods.globals.top = evt.clientY+document.body.scrollTop
-         mods.globals.left = evt.clientX+document.body.scrollLeft
+         var t = mods_transform()
+         mods.globals.top = (evt.pageY-t.ty-t.oy)/t.s+t.oy 
+         mods.globals.left = (evt.pageX-t.tx-t.ox)/t.s+t.ox
          document.body.removeChild(evt.target.parentNode)
          mods.globals.menu = null
          var file = document.getElementById('mod_input')
