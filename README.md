@@ -1,27 +1,11 @@
 # Todo
-- programs
-    - save program read ui values
-    - program load clear, redirect
-- view toolpath to library
-- ui
-    - menus
-        - search
-    - browser pan zoom
-    - collapse nodes
-    - refactor for skinning
-- frep
-    - transforms
-    - render
-        - CPU
-        - GPU
-        - tree
-    - slice zoom pan
-    - color
-- devices
-    - remove /dev from serial paths
 - editing
     - subgraph select drag cut copy paste
     - nested module graphs
+- ui
+    - browser pan zoom
+    - collapse nodes
+    - refactor for skinning
 - processes
     - STL slicer
     - three-axis rough and finish cuts
