@@ -1,6 +1,7 @@
 program_label('frep')
 program_menu('   gears','programs/frep/gears')
 program_menu('   lattice torus','programs/frep/lattice%20torus')
+program_menu('   smiley','programs/frep/smiley')
 program_label('image')
 program_menu('   function','programs/image/function')
 program_menu('   motion detect','programs/image/motion%20detect')

@@ -122,9 +122,18 @@ var outputs = {
    variables:{type:'',
       event:function(){
          var module = parseFloat(mod.module.value)
-         var angle = parseFloat(mod.angle.value)
+         var angle = Math.PI*parseFloat(mod.angle.value)/180
          var teeth = parseFloat(mod.teeth.value)
-         var vars = {module:module,angle:angle,teeth:teeth}
+         var addendum = parseFloat(mod.addendum.value)
+         var dedendum = parseFloat(mod.dedendum.value)
+         var p = Math.PI*module
+         var l = p*teeth
+         var ha = addendum*module
+         var hd = dedendum*module
+         var bt = (ha+hd)*Math.tan(angle)
+         var bp = ha*Math.tan(angle)
+         var s = 1/Math.tan(angle)
+         var vars = {module:module,angle:angle,teeth:teeth,p:p,l:l,ha:ha,hd:hd,bt:bt,bp:bp,s:s}
          mods.output(mod,'variables',vars)}
          }}
 //
