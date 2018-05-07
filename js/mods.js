@@ -53,19 +53,17 @@ function mods_transform() {
       var oy = parseFloat(origin.slice(pxx+2,pxy))
    return({s:s,tx:tx,ty:ty,ox:ox,oy:oy})
    }
-document.body.style.transform = 'translate(0px,0px) scale(1)'
+//document.body.style.transform = 'translate(0px,0px) scale(1)'
+document.body.style.transform = 'scale(1) translate(0px,0px)'
 document.body.style.transformOrigin = '0px 0px'
 //
 // scroll wheel
 //
 /*
-
-(xw-ox)*s+ox+dx = xs
-
-(xs-ox-dx)/s+ox = xw
-
-(xw-ox0)*s+ox0+dx0 = xs
-
+(xw+tx-ox)*s+ox = xs
+(xw+tx0-ox0)*s+ox0  = (xw+tx1-ox1)*s+ox1
+(tx0-ox0)*s+ox0  = (tx1-ox1)*s+ox1
+tx0+(ox1-ox0)+(ox0-ox1)/s  = tx1
 */
 document.addEventListener('wheel',function(evt) {
    if (evt.shiftKey) {
@@ -76,8 +74,12 @@ document.addEventListener('wheel',function(evt) {
          var scale = t.s*1.1
       else
          var scale = t.s*0.9
+      var tx = t.tx+(evt.pageX-t.ox)+(t.ox-evt.pageX)/t.s
+      var ty = t.ty+(evt.pageY-t.oy)+(t.oy-evt.pageY)/t.s
+      //document.body.style.transformOrigin = `${evt.pageX}px ${evt.pageY}px`
+      //document.body.style.transform = `translate(${t.tx}px,${t.ty}px) scale(${scale})`
+      document.body.style.transform = `scale(${scale}) translate(${tx}px,${ty}px)`
       document.body.style.transformOrigin = `${evt.pageX}px ${evt.pageY}px`
-      document.body.style.transform = `translate(${t.tx}px,${t.ty}px) scale(${scale})`
       }
    })
 //
