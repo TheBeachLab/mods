@@ -87,19 +87,19 @@ document.addEventListener('wheel',function(evt) {
 //
 document.addEventListener('mousedown',function(evt) {
    if ((evt.which == 1) && (evt.shiftKey)) {
-      console.log('down shift')
+      mods.ui.mousedown = true
       }
    })
 document.addEventListener('mouseup',function(evt) {
    if ((evt.which == 1) && (evt.shiftKey)) {
-      console.log('up shift')
+      mods.ui.mousedown = false
       }
    })
 document.addEventListener('mousemove',function(evt) {
    //
    // shift-drag for pan
    //
-   if (evt.shiftKey) {
+   if (evt.shiftKey && mods.ui.mousedown) {
       var t = mods_transform()
       if (mods.ui.xpan == undefined) {
          mods.ui.xpan = evt.pageX
