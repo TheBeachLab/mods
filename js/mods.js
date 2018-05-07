@@ -58,6 +58,15 @@ document.body.style.transformOrigin = '0px 0px'
 //
 // scroll wheel
 //
+/*
+
+(xw-ox)*s+ox+dx = xs
+
+(xs-ox-dx)/s+ox = xw
+
+(xw-ox0)*s+ox0+dx0 = xs
+
+*/
 document.addEventListener('wheel',function(evt) {
    if (evt.shiftKey) {
       evt.preventDefault()
