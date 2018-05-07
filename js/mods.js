@@ -25,10 +25,12 @@ mods.ui = {source:null,
    rows:5,
    cols:20,
    link:'rgb(0,0,128)',
-   link_highlight:'rgb(255,0,0)'
+   link_highlight:'rgb(255,0,0)',
+   header:50
    }
 mods.globals = {}
 mods.mod = {}
+document.body.id = 'body'
 //
 // UI
 //
@@ -86,13 +88,28 @@ document.addEventListener('wheel',function(evt) {
 // mouse events
 //
 document.addEventListener('mousedown',function(evt) {
+   var el = document.elementFromPoint(evt.pageX,evt.pageY)
+   console.log(el)
+   console.log(el.lastChild.id)
    if ((evt.which == 1) && (evt.shiftKey)) {
       mods.ui.mousedown = true
+      var rect = document.createElementNS('http://www.w3.org/2000/svg','rect')
+         rect.setAttribute('id',1234)
+         rect.setAttribute('x',0)
+         rect.setAttribute('y',0)
+         rect.setAttribute('width',100)
+         rect.setAttribute('height',100)
+         rect.setAttribute('fill','rgb(200,200,200)')
+         rect.setAttribute('stroke','none')
+      var svg = document.getElementById('svg')
+         svg.appendChild(rect)
       }
    })
 document.addEventListener('mouseup',function(evt) {
    if ((evt.which == 1) && (evt.shiftKey)) {
       mods.ui.mousedown = false
+      var rect = document.getElementById(1234)
+         svg.removeChild(rect)
       }
    })
 document.addEventListener('mousemove',function(evt) {
@@ -374,7 +391,6 @@ document.addEventListener('contextmenu',function(evt){
 //
 // prompt
 //
-mods.ui.header = 50
 document.body.appendChild(document.createTextNode(' '))
 var span = document.createElement('span')
    span.setAttribute('id','logo')
@@ -475,6 +491,8 @@ var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg")
    svg.style.left = 0
    svg.style.zIndex = 0
    svg.style.overflow = 'visible'
+   svg.setAttribute('width',0)
+   svg.setAttribute('height',0)
    svg.setAttribute('id','svg')
    svg.setAttributeNS("http://www.w3.org/2000/xmlns/","xmlns:xlink","http://www.w3.org/1999/xlink")
    document.body.appendChild(svg)
