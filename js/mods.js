@@ -1651,8 +1651,9 @@ function window_mousemove(evt) {
    evt.preventDefault()
    evt.stopPropagation()
    var div = document.getElementById(mods.id)
-      var dx = evt.clientX - div.dataset.xdown
-      var dy = evt.clientY - div.dataset.ydown
+      var t = mods_transform()
+      var dx = (evt.clientX-div.dataset.xdown)/t.s
+      var dy = (evt.clientY-div.dataset.ydown)/t.s
       var newleft = parseFloat(div.dataset.left) + dx
       var newtop = parseFloat(div.dataset.top) + dy
       div.style.left = newleft+'px'
@@ -1664,8 +1665,9 @@ function window_mouseup(evt) {
    evt.stopPropagation()
    var div = document.getElementById(mods.id)
       div.style.zIndex = 0
-      var dx = evt.clientX - div.dataset.xdown
-      var dy = evt.clientY - div.dataset.ydown
+      var t = mods_transform()
+      var dx = (evt.clientX-div.dataset.xdown)/t.s
+      var dy = (evt.clientY-div.dataset.ydown)/t.s
       div.dataset.left = parseFloat(div.dataset.left) + dx
       div.dataset.top = parseFloat(div.dataset.top) + dy
       window.removeEventListener('mousemove',window_mousemove)
