@@ -61,6 +61,7 @@ document.body.style.transformOrigin = '0px 0px'
 //
 /*
 (xw+tx-ox)*s+ox = xs
+xw = ox-tx+(xs-ox)/s
 (xw+tx0-ox0)*s+ox0  = (xw+tx1-ox1)*s+ox1
 (tx0-ox0)*s+ox0  = (tx1-ox1)*s+ox1
 tx0+(ox1-ox0)+(ox0-ox1)/s  = tx1
@@ -135,8 +136,8 @@ document.addEventListener('contextmenu',function(evt){
       mods.globals.menu = div
       div.style.position = "absolute"
       var t = mods_transform()
-      div.style.top = (evt.pageY-t.ty-t.oy)/t.s+t.oy
-      div.style.left = (evt.pageX-t.tx-t.ox)/t.s+t.ox
+      div.style.top = t.oy-t.ty+(evt.pageY-t.oy)/t.s
+      div.style.left = t.ox-t.tx+(evt.pageX-t.ox)/t.s
       div.style.zIndex = 0
       div.style.cursor = 'default'
       div.style.backgroundColor = "rgb(220,255,255)"
@@ -188,9 +189,10 @@ document.addEventListener('contextmenu',function(evt){
             div.addEventListener('mousedown',function(evt){
                document.body.removeChild(evt.target.parentNode)
                mods.globals.menu = null
+               var t = mods_transform()
                mod_message_handler(module,
-               evt.clientY+document.body.scrollTop,
-               evt.clientX+document.body.scrollLeft)})
+                  t.oy-t.ty+(evt.pageY-t.oy)/t.s,
+                  t.ox-t.tx+(evt.pageX-t.ox)/t.s)})
             div.appendChild(document.createElement('br'))
             menu.appendChild(div)
             }
@@ -217,8 +219,8 @@ document.addEventListener('contextmenu',function(evt){
       //
       add_menu(div,'open local module',function(evt){
          var t = mods_transform()
-         mods.globals.top = (evt.pageY-t.ty-t.oy)/t.s+t.oy 
-         mods.globals.left = (evt.pageX-t.tx-t.ox)/t.s+t.ox
+         mods.globals.top = t.oy-t.ty+(evt.pageY-t.oy)/t.s
+         mods.globals.left = t.ox-t.tx+(evt.pageX-t.ox)/t.s
          document.body.removeChild(evt.target.parentNode)
          mods.globals.menu = null
          var file = document.getElementById('mod_input')
