@@ -65,6 +65,7 @@ xw = ox-tx+(xs-ox)/s
 (xw+tx0-ox0)*s+ox0  = (xw+tx1-ox1)*s+ox1
 (tx0-ox0)*s+ox0  = (tx1-ox1)*s+ox1
 tx0+(ox1-ox0)+(ox0-ox1)/s  = tx1
+tx0+(ox1-ox0)+(ox0-ox1)/s  = tx1
 */
 document.addEventListener('wheel',function(evt) {
    if (evt.shiftKey) {
@@ -77,8 +78,6 @@ document.addEventListener('wheel',function(evt) {
          var scale = t.s*0.9
       var tx = t.tx+(evt.pageX-t.ox)+(t.ox-evt.pageX)/t.s
       var ty = t.ty+(evt.pageY-t.oy)+(t.oy-evt.pageY)/t.s
-      //document.body.style.transformOrigin = `${evt.pageX}px ${evt.pageY}px`
-      //document.body.style.transform = `translate(${t.tx}px,${t.ty}px) scale(${scale})`
       document.body.style.transform = `scale(${scale}) translate(${tx}px,${ty}px)`
       document.body.style.transformOrigin = `${evt.pageX}px ${evt.pageY}px`
       }
