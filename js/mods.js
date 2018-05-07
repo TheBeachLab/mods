@@ -107,9 +107,9 @@ document.addEventListener('mousemove',function(evt) {
          mods.ui.xtrans = t.tx
          mods.ui.ytrans = t.ty
          }
-      xtrans = mods.ui.xtrans+(evt.pageX-mods.ui.xpan)
-      ytrans = mods.ui.ytrans+(evt.pageY-mods.ui.ypan)
-      document.body.style.transform = `translate(${xtrans}px,${ytrans}px) scale(${t.s})`
+      xtrans = mods.ui.xtrans+(evt.pageX-mods.ui.xpan)/t.s
+      ytrans = mods.ui.ytrans+(evt.pageY-mods.ui.ypan)/t.s
+      document.body.style.transform = `scale(${t.s}) translate(${xtrans}px,${ytrans}px)`
       }
    else {
       mods.ui.xpan = undefined
