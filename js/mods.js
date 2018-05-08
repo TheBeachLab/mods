@@ -92,37 +92,31 @@ document.addEventListener('mousedown',function(evt) {
    var el = document.elementFromPoint(evt.pageX,evt.pageY)
    if ((el.tagName == "HTML") || (el.tagName == "BODY")) {
       mods.ui.mousedown = true
+      if (evt.shiftKey) {
+         var t = mods_transform()
+         var rect = document.createElementNS('http://www.w3.org/2000/svg','rect')
+            rect.setAttribute('id','svgrect')
+            rect.setAttribute('x',t.ox-t.tx+(evt.pageX-t.ox)/t.s)
+            rect.setAttribute('y',t.oy-t.ty+(evt.pageY-t.oy)/t.s-mods.ui.header)
+            rect.setAttribute('width',0)
+            rect.setAttribute('height',0)
+            rect.setAttribute('fill','rgb(200,200,200)')
+            rect.setAttribute('stroke','none')
+         var svg = document.getElementById('svg')
+            svg.appendChild(rect)
+         }
       }
-   /*
-   if ((evt.which == 1) && (evt.shiftKey)) {
-      mods.ui.mousedown = true
-      var rect = document.createElementNS('http://www.w3.org/2000/svg','rect')
-         rect.setAttribute('id',1234)
-         rect.setAttribute('x',0)
-         rect.setAttribute('y',0)
-         //rect.setAttribute('width',100)
-         //rect.setAttribute('height',100)
-         rect.setAttribute('fill','rgb(200,200,200)')
-         rect.setAttribute('stroke','none')
-      var svg = document.getElementById('svg')
-         svg.appendChild(rect)
-      }
-   */
    })
 document.addEventListener('mouseup',function(evt) {
    mods.ui.mousedown = false
-   /*
-   if ((evt.which == 1) && (evt.shiftKey)) {
-      mods.ui.mousedown = false
-      var rect = document.getElementById(1234)
-         svg.removeChild(rect)
-      }
-   */
+   mods.ui.xpan = undefined
+   var rect = document.getElementById('svgrect')
+   if (rect != null)
+      svg.removeChild(rect)
    })
 document.addEventListener('mousemove',function(evt) {
-   //
-   // pan
-   //
+   evt.preventDefault()
+   evt.stopPropagation()
    if (mods.ui.mousedown) {
       var t = mods_transform()
       if (mods.ui.xpan == undefined) {
@@ -131,12 +125,30 @@ document.addEventListener('mousemove',function(evt) {
          mods.ui.xtrans = t.tx
          mods.ui.ytrans = t.ty
          }
-      xtrans = mods.ui.xtrans+(evt.pageX-mods.ui.xpan)/t.s
-      ytrans = mods.ui.ytrans+(evt.pageY-mods.ui.ypan)/t.s
-      document.body.style.transform = `scale(${t.s}) translate(${xtrans}px,${ytrans}px)`
-      }
-   else {
-      mods.ui.xpan = undefined
+      if (evt.shiftKey) {
+         var rect = document.getElementById('svgrect')
+         var xp = t.ox-t.tx+(mods.ui.xpan-t.ox)/t.s
+         var yp = t.oy-t.ty+(mods.ui.ypan-t.oy)/t.s-mods.ui.header
+         var xw = t.ox-t.tx+(evt.pageX-t.ox)/t.s
+         var yw = t.oy-t.ty+(evt.pageY-t.oy)/t.s-mods.ui.header
+         if (xw < xp) {
+            rect.setAttribute('x',xw)
+            rect.setAttribute('width',xp-xw)
+            }
+         else
+            rect.setAttribute('width',xw-xp)
+         if (yw < yp) {
+            rect.setAttribute('y',yw)
+            rect.setAttribute('height',yp-yw)
+            }
+         else
+            rect.setAttribute('height',yw-yp)
+         }
+      else {
+         xtrans = mods.ui.xtrans+(evt.pageX-mods.ui.xpan)/t.s
+         ytrans = mods.ui.ytrans+(evt.pageY-mods.ui.ypan)/t.s
+         document.body.style.transform = `scale(${t.s}) translate(${xtrans}px,${ytrans}px)`
+         }
       }
    })
 //
