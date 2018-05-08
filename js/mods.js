@@ -103,7 +103,7 @@ document.addEventListener('mousedown',function(evt) {
             rect.setAttribute('fill','rgb(200,200,200)')
             rect.setAttribute('stroke','none')
          var svg = document.getElementById('svg')
-            //svg.appendChild(rect)
+            svg.insertBefore(rect,svg.firstChild)
          }
       }
    })
