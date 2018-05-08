@@ -115,16 +115,22 @@ document.addEventListener('mouseup',function(evt) {
       svg.removeChild(rect)
    })
 document.addEventListener('mousemove',function(evt) {
-   evt.preventDefault()
-   evt.stopPropagation()
    if (mods.ui.mousedown) {
+      evt.preventDefault()
+      evt.stopPropagation()
       var t = mods_transform()
+      //
+      // remember start
+      //
       if (mods.ui.xpan == undefined) {
          mods.ui.xpan = evt.pageX
          mods.ui.ypan = evt.pageY
          mods.ui.xtrans = t.tx
          mods.ui.ytrans = t.ty
          }
+      //
+      // select region
+      //
       if (evt.shiftKey) {
          var rect = document.getElementById('svgrect')
          var xp = t.ox-t.tx+(mods.ui.xpan-t.ox)/t.s
@@ -144,6 +150,9 @@ document.addEventListener('mousemove',function(evt) {
          else
             rect.setAttribute('height',yw-yp)
          }
+      //
+      // pan
+      //
       else {
          xtrans = mods.ui.xtrans+(evt.pageX-mods.ui.xpan)/t.s
          ytrans = mods.ui.ytrans+(evt.pageY-mods.ui.ypan)/t.s
