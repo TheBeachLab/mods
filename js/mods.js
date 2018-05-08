@@ -26,7 +26,7 @@ mods.ui = {source:null,
    cols:20,
    link:'rgb(0,0,128)',
    link_highlight:'rgb(255,0,0)',
-   header:50
+   header:50,
    mousedown = false
    }
 mods.globals = {}
