@@ -70,7 +70,8 @@ tx0+(ox1-ox0)+(ox0-ox1)/s  = tx1
 tx0+(ox1-ox0)*(1-1/s)  = tx1
 */
 document.addEventListener('wheel',function(evt) {
-   if (evt.shiftKey) {
+   var el = document.elementFromPoint(evt.pageX,evt.pageY)
+   if (el.tagName == "HTML") {
       evt.preventDefault()
       evt.stopPropagation()
       var t = mods_transform()
@@ -89,8 +90,10 @@ document.addEventListener('wheel',function(evt) {
 //
 document.addEventListener('mousedown',function(evt) {
    var el = document.elementFromPoint(evt.pageX,evt.pageY)
-   console.log(el)
-   console.log(el.lastChild.id)
+   if (el.tagName == "HTML") {
+      mods.ui.mousedown = true
+      }
+   /*
    if ((evt.which == 1) && (evt.shiftKey)) {
       mods.ui.mousedown = true
       var rect = document.createElementNS('http://www.w3.org/2000/svg','rect')
@@ -104,19 +107,23 @@ document.addEventListener('mousedown',function(evt) {
       var svg = document.getElementById('svg')
          svg.appendChild(rect)
       }
+   */
    })
 document.addEventListener('mouseup',function(evt) {
+   mods.ui.mousedown = false
+   /*
    if ((evt.which == 1) && (evt.shiftKey)) {
       mods.ui.mousedown = false
       var rect = document.getElementById(1234)
          svg.removeChild(rect)
       }
+   */
    })
 document.addEventListener('mousemove',function(evt) {
    //
-   // shift-drag for pan
+   // pan
    //
-   if (evt.shiftKey && mods.ui.mousedown) {
+   if (mods.ui.mousedown) {
       var t = mods_transform()
       if (mods.ui.xpan == undefined) {
          mods.ui.xpan = evt.pageX
@@ -480,7 +487,7 @@ function logo(size) {
    logo.appendChild(new_circ)
    return logo
    }
-set_prompt('right click/two finger/long press for menu; shift-scroll for zoom, shift-drag for pan')
+set_prompt('right click/two finger/long press for menu; scroll for zoom, drag for pan')
 //
 // SVG canvas for drawing
 //
