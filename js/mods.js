@@ -71,7 +71,7 @@ tx0+(ox1-ox0)*(1-1/s)  = tx1
 */
 document.addEventListener('wheel',function(evt) {
    var el = document.elementFromPoint(evt.pageX,evt.pageY)
-   if (el.tagName == "HTML") {
+   if ((el.tagName == "HTML") || (el.tagName == "BODY")) {
       evt.preventDefault()
       evt.stopPropagation()
       var t = mods_transform()
@@ -90,7 +90,7 @@ document.addEventListener('wheel',function(evt) {
 //
 document.addEventListener('mousedown',function(evt) {
    var el = document.elementFromPoint(evt.pageX,evt.pageY)
-   if (el.tagName == "HTML") {
+   if ((el.tagName == "HTML") || (el.tagName == "BODY")) {
       mods.ui.mousedown = true
       }
    /*
@@ -100,8 +100,8 @@ document.addEventListener('mousedown',function(evt) {
          rect.setAttribute('id',1234)
          rect.setAttribute('x',0)
          rect.setAttribute('y',0)
-         rect.setAttribute('width',100)
-         rect.setAttribute('height',100)
+         //rect.setAttribute('width',100)
+         //rect.setAttribute('height',100)
          rect.setAttribute('fill','rgb(200,200,200)')
          rect.setAttribute('stroke','none')
       var svg = document.getElementById('svg')
@@ -498,8 +498,8 @@ var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg")
    svg.style.left = 0
    svg.style.zIndex = 0
    svg.style.overflow = 'visible'
-   svg.setAttribute('width',0)
-   svg.setAttribute('height',0)
+   svg.setAttribute('width',1)
+   svg.setAttribute('height',1)
    svg.setAttribute('id','svg')
    svg.setAttributeNS("http://www.w3.org/2000/xmlns/","xmlns:xlink","http://www.w3.org/1999/xlink")
    document.body.appendChild(svg)
