@@ -55,7 +55,6 @@ function mods_transform() {
       var oy = parseFloat(origin.slice(pxx+2,pxy))
    return({s:s,tx:tx,ty:ty,ox:ox,oy:oy})
    }
-//document.body.style.transform = 'translate(0px,0px) scale(1)'
 document.body.style.transform = 'scale(1) translate(0px,0px)'
 document.body.style.transformOrigin = '0px 0px'
 //
