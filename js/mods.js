@@ -116,10 +116,13 @@ document.addEventListener('mouseup',function(evt) {
    //
    mods.ui.mousedown = false
    mods.ui.xpan = undefined
+   //
+   // check for selection rectangle
+   //
    var rect = document.getElementById('svgrect')
    if (rect != null) {
       //
-      // selection rectangle
+      // selecting modules
       //
       var x = parseFloat(rect.getAttribute('x'))
       var y = parseFloat(rect.getAttribute('y'))
@@ -167,7 +170,7 @@ document.addEventListener('mousemove',function(evt) {
          mods.ui.ytrans = t.ty
          }
       //
-      // select region
+      // selecting region if shifted
       //
       if (evt.shiftKey) {
          var rect = document.getElementById('svgrect')
