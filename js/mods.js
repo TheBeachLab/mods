@@ -1490,6 +1490,9 @@ function add_link(src,dst) {
    */
    }
 function delete_link(linkid) {
+   //
+   // delete a link
+   //
    var links = document.getElementById('links')
    links.removeChild(document.getElementById(linkid))
    link = JSON.parse(linkid)
@@ -1505,6 +1508,9 @@ function delete_link(linkid) {
       dst.dataset.links = JSON.stringify(links)
    }
 function draw_links(idnumber,color) {
+   //
+   // draw a module's links
+   //
    var ins = document.getElementById(
       JSON.stringify({id:idnumber,type:'inputs'}))
    var outs = document.getElementById(
@@ -1521,6 +1527,9 @@ function draw_links(idnumber,color) {
       }
    }
 function draw_link(id,color) {
+   //
+   // draw a link
+   //
    var link = JSON.parse(id)
    src = document.getElementById(link.source)
    dst = document.getElementById(link.dest)
@@ -1540,9 +1549,12 @@ function draw_link(id,color) {
    path.setAttribute('stroke',color)
    }
 //
-// module fit call
+// mods routines to be called from modules
 //
 mods.fit = function(div) {
+   //
+   // fit a module
+   //
    div.style.left = div.dataset.divNameSize/2-div.clientWidth/2
    var divin = document.getElementById(
       JSON.stringify(
@@ -1553,10 +1565,10 @@ mods.fit = function(div) {
          {id:div.dataset.id,type:'outputs'}))
    divout.style.left = div.dataset.divNameSize/2+div.clientWidth/2
    }
-//
-// module output call
-//
 mods.output = function(mod,varname,val) {
+   //
+   // send module outputs
+   //
    var div = mod.div
    var key = JSON.parse(div.id)
    var idnumber = key.id
@@ -1763,6 +1775,11 @@ function window_mousemove(evt) {
       div.style.left = newleft+'px'
       div.style.top = newtop+'px'
    draw_links(mods.id,mods.ui.link)
+   if (mods.ui.selected != []) {
+      for (var id in mods.ui.selected) {
+         console.log(mods.ui.selected[id])
+         }
+      }
    }
 function window_mouseup(evt) {
    evt.preventDefault()
