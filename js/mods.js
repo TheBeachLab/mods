@@ -89,6 +89,9 @@ document.addEventListener('wheel',function(evt) {
 // mouse events
 //
 document.addEventListener('mousedown',function(evt) {
+   //
+   // mouse down
+   //
    var el = document.elementFromPoint(evt.pageX,evt.pageY)
    if ((el.tagName == "HTML") || (el.tagName == "BODY")) {
       mods.ui.mousedown = true
@@ -108,13 +111,48 @@ document.addEventListener('mousedown',function(evt) {
       }
    })
 document.addEventListener('mouseup',function(evt) {
+   //
+   // mouse up
+   //
    mods.ui.mousedown = false
    mods.ui.xpan = undefined
    var rect = document.getElementById('svgrect')
-   if (rect != null)
+   if (rect != null) {
+      //
+      // selection rectangle
+      //
+      var x = parseFloat(rect.getAttribute('x'))
+      var y = parseFloat(rect.getAttribute('y'))
+      var width = parseFloat(rect.getAttribute('width'))
+      var height = parseFloat(rect.getAttribute('height'))
       svg.removeChild(rect)
+      var modules = document.getElementById('modules')
+      //
+      // loop over modules
+      //
+      for (var module in modules.childNodes) {
+         var container = modules.childNodes[module]
+         var id = container.id
+         var name = container.firstChild
+         var left = parseFloat(container.dataset.left)
+         var top = parseFloat(container.dataset.top)
+         if ((x <= left) && (left <= x+width) && (y <= top) && (top <= y+height))
+            //
+            // module in selection rectangle
+            //
+            name.style.fontWeight = "bold"
+         else
+            //
+            // module not in selection rectangle
+            //
+            name.style.fontWeight = "normal"
+         }
+      }
    })
 document.addEventListener('mousemove',function(evt) {
+   //
+   // mouse move
+   //
    if (mods.ui.mousedown) {
       evt.preventDefault()
       evt.stopPropagation()
