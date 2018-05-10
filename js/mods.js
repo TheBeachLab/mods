@@ -27,7 +27,9 @@ mods.ui = {source:null,
    link:'rgb(0,0,128)',
    link_highlight:'rgb(255,0,0)',
    header:50,
-   mousedown:false
+   mousedown:false,
+   xstart:undefined,
+   selected:[]
    }
 mods.globals = {}
 mods.mod = {}
@@ -59,17 +61,17 @@ function mods_transform() {
 document.body.style.transform = 'scale(1) translate(0px,0px)'
 document.body.style.transformOrigin = '0px 0px'
 //
-// scroll wheel
+// background scroll wheel
 //
-/*
-(xw+tx-ox)*s+ox = xs
-xw = ox-tx+(xs-ox)/s
-(xw+tx0-ox0)*s+ox0  = (xw+tx1-ox1)*s+ox1
-(tx0-ox0)*s+ox0  = (tx1-ox1)*s+ox1
-tx0+(ox1-ox0)+(ox0-ox1)/s  = tx1
-tx0+(ox1-ox0)*(1-1/s)  = tx1
-*/
 document.addEventListener('wheel',function(evt) {
+   /*
+   (xw+tx-ox)*s+ox = xs
+   xw = ox-tx+(xs-ox)/s
+   (xw+tx0-ox0)*s+ox0  = (xw+tx1-ox1)*s+ox1
+   (tx0-ox0)*s+ox0  = (tx1-ox1)*s+ox1
+   tx0+(ox1-ox0)+(ox0-ox1)/s  = tx1
+   tx0+(ox1-ox0)*(1-1/s)  = tx1
+   */
    var el = document.elementFromPoint(evt.pageX,evt.pageY)
    if ((el.tagName == "HTML") || (el.tagName == "BODY")) {
       set_prompt('scroll to zoom')
@@ -87,11 +89,11 @@ document.addEventListener('wheel',function(evt) {
       }
    })
 //
-// mouse events
+// background mouse events
 //
 document.addEventListener('mousedown',function(evt) {
    //
-   // mouse down
+   // background mouse down
    //
    var el = document.elementFromPoint(evt.pageX,evt.pageY)
    //
@@ -123,17 +125,17 @@ document.addEventListener('mousedown',function(evt) {
    })
 document.addEventListener('mouseup',function(evt) {
    //
-   // mouse up
+   // background mouse up
    //
    mods.ui.mousedown = false
-   mods.ui.xpan = undefined
+   mods.ui.xstart = undefined
    //
    // check for selection rectangle
    //
    var rect = document.getElementById('svgrect')
    if (rect != null) {
       //
-      // selecting modules
+      // rectangle exists, selecting modules
       //
       var x = parseFloat(rect.getAttribute('x'))
       var y = parseFloat(rect.getAttribute('y'))
@@ -142,30 +144,34 @@ document.addEventListener('mouseup',function(evt) {
       svg.removeChild(rect)
       var modules = document.getElementById('modules')
       //
-      // loop over modules
+      // loop to find selected modules
       //
+      mods.ui.selected = []
       for (var module in modules.childNodes) {
          var container = modules.childNodes[module]
          var id = container.id
          var name = container.firstChild
          var left = parseFloat(container.dataset.left)
          var top = parseFloat(container.dataset.top)
-         if ((x <= left) && (left <= x+width) && (y <= top) && (top <= y+height))
+         if ((x <= left) && (left <= x+width) && (y <= top) && (top <= y+height)) {
             //
-            // module in selection rectangle
+            // module is in selection rectangle
             //
             name.style.fontWeight = "bold"
-         else
+            mods.ui.selected.push(id)
+            }
+         else {
             //
-            // module not in selection rectangle
+            // module is not in selection rectangle
             //
             name.style.fontWeight = "normal"
+            }
          }
       }
    })
 document.addEventListener('mousemove',function(evt) {
    //
-   // mouse move
+   // background mouse move
    //
    if (mods.ui.mousedown) {
       evt.preventDefault()
@@ -174,9 +180,9 @@ document.addEventListener('mousemove',function(evt) {
       //
       // remember start
       //
-      if (mods.ui.xpan == undefined) {
-         mods.ui.xpan = evt.pageX
-         mods.ui.ypan = evt.pageY
+      if (mods.ui.xstart == undefined) {
+         mods.ui.xstart = evt.pageX
+         mods.ui.ystart = evt.pageY
          mods.ui.xtrans = t.tx
          mods.ui.ytrans = t.ty
          }
@@ -185,8 +191,8 @@ document.addEventListener('mousemove',function(evt) {
       //
       if (evt.shiftKey) {
          var rect = document.getElementById('svgrect')
-         var xp = t.ox-t.tx+(mods.ui.xpan-t.ox)/t.s
-         var yp = t.oy-t.ty+(mods.ui.ypan-t.oy)/t.s-mods.ui.header
+         var xp = t.ox-t.tx+(mods.ui.xstart-t.ox)/t.s
+         var yp = t.oy-t.ty+(mods.ui.ystart-t.oy)/t.s-mods.ui.header
          var xw = t.ox-t.tx+(evt.pageX-t.ox)/t.s
          var yw = t.oy-t.ty+(evt.pageY-t.oy)/t.s-mods.ui.header
          if (xw < xp) {
@@ -203,11 +209,11 @@ document.addEventListener('mousemove',function(evt) {
             rect.setAttribute('height',yw-yp)
          }
       //
-      // pan
+      // pan if not shifted
       //
       else {
-         xtrans = mods.ui.xtrans+(evt.pageX-mods.ui.xpan)/t.s
-         ytrans = mods.ui.ytrans+(evt.pageY-mods.ui.ypan)/t.s
+         xtrans = mods.ui.xtrans+(evt.pageX-mods.ui.xstart)/t.s
+         ytrans = mods.ui.ytrans+(evt.pageY-mods.ui.ystart)/t.s
          document.body.style.transform = `scale(${t.s}) translate(${xtrans}px,${ytrans}px)`
          }
       }
