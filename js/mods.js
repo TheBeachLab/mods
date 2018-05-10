@@ -72,6 +72,7 @@ tx0+(ox1-ox0)*(1-1/s)  = tx1
 document.addEventListener('wheel',function(evt) {
    var el = document.elementFromPoint(evt.pageX,evt.pageY)
    if ((el.tagName == "HTML") || (el.tagName == "BODY")) {
+      set_prompt('scroll to zoom')
       evt.preventDefault()
       evt.stopPropagation()
       var t = mods_transform()
@@ -93,9 +94,19 @@ document.addEventListener('mousedown',function(evt) {
    // mouse down
    //
    var el = document.elementFromPoint(evt.pageX,evt.pageY)
+   //
+   // check if on background
+   //
    if ((el.tagName == "HTML") || (el.tagName == "BODY")) {
       mods.ui.mousedown = true
+      set_prompt('drag to pan')
+      //
+      // on background, check if shifted
+      //
       if (evt.shiftKey) {
+         //
+         // shifted, start selection rectangle
+         //
          var t = mods_transform()
          var rect = document.createElementNS('http://www.w3.org/2000/svg','rect')
             rect.setAttribute('id','svgrect')
