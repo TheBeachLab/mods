@@ -24,12 +24,12 @@ mods.ui = {source:null,
    canvas:250,
    rows:5,
    cols:20,
-   link:'rgb(0,0,128)',
+   link_color:'rgb(0,0,128)',
    link_highlight:'rgb(255,0,0)',
    header:50,
    mousedown:false,
    xstart:undefined,
-   selected:[]
+   selected:{}
    }
 mods.globals = {}
 mods.mod = {}
@@ -61,7 +61,7 @@ function mods_transform() {
 document.body.style.transform = 'scale(1) translate(0px,0px)'
 document.body.style.transformOrigin = '0px 0px'
 //
-// background scroll wheel
+// scroll wheel event
 //
 document.addEventListener('wheel',function(evt) {
    /*
@@ -89,26 +89,35 @@ document.addEventListener('wheel',function(evt) {
       }
    })
 //
-// background mouse events
+// mouse events
 //
 document.addEventListener('mousedown',function(evt) {
    //
-   // background mouse down
+   // get element mouse is over
    //
    var el = document.elementFromPoint(evt.pageX,evt.pageY)
    //
-   // check if on background
+   // check if on body
    //
    if ((el.tagName == "HTML") || (el.tagName == "BODY")) {
       mods.ui.mousedown = true
-      set_prompt('drag to pan')
       //
-      // on background, check if shifted
+      // on body, check for shift
       //
-      if (evt.shiftKey) {
+      if (!evt.shiftKey) {
          //
-         // shifted, start selection rectangle
+         // no shift, pan?
          //
+         if (evt.which == 1)
+            set_prompt('drag to pan')
+         else if (evt.which == 3)
+            set_prompt('menu')
+         }
+      else {
+         //
+         // yes shift, select rectangle
+         //
+         set_prompt('shift drag to select')
          var t = mods_transform()
          var rect = document.createElementNS('http://www.w3.org/2000/svg','rect')
             rect.setAttribute('id','svgrect')
@@ -125,7 +134,7 @@ document.addEventListener('mousedown',function(evt) {
    })
 document.addEventListener('mouseup',function(evt) {
    //
-   // background mouse up
+   // mouse up
    //
    mods.ui.mousedown = false
    mods.ui.xstart = undefined
@@ -146,32 +155,34 @@ document.addEventListener('mouseup',function(evt) {
       //
       // loop to find selected modules
       //
-      mods.ui.selected = []
+      mods.ui.selected = {}
       for (var module in modules.childNodes) {
          var container = modules.childNodes[module]
          var id = container.id
-         var name = container.firstChild
-         var left = parseFloat(container.dataset.left)
-         var top = parseFloat(container.dataset.top)
-         if ((x <= left) && (left <= x+width) && (y <= top) && (top <= y+height)) {
-            //
-            // module is in selection rectangle
-            //
-            name.style.fontWeight = "bold"
-            mods.ui.selected.push(id)
-            }
-         else {
-            //
-            // module is not in selection rectangle
-            //
-            name.style.fontWeight = "normal"
+         if (id != undefined) {
+            var name = container.firstChild
+            var left = parseFloat(container.dataset.left)
+            var top = parseFloat(container.dataset.top)
+            if ((x <= left) && (left <= x+width) && (y <= top) && (top <= y+height)) {
+               //
+               // module is in selection rectangle
+               //
+               name.style.fontWeight = "bold"
+               mods.ui.selected[id] = true
+               }
+            else {
+               //
+               // module is not in selection rectangle
+               //
+               name.style.fontWeight = "normal"
+               }
             }
          }
       }
    })
 document.addEventListener('mousemove',function(evt) {
    //
-   // background mouse move
+   // mouse move
    //
    if (mods.ui.mousedown) {
       evt.preventDefault()
@@ -1611,7 +1622,7 @@ mods.module_move = function(id,dx,dy) {
    var left = parseInt(module.style.left)
    module.style.left = left+dx
    module.dataset.left = left+dx
-   draw_links(id,mods.ui.link)
+   draw_links(id,mods.ui.link_color)
    }
 mods.module_inputs = function(id,index) {
    var module = document.getElementById(id)
@@ -1633,7 +1644,7 @@ mods.module_position = function(id,x,y) {
    var left = parseInt(module.style.left)
    module.style.left = x
    module.dataset.left = x
-   draw_links(id,mods.ui.link)
+   draw_links(id,mods.ui.link_color)
    }
 mods.module_top = function(id) {
    var module = document.getElementById(id)
@@ -1658,7 +1669,7 @@ function input_out(evt) {
    evt.target.style.fontWeight = 'normal'
    var links = JSON.parse(evt.target.dataset.links)
    for (var l in links)
-      draw_link(links[l],mods.ui.link)
+      draw_link(links[l],mods.ui.link_color)
    if (mods.ui.source == null)
       set_prompt('')
    }
@@ -1699,7 +1710,7 @@ function output_out(evt) {
    evt.target.style.fontWeight = 'normal'
    var links = JSON.parse(evt.target.dataset.links)
    for (var l in links)
-      draw_link(links[l],mods.ui.link)
+      draw_link(links[l],mods.ui.link_color)
    if (mods.ui.source == null)
       set_prompt('')
    }
@@ -1745,7 +1756,7 @@ function name_mousedown(evt) {
       div.style.zIndex = 1
       div.dataset.xdown = evt.clientX
       div.dataset.ydown = evt.clientY
-      mods.id = evt.target.parentNode.id
+      mods.ui.selected[evt.target.parentNode.id] = true
       window.addEventListener('mousemove',window_mousemove)
       window.addEventListener('mouseup',window_mouseup)
    }
@@ -1756,7 +1767,7 @@ function name_touchdown(evt) {
       div.style.zIndex = 1
       div.dataset.xdown = evt.changedTouches[0].pageX
       div.dataset.ydown = evt.changedTouches[0].pageY
-      mods.id = evt.target.parentNode.id
+      mods.ui.selected[evt.target.parentNode.id] = true
       window.addEventListener('touchmove',window_touchmove)
       window.addEventListener('touchend',window_touchup)
    }
@@ -1766,33 +1777,33 @@ function name_touchdown(evt) {
 function window_mousemove(evt) {
    evt.preventDefault()
    evt.stopPropagation()
-   var div = document.getElementById(mods.id)
-      var t = mods_transform()
-      var dx = (evt.clientX-div.dataset.xdown)/t.s
-      var dy = (evt.clientY-div.dataset.ydown)/t.s
-      var newleft = parseFloat(div.dataset.left) + dx
-      var newtop = parseFloat(div.dataset.top) + dy
-      div.style.left = newleft+'px'
-      div.style.top = newtop+'px'
-   draw_links(mods.id,mods.ui.link)
-   if (mods.ui.selected != []) {
-      for (var id in mods.ui.selected) {
-         console.log(mods.ui.selected[id])
-         }
+   var t = mods_transform()
+   for (var id in mods.ui.selected) {
+      var div = document.getElementById(id)
+         var dx = (evt.clientX-div.dataset.xdown)/t.s
+         var dy = (evt.clientY-div.dataset.ydown)/t.s
+         var newleft = parseFloat(div.dataset.left)+dx
+         var newtop = parseFloat(div.dataset.top)+dy
+         div.style.left = newleft+'px'
+         div.style.top = newtop+'px'
+      draw_links(id,mods.ui.link_color)
       }
    }
 function window_mouseup(evt) {
    evt.preventDefault()
    evt.stopPropagation()
-   var div = document.getElementById(mods.id)
-      div.style.zIndex = 0
-      var t = mods_transform()
-      var dx = (evt.clientX-div.dataset.xdown)/t.s
-      var dy = (evt.clientY-div.dataset.ydown)/t.s
-      div.dataset.left = parseFloat(div.dataset.left) + dx
-      div.dataset.top = parseFloat(div.dataset.top) + dy
-      window.removeEventListener('mousemove',window_mousemove)
-      window.removeEventListener('mouseup',window_mouseup)
+   mods.ui.selected = {}
+   var t = mods_transform()
+   for (var id in mods.ui.selected) {
+      var div = document.getElementById(id)
+         div.style.zIndex = 0
+         var dx = (evt.clientX-div.dataset.xdown)/t.s
+         var dy = (evt.clientY-div.dataset.ydown)/t.s
+         div.dataset.left = parseFloat(div.dataset.left)+dx
+         div.dataset.top = parseFloat(div.dataset.top)+dy
+         window.removeEventListener('mousemove',window_mousemove)
+         window.removeEventListener('mouseup',window_mouseup)
+      }
    }
 function window_touchmove(evt) {
    evt.preventDefault()
@@ -1804,7 +1815,7 @@ function window_touchmove(evt) {
       var newtop = parseFloat(div.dataset.top) + dy
       div.style.left = newleft+'px'
       div.style.top = newtop+'px'
-   draw_links(mods.id,mods.ui.link)
+   draw_links(mods.id,mods.ui.link_color)
    }
 function window_touchup(evt) {
    evt.preventDefault()
@@ -1819,7 +1830,10 @@ function window_touchup(evt) {
       window.removeEventListener('touchend',window_touchup)
    }
 
-
+  /*
+  //
+  // removing UI helper functions that don't belong here
+  //
   function make_text_input (div, name, size) {
     div.appendChild(document.createElement('br'))
     div.appendChild(document.createTextNode(name + ': '))
@@ -1827,10 +1841,8 @@ function window_touchup(evt) {
     input.type = 'text'
     input.size = size
     div.appendChild(input)
-
     return input
   }
-
   function make_button_input (div, text) {
     div.appendChild(document.createElement('br'))
     var button = document.createElement('button')
@@ -1838,28 +1850,24 @@ function window_touchup(evt) {
     button.style.margin = 1
     button.appendChild(document.createTextNode(text))
     div.appendChild(button)
-
     return button
   }
-
   function make_checkbox_input (div, prefix) {
     div.appendChild(document.createElement('br'))
     div.appendChild(document.createTextNode(prefix + ': '))
     var checkbox = document.createElement('input')
     checkbox.type = 'checkbox'
     div.appendChild(checkbox)
-
     return checkbox
   }
-
   function make_text_display (div, prefix) {
     div.appendChild(document.createElement('br'))
     div.appendChild(document.createTextNode(prefix + ': '))
     var span = document.createElement('span')
     span.innerHTML = ''
     div.appendChild(span)
-
     return span
   }
+  */
   
 })()
