@@ -1804,6 +1804,7 @@ function window_mouseup(evt) {
    for (var id in mods.ui.selected) {
       var div = document.getElementById(id)
          div.style.zIndex = 0
+         div.childNodes[0].style.fontWeight = 'normal'
          var dx = (evt.clientX-mods.ui.xstart)/t.s
          var dy = (evt.clientY-mods.ui.ystart)/t.s
          div.dataset.left = parseFloat(div.dataset.left)+dx
