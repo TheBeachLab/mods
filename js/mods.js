@@ -233,6 +233,7 @@ document.addEventListener('mousemove',function(evt) {
 // context menu
 //
 document.addEventListener('contextmenu',function(evt){
+   evt.stopPropagation()
    evt.preventDefault()
    if (mods.globals.menu != null) {
       document.body.removeChild(mods.globals.menu)
