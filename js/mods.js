@@ -68,7 +68,7 @@ document.body.style.transformOrigin = '0px 0px'
 //
 // scroll wheel event
 //
-document.addEventListener('wheel',function(evt) {
+window.addEventListener('wheel',function(evt) {
    /*
    (xw+tx-ox)*s+ox = xs
    xw = ox-tx+(xs-ox)/s
@@ -96,7 +96,7 @@ document.addEventListener('wheel',function(evt) {
 //
 // mouse events
 //
-document.addEventListener('mousedown',function(evt) {
+window.addEventListener('mousedown',function(evt) {
    //
    // get element mouse is over
    //
@@ -145,7 +145,7 @@ document.addEventListener('mousedown',function(evt) {
          }
       }
    })
-document.addEventListener('mouseup',function(evt) {
+window.addEventListener('mouseup',function(evt) {
    //
    // mouse up
    //
@@ -192,7 +192,7 @@ document.addEventListener('mouseup',function(evt) {
          }
       }
    })
-document.addEventListener('mousemove',function(evt) {
+window.addEventListener('mousemove',function(evt) {
    //
    // mouse move
    //
@@ -235,7 +235,7 @@ document.addEventListener('mousemove',function(evt) {
 //
 // context menu
 //
-document.addEventListener('contextmenu',function(evt){
+window.addEventListener('contextmenu',function(evt){
    evt.stopPropagation()
    evt.preventDefault()
    if (mods.ui.menu != null) {
@@ -1765,24 +1765,10 @@ function name_mousedown(evt) {
       mods.ui.xstart = evt.clientX
       mods.ui.ystart = evt.clientY
       mods.ui.selected[evt.target.parentNode.id] = true
-      window.addEventListener('mousemove',window_mousemove)
-      window.addEventListener('mouseup',window_mouseup)
+      window.addEventListener('mousemove',name_mousemove)
+      window.addEventListener('mouseup',name_mouseup)
    }
-function name_touchdown(evt) {
-   evt.preventDefault()
-   evt.stopPropagation()
-   var div = document.getElementById(evt.target.parentNode.id)
-      div.style.zIndex = 1
-      mods.ui.xstart = evt.changedTouches[0].pageX
-      mods.ui.ystart = evt.changedTouches[0].pageY
-      mods.ui.selected[evt.target.parentNode.id] = true
-      window.addEventListener('touchmove',window_touchmove)
-      window.addEventListener('touchend',window_touchup)
-   }
-//
-// window event handlers
-//
-function window_mousemove(evt) {
+function name_mousemove(evt) {
    evt.preventDefault()
    evt.stopPropagation()
    var t = mods_transform()
@@ -1797,7 +1783,7 @@ function window_mousemove(evt) {
       draw_links(id,mods.ui.link_color)
       }
    }
-function window_mouseup(evt) {
+function name_mouseup(evt) {
    evt.preventDefault()
    evt.stopPropagation()
    var t = mods_transform()
@@ -1809,12 +1795,23 @@ function window_mouseup(evt) {
          var dy = (evt.clientY-mods.ui.ystart)/t.s
          div.dataset.left = parseFloat(div.dataset.left)+dx
          div.dataset.top = parseFloat(div.dataset.top)+dy
-         window.removeEventListener('mousemove',window_mousemove)
-         window.removeEventListener('mouseup',window_mouseup)
+         window.removeEventListener('mousemove',name_mousemove)
+         window.removeEventListener('mouseup',name_mouseup)
       }
    mods.ui.selected = {}
    }
-function window_touchmove(evt) {
+function name_touchdown(evt) {
+   evt.preventDefault()
+   evt.stopPropagation()
+   var div = document.getElementById(evt.target.parentNode.id)
+      div.style.zIndex = 1
+      mods.ui.xstart = evt.changedTouches[0].pageX
+      mods.ui.ystart = evt.changedTouches[0].pageY
+      mods.ui.selected[evt.target.parentNode.id] = true
+      window.addEventListener('touchmove',name_touchmove)
+      window.addEventListener('touchend',name_touchup)
+   }
+function name_touchmove(evt) {
    evt.preventDefault()
    evt.stopPropagation()
    var div = document.getElementById(mods.id)
@@ -1835,8 +1832,8 @@ function window_touchup(evt) {
       var dy = evt.changedTouches[0].pageY-mods.ui.ystart
       div.dataset.left = parseFloat(div.dataset.left)+dx
       div.dataset.top = parseFloat(div.dataset.top)+dy
-      window.removeEventListener('touchmove',window_touchmove)
-      window.removeEventListener('touchend',window_touchup)
+      window.removeEventListener('touchmove',name_touchmove)
+      window.removeEventListener('touchend',name_touchup)
    }
 
   /*
