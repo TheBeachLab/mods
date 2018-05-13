@@ -17,6 +17,8 @@
 // globals
 //
 var mods = {}
+mods.mod = {}
+mods.globals = {}
 mods.ui = {source:null,
    progname:'',
    padding:7,
@@ -29,11 +31,11 @@ mods.ui = {source:null,
    header:50,
    mousedown:false,
    xstart:undefined,
-   selected:{}
+   selected:{},
+   menu:null,
+   top:null,
+   left:null
    }
-mods.globals = {}
-mods.mod = {}
-document.body.id = 'body'
 //
 // UI
 //
@@ -235,9 +237,9 @@ document.addEventListener('mousemove',function(evt) {
 document.addEventListener('contextmenu',function(evt){
    evt.stopPropagation()
    evt.preventDefault()
-   if (mods.globals.menu != null) {
-      document.body.removeChild(mods.globals.menu)
-      mods.globals.menu = null
+   if (mods.ui.menu != null) {
+      document.body.removeChild(mods.ui.menu)
+      mods.ui.menu = null
       }
    var div = document.createElement('div')
    make_menu(div)
@@ -247,7 +249,7 @@ document.addEventListener('contextmenu',function(evt){
    add_menu(div,'options',options)
    document.body.appendChild(div)
    function make_menu(div) {
-      mods.globals.menu = div
+      mods.ui.menu = div
       div.style.position = "absolute"
       var t = mods_transform()
       div.style.top = t.oy-t.ty+(evt.pageY-t.oy)/t.s
@@ -301,8 +303,10 @@ document.addEventListener('contextmenu',function(evt){
             div.addEventListener('mouseout',function(evt){
                evt.target.style.fontWeight = 'normal'})
             div.addEventListener('mousedown',function(evt){
+               evt.preventDefault()
+               evt.stopPropagation()
                document.body.removeChild(evt.target.parentNode)
-               mods.globals.menu = null
+               mods.ui.menu = null
                var t = mods_transform()
                mod_message_handler(module,
                   t.oy-t.ty+(evt.pageY-t.oy)/t.s,
@@ -333,10 +337,10 @@ document.addEventListener('contextmenu',function(evt){
       //
       add_menu(div,'open local module',function(evt){
          var t = mods_transform()
-         mods.globals.top = t.oy-t.ty+(evt.pageY-t.oy)/t.s
-         mods.globals.left = t.ox-t.tx+(evt.pageX-t.ox)/t.s
+         mods.ui.top = t.oy-t.ty+(evt.pageY-t.oy)/t.s
+         mods.ui.left = t.ox-t.tx+(evt.pageX-t.ox)/t.s
          document.body.removeChild(evt.target.parentNode)
-         mods.globals.menu = null
+         mods.ui.menu = null
          var file = document.getElementById('mod_input')
          file.value = null
          file.click()
@@ -346,7 +350,7 @@ document.addEventListener('contextmenu',function(evt){
       //
       add_menu(div,'open remote module',function(evt){
          document.body.removeChild(evt.target.parentNode)
-         mods.globals.menu = null
+         mods.ui.menu = null
          set_prompt('remotes not yet implemented')
          })
       document.body.appendChild(div)
@@ -364,7 +368,7 @@ document.addEventListener('contextmenu',function(evt){
       //
       add_menu(div,'open local program',function(evt){
          document.body.removeChild(evt.target.parentNode)
-         mods.globals.menu = null
+         mods.ui.menu = null
          var file = document.getElementById('prog_input')
          file.value = null
          file.click()
@@ -390,6 +394,8 @@ document.addEventListener('contextmenu',function(evt){
             div.addEventListener('mouseout',function(evt){
                evt.target.style.fontWeight = 'normal'})
             div.addEventListener('mousedown',function(evt){
+               evt.preventDefault()
+               evt.stopPropagation()
                if (location.port == 80)
                   var uri = 'http://'+location.hostname
                      +'?program='+program
@@ -399,7 +405,7 @@ document.addEventListener('contextmenu',function(evt){
                set_prompt('<a href='+uri+'>program link</a>')
                prog_message_handler(program)
                document.body.removeChild(evt.target.parentNode)
-               mods.globals.menu = null
+               mods.ui.menu = null
                })
             div.appendChild(document.createElement('br'))
             menu.appendChild(div)
@@ -427,7 +433,7 @@ document.addEventListener('contextmenu',function(evt){
       //
       add_menu(div,'open remote program',function(evt){
          document.body.removeChild(evt.target.parentNode)
-         mods.globals.menu = null
+         mods.ui.menu = null
          set_prompt('remotes not yet implemented')
          })
       //
@@ -435,7 +441,7 @@ document.addEventListener('contextmenu',function(evt){
       //
       add_menu(div,'save local program',function(evt){
          document.body.removeChild(evt.target.parentNode)
-         mods.globals.menu = null
+         mods.ui.menu = null
          save_program()
          })
       //
@@ -443,7 +449,7 @@ document.addEventListener('contextmenu',function(evt){
       //
       add_menu(div,'save local page',function(evt){
          document.body.removeChild(evt.target.parentNode)
-         mods.globals.menu = null
+         mods.ui.menu = null
          save_page()
          })
       document.body.appendChild(div)
@@ -454,7 +460,7 @@ document.addEventListener('contextmenu',function(evt){
    function edit(evt) {
       evt.preventDefault()
       document.body.removeChild(evt.target.parentNode)
-      mods.globals.menu = null
+      mods.ui.menu = null
       set_prompt('editing not yet implemented')
       }
    //
@@ -463,7 +469,7 @@ document.addEventListener('contextmenu',function(evt){
    function options(evt) {
       evt.preventDefault()
       document.body.removeChild(evt.target.parentNode)
-      mods.globals.menu = null
+      mods.ui.menu = null
       var div = document.createElement('div')
       make_menu(div)
       //
@@ -471,7 +477,7 @@ document.addEventListener('contextmenu',function(evt){
       //
       add_menu(div,'view files',function(evt){
          document.body.removeChild(evt.target.parentNode)
-         mods.globals.menu = null
+         mods.ui.menu = null
          var win = window.open('files.html')
          })
       document.body.appendChild(div)
@@ -480,7 +486,7 @@ document.addEventListener('contextmenu',function(evt){
       //
       add_menu(div,'view project',function(evt){
          document.body.removeChild(evt.target.parentNode)
-         mods.globals.menu = null
+         mods.ui.menu = null
          var win = window.open('https://gitlab.cba.mit.edu/pub/mods')
          })
       document.body.appendChild(div)
@@ -890,8 +896,8 @@ function mod_load_handler(event) {
       }
    args.definition = str
    args.id = String(Math.random())
-   args.top = mods.globals.top
-   args.left = mods.globals.left
+   args.top = mods.ui.top
+   args.left = mods.ui.left
    args.filename = ""
    var div = add_module(args)
    return(div)
