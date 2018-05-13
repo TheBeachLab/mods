@@ -30,11 +30,14 @@ mods.ui = {source:null,
    link_highlight:'rgb(255,0,0)',
    header:50,
    mousedown:false,
-   xstart:undefined,
    selected:{},
    menu:null,
    top:null,
-   left:null
+   left:null,
+   xstart:null,
+   ystart:null,
+   xtrans:null,
+   ytrans:null
    }
 //
 // UI
@@ -104,6 +107,14 @@ document.addEventListener('mousedown',function(evt) {
    if ((el.tagName == "HTML") || (el.tagName == "BODY")) {
       mods.ui.mousedown = true
       //
+      // remember position
+      //
+      var t = mods_transform()
+      mods.ui.xstart = evt.pageX
+      mods.ui.ystart = evt.pageY
+      mods.ui.xtrans = t.tx
+      mods.ui.ytrans = t.ty
+      //
       // on body, check for shift
       //
       if (!evt.shiftKey) {
@@ -139,7 +150,6 @@ document.addEventListener('mouseup',function(evt) {
    // mouse up
    //
    mods.ui.mousedown = false
-   mods.ui.xstart = undefined
    //
    // check for selection rectangle
    //
@@ -190,15 +200,6 @@ document.addEventListener('mousemove',function(evt) {
       evt.preventDefault()
       evt.stopPropagation()
       var t = mods_transform()
-      //
-      // remember start
-      //
-      if (mods.ui.xstart == undefined) {
-         mods.ui.xstart = evt.pageX
-         mods.ui.ystart = evt.pageY
-         mods.ui.xtrans = t.tx
-         mods.ui.ytrans = t.ty
-         }
       //
       // selecting region if shifted
       //
@@ -1761,8 +1762,8 @@ function name_mousedown(evt) {
    evt.stopPropagation()
    var div = document.getElementById(evt.target.parentNode.id)
       div.style.zIndex = 1
-      div.dataset.xdown = evt.clientX
-      div.dataset.ydown = evt.clientY
+      mods.ui.xstart = evt.clientX
+      mods.ui.ystart = evt.clientY
       mods.ui.selected[evt.target.parentNode.id] = true
       window.addEventListener('mousemove',window_mousemove)
       window.addEventListener('mouseup',window_mouseup)
@@ -1772,8 +1773,8 @@ function name_touchdown(evt) {
    evt.stopPropagation()
    var div = document.getElementById(evt.target.parentNode.id)
       div.style.zIndex = 1
-      div.dataset.xdown = evt.changedTouches[0].pageX
-      div.dataset.ydown = evt.changedTouches[0].pageY
+      mods.ui.xstart = evt.changedTouches[0].pageX
+      mods.ui.ystart = evt.changedTouches[0].pageY
       mods.ui.selected[evt.target.parentNode.id] = true
       window.addEventListener('touchmove',window_touchmove)
       window.addEventListener('touchend',window_touchup)
@@ -1787,8 +1788,8 @@ function window_mousemove(evt) {
    var t = mods_transform()
    for (var id in mods.ui.selected) {
       var div = document.getElementById(id)
-         var dx = (evt.clientX-div.dataset.xdown)/t.s
-         var dy = (evt.clientY-div.dataset.ydown)/t.s
+         var dx = (evt.clientX-mods.ui.xstart)/t.s
+         var dy = (evt.clientY-mods.ui.ystart)/t.s
          var newleft = parseFloat(div.dataset.left)+dx
          var newtop = parseFloat(div.dataset.top)+dy
          div.style.left = newleft+'px'
@@ -1799,27 +1800,27 @@ function window_mousemove(evt) {
 function window_mouseup(evt) {
    evt.preventDefault()
    evt.stopPropagation()
-   mods.ui.selected = {}
    var t = mods_transform()
    for (var id in mods.ui.selected) {
       var div = document.getElementById(id)
          div.style.zIndex = 0
-         var dx = (evt.clientX-div.dataset.xdown)/t.s
-         var dy = (evt.clientY-div.dataset.ydown)/t.s
+         var dx = (evt.clientX-mods.ui.xstart)/t.s
+         var dy = (evt.clientY-mods.ui.ystart)/t.s
          div.dataset.left = parseFloat(div.dataset.left)+dx
          div.dataset.top = parseFloat(div.dataset.top)+dy
          window.removeEventListener('mousemove',window_mousemove)
          window.removeEventListener('mouseup',window_mouseup)
       }
+   mods.ui.selected = {}
    }
 function window_touchmove(evt) {
    evt.preventDefault()
    evt.stopPropagation()
    var div = document.getElementById(mods.id)
-      var dx = evt.changedTouches[0].pageX - div.dataset.xdown
-      var dy = evt.changedTouches[0].pageY - div.dataset.ydown
-      var newleft = parseFloat(div.dataset.left) + dx
-      var newtop = parseFloat(div.dataset.top) + dy
+      var dx = evt.changedTouches[0].pageX-mods.ui.xstart
+      var dy = evt.changedTouches[0].pageY-mods.ui.ystart
+      var newleft = parseFloat(div.dataset.left)+dx
+      var newtop = parseFloat(div.dataset.top)+dy
       div.style.left = newleft+'px'
       div.style.top = newtop+'px'
    draw_links(mods.id,mods.ui.link_color)
@@ -1829,10 +1830,10 @@ function window_touchup(evt) {
    evt.stopPropagation()
    var div = document.getElementById(mods.id)
       div.style.zIndex = 0
-      var dx = evt.changedTouches[0].pageX- div.dataset.xdown
-      var dy = evt.changedTouches[0].pageY - div.dataset.ydown
-      div.dataset.left = parseFloat(div.dataset.left) + dx
-      div.dataset.top = parseFloat(div.dataset.top) + dy
+      var dx = evt.changedTouches[0].pageX-mods.ui.start
+      var dy = evt.changedTouches[0].pageY-mods.ui.ystart
+      div.dataset.left = parseFloat(div.dataset.left)+dx
+      div.dataset.top = parseFloat(div.dataset.top)+dy
       window.removeEventListener('touchmove',window_touchmove)
       window.removeEventListener('touchend',window_touchup)
    }
