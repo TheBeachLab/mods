@@ -29,8 +29,8 @@ mods.ui = {source:null,
    link_color:'rgb(0,0,128)',
    link_highlight:'rgb(255,0,0)',
    header:50,
-   mousedown:false,
    selected:{},
+   mousedown:null,
    menu:null,
    top:null,
    left:null,
@@ -94,7 +94,7 @@ window.addEventListener('wheel',function(evt) {
       }
    })
 //
-// mouse events
+// body mouse events
 //
 window.addEventListener('mousedown',function(evt) {
    //
@@ -105,7 +105,20 @@ window.addEventListener('mousedown',function(evt) {
    // check if on body
    //
    if ((el.tagName == "HTML") || (el.tagName == "BODY")) {
-      mods.ui.mousedown = true
+      //
+      // remember button
+      //
+      mods.ui.mousedown = evt.button
+      if (mods.ui.mousedown == 0) {
+         set_prompt('drag to pan')
+         if (mods.ui.menu != null) {
+            document.body.removeChild(mods.ui.menu)
+            mods.ui.menu = null
+            }
+         }
+      else if (mods.ui.mousedown == 2) {
+         set_prompt('menu; drag to select')
+         }
       //
       // remember position
       //
@@ -114,34 +127,66 @@ window.addEventListener('mousedown',function(evt) {
       mods.ui.ystart = evt.pageY
       mods.ui.xtrans = t.tx
       mods.ui.ytrans = t.ty
-      //
-      // on body, check for shift
-      //
-      if (!evt.shiftKey) {
-         //
-         // no shift, pan?
-         //
-         if (evt.which == 1)
-            set_prompt('drag to pan')
-         else if (evt.which == 3)
-            set_prompt('menu')
+      }
+   })
+window.addEventListener('mousemove',function(evt) {
+   //
+   // mouse move
+   //
+   if (mods.ui.mousedown != null) {
+      evt.preventDefault()
+      evt.stopPropagation()
+      var t = mods_transform()
+      if (mods.ui.mousedown == 0) {
+         xtrans = mods.ui.xtrans+(evt.pageX-mods.ui.xstart)/t.s
+         ytrans = mods.ui.ytrans+(evt.pageY-mods.ui.ystart)/t.s
+         document.body.style.transform = `scale(${t.s}) translate(${xtrans}px,${ytrans}px)`
          }
-      else {
-         //
-         // yes shift, select rectangle
-         //
-         set_prompt('shift drag to select')
-         var t = mods_transform()
-         var rect = document.createElementNS('http://www.w3.org/2000/svg','rect')
-            rect.setAttribute('id','svgrect')
-            rect.setAttribute('x',t.ox-t.tx+(evt.pageX-t.ox)/t.s)
-            rect.setAttribute('y',t.oy-t.ty+(evt.pageY-t.oy)/t.s-mods.ui.header)
-            rect.setAttribute('width',0)
-            rect.setAttribute('height',0)
-            rect.setAttribute('fill','rgb(200,200,200)')
-            rect.setAttribute('stroke','none')
-         var svg = document.getElementById('svg')
-            svg.insertBefore(rect,svg.firstChild)
+      else if (mods.ui.mousedown == 2) {
+         var rect = document.getElementById('svgrect')
+         if (rect == undefined) {
+            if (mods.ui.menu != null) {
+               document.body.removeChild(mods.ui.menu)
+               mods.ui.menu = null
+               }
+            //
+            // yes shift, select rectangle
+            //
+            set_prompt('shift drag to select')
+            var t = mods_transform()
+            var rect = document.createElementNS('http://www.w3.org/2000/svg','rect')
+               rect.setAttribute('id','svgrect')
+               rect.setAttribute('x',t.ox-t.tx+(evt.pageX-t.ox)/t.s)
+               rect.setAttribute('y',t.oy-t.ty+(evt.pageY-t.oy)/t.s-mods.ui.header)
+               rect.setAttribute('width',0)
+               rect.setAttribute('height',0)
+               rect.setAttribute('fill','rgb(200,200,200)')
+               rect.setAttribute('stroke','none')
+            var svg = document.getElementById('svg')
+               svg.insertBefore(rect,svg.firstChild)
+            }
+      //
+      // selecting region if shifted
+      //
+         else {
+            var rect = document.getElementById('svgrect')
+            var xp = t.ox-t.tx+(mods.ui.xstart-t.ox)/t.s
+            var yp = t.oy-t.ty+(mods.ui.ystart-t.oy)/t.s-mods.ui.header
+            var xw = t.ox-t.tx+(evt.pageX-t.ox)/t.s
+            var yw = t.oy-t.ty+(evt.pageY-t.oy)/t.s-mods.ui.header
+            if (xw < xp) {
+               rect.setAttribute('x',xw)
+               rect.setAttribute('width',xp-xw)
+               }
+            else
+               rect.setAttribute('width',xw-xp)
+            if (yw < yp) {
+               rect.setAttribute('y',yw)
+               rect.setAttribute('height',yp-yw)
+               }
+            else
+               rect.setAttribute('height',yw-yp)
+            }
          }
       }
    })
@@ -149,7 +194,7 @@ window.addEventListener('mouseup',function(evt) {
    //
    // mouse up
    //
-   mods.ui.mousedown = false
+   mods.ui.mousedown = null
    //
    // check for selection rectangle
    //
@@ -189,46 +234,6 @@ window.addEventListener('mouseup',function(evt) {
                name.style.fontWeight = "normal"
                }
             }
-         }
-      }
-   })
-window.addEventListener('mousemove',function(evt) {
-   //
-   // mouse move
-   //
-   if (mods.ui.mousedown) {
-      evt.preventDefault()
-      evt.stopPropagation()
-      var t = mods_transform()
-      //
-      // selecting region if shifted
-      //
-      if (evt.shiftKey) {
-         var rect = document.getElementById('svgrect')
-         var xp = t.ox-t.tx+(mods.ui.xstart-t.ox)/t.s
-         var yp = t.oy-t.ty+(mods.ui.ystart-t.oy)/t.s-mods.ui.header
-         var xw = t.ox-t.tx+(evt.pageX-t.ox)/t.s
-         var yw = t.oy-t.ty+(evt.pageY-t.oy)/t.s-mods.ui.header
-         if (xw < xp) {
-            rect.setAttribute('x',xw)
-            rect.setAttribute('width',xp-xw)
-            }
-         else
-            rect.setAttribute('width',xw-xp)
-         if (yw < yp) {
-            rect.setAttribute('y',yw)
-            rect.setAttribute('height',yp-yw)
-            }
-         else
-            rect.setAttribute('height',yw-yp)
-         }
-      //
-      // pan if not shifted
-      //
-      else {
-         xtrans = mods.ui.xtrans+(evt.pageX-mods.ui.xstart)/t.s
-         ytrans = mods.ui.ytrans+(evt.pageY-mods.ui.ystart)/t.s
-         document.body.style.transform = `scale(${t.s}) translate(${xtrans}px,${ytrans}px)`
          }
       }
    })
