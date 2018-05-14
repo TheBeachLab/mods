@@ -110,14 +110,14 @@ window.addEventListener('mousedown',function(evt) {
       //
       mods.ui.mousedown = evt.button
       if (mods.ui.mousedown == 0) {
-         set_prompt('drag to pan')
+         set_prompt('left-drag to pan, right-drag to select')
          if (mods.ui.menu != null) {
             document.body.removeChild(mods.ui.menu)
             mods.ui.menu = null
             }
          }
       else if (mods.ui.mousedown == 2) {
-         set_prompt('menu; drag to select')
+         set_prompt('menu; left-drag to pan, right-drag to select')
          }
       //
       // remember position
@@ -138,21 +138,27 @@ window.addEventListener('mousemove',function(evt) {
       evt.stopPropagation()
       var t = mods_transform()
       if (mods.ui.mousedown == 0) {
+         //
+         // pan on left drag
+         //
          xtrans = mods.ui.xtrans+(evt.pageX-mods.ui.xstart)/t.s
          ytrans = mods.ui.ytrans+(evt.pageY-mods.ui.ystart)/t.s
          document.body.style.transform = `scale(${t.s}) translate(${xtrans}px,${ytrans}px)`
          }
       else if (mods.ui.mousedown == 2) {
+         //
+         // select on right drag
+         //
          var rect = document.getElementById('svgrect')
          if (rect == undefined) {
+            //
+            // start dragging
+            //
             if (mods.ui.menu != null) {
                document.body.removeChild(mods.ui.menu)
                mods.ui.menu = null
                }
-            //
-            // yes shift, select rectangle
-            //
-            set_prompt('shift drag to select')
+            set_prompt('right-drag to select')
             var t = mods_transform()
             var rect = document.createElementNS('http://www.w3.org/2000/svg','rect')
                rect.setAttribute('id','svgrect')
@@ -165,10 +171,10 @@ window.addEventListener('mousemove',function(evt) {
             var svg = document.getElementById('svg')
                svg.insertBefore(rect,svg.firstChild)
             }
-      //
-      // selecting region if shifted
-      //
          else {
+            //
+            // continue dragging
+            //
             var rect = document.getElementById('svgrect')
             var xp = t.ox-t.tx+(mods.ui.xstart-t.ox)/t.s
             var yp = t.oy-t.ty+(mods.ui.ystart-t.oy)/t.s-mods.ui.header
