@@ -465,6 +465,7 @@ window.addEventListener('contextmenu',function(evt){
    //
    function edit(evt) {
       evt.preventDefault()
+      evt.stopPropagation()
       document.body.removeChild(evt.target.parentNode)
       mods.ui.menu = null
       set_prompt('editing not yet implemented')
@@ -474,6 +475,7 @@ window.addEventListener('contextmenu',function(evt){
    //
    function options(evt) {
       evt.preventDefault()
+      evt.stopPropagation()
       document.body.removeChild(evt.target.parentNode)
       mods.ui.menu = null
       var div = document.createElement('div')
