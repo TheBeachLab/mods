@@ -291,9 +291,11 @@ window.addEventListener('contextmenu',function(evt){
    //
    function modules(evt) {
       evt.preventDefault()
+      evt.stopPropagation()
       document.body.removeChild(evt.target.parentNode)
       var div = document.createElement('div')
       make_menu(div)
+      set_prompt('modules')
       //
       // open server module
       //
@@ -372,9 +374,11 @@ window.addEventListener('contextmenu',function(evt){
    //
    function programs(evt) {
       evt.preventDefault()
+      evt.stopPropagation()
       document.body.removeChild(evt.target.parentNode)
       var div = document.createElement('div')
       make_menu(div)
+      set_prompt('programs')
       //
       // open local program
       //
@@ -473,8 +477,40 @@ window.addEventListener('contextmenu',function(evt){
       evt.preventDefault()
       evt.stopPropagation()
       document.body.removeChild(evt.target.parentNode)
-      mods.ui.menu = null
-      set_prompt('editing not yet implemented')
+      var div = document.createElement('div')
+      make_menu(div)
+      set_prompt('edit')
+      //
+      // cut
+      //
+      add_menu(div,'cut',function(evt){
+         evt.preventDefault()
+         evt.stopPropagation()
+         document.body.removeChild(evt.target.parentNode)
+         mods.ui.menu = null
+         set_prompt('cut not yet implemented')
+         })
+      //
+      // copy
+      //
+      add_menu(div,'copy',function(evt){
+         evt.preventDefault()
+         evt.stopPropagation()
+         document.body.removeChild(evt.target.parentNode)
+         mods.ui.menu = null
+         set_prompt('copy not yet implemented')
+         })
+      //
+      // paste
+      //
+      add_menu(div,'paste',function(evt){
+         evt.preventDefault()
+         evt.stopPropagation()
+         document.body.removeChild(evt.target.parentNode)
+         mods.ui.menu = null
+         set_prompt('paste not yet implemented')
+         })
+      document.body.appendChild(div)
       }
    //
    // options menu
@@ -486,6 +522,7 @@ window.addEventListener('contextmenu',function(evt){
       mods.ui.menu = null
       var div = document.createElement('div')
       make_menu(div)
+      set_prompt('options')
       //
       // view files
       //
