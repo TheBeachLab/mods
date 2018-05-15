@@ -488,7 +488,6 @@ window.addEventListener('contextmenu',function(evt){
          evt.stopPropagation()
          document.body.removeChild(evt.target.parentNode)
          mods.ui.menu = null
-         set_prompt('cut not yet implemented')
          for (var id in mods.ui.selected) {
             var div = document.getElementById(id)
             delete_module(id)
