@@ -28,7 +28,7 @@ var name = 'render GPU';
 var init = function() {
    mod.steps.value=256.0;
    mod.alphaCorrection=10.0;
-   mod.rendType=0.0;
+   mod.rendType="0";
    mod.windowOpen=false;
    mod.xLimit1 =-1.0 ;
    mod.xLimit2 =1.0 ; 
@@ -38,6 +38,7 @@ var init = function() {
    mod.zLimit2 =1.0 ;
    mod.height=10.0;
    mod.width=10.0;
+   mod.rendPerformance=0;
    };
 //
 // inputs
@@ -279,6 +280,35 @@ var interface = function(div){
       mod.steps = input;
    div.appendChild(document.createElement('br'));
    //
+   // adaptive rendering
+   //
+   div.appendChild(document.createTextNode('rendering performance: '))
+            var input = document.createElement('SELECT');
+            
+         input.setAttribute("id", "rend-adpselect");
+         
+         //select menu for functions
+         var z = document.createElement("option");
+         z.setAttribute("value", "0");
+         var t = document.createTextNode('constant');
+         z.appendChild(t);
+         input.appendChild(z);
+
+         var z = document.createElement("option");
+         z.setAttribute("value", "1");
+         var t = document.createTextNode('adaptive');
+         z.appendChild(t);
+         input.appendChild(z);
+         input.addEventListener('change',function(evt){
+            var temp= document.getElementById("rend-adpselect");
+            mod.rendPerformance=parseInt(temp.value);
+            mod.updateShaderFunction();
+            });
+
+         div.appendChild(input);
+  
+   div.appendChild(document.createElement('br'));
+   //
    // rendering style
    //
    div.appendChild(document.createTextNode('rendering style: '))
@@ -331,16 +361,13 @@ var interface = function(div){
        
          input.addEventListener('change',function(evt){
             var temp= document.getElementById("rend-select");
-            mod.rendType=parseFloat(temp.value);
-            outputs.messageLog.event(mod.rendType);
+            mod.rendType=String(parseInt(temp.value));
             mod.updateShaderFunction();
             });
 
          div.appendChild(input);
-
-         // outputs.messageLog.event(input);
-
    div.appendChild(document.createElement('br'));
+  
    //
    // view
    //   
@@ -372,11 +399,18 @@ function open_view_window() {
     //
     var container;
     var camera, sceneFirstPass, sceneSecondPass, renderer;
-   var rtTexture;
-   var materialSecondPass;
-   var center;
-   var meshSecondPass;
-   var boxGeometry;
+    var containerAxes, cameraAxes , sceneAxes, rendererAxes,axes,sphereO;
+    var rtTexture;
+    var materialSecondPass;
+    var center;
+    var meshSecondPass;
+    var boxGeometry;
+    var gridHelper;
+    var gridHelpersSize=5;
+    var clock;
+    var delta=0;
+    var interval=10;
+    var frameID;
 
     //
     // functions
@@ -388,7 +422,8 @@ function open_view_window() {
     //
     // open_window
     //
-    function open_window() {
+    function open_window() 
+    {
       //
       // open window
       //
@@ -403,89 +438,89 @@ function open_view_window() {
       script.onload = init_window;
       script.src = 'js/three.js/three.min.js';
       mod.div.appendChild(script);
-   }
+    }
 
       //
       // add shader scripts to html
       //
-      function addShaderScripts() {
+      function addShaderScripts() 
+      {
 
-      /////////////////////////fragmentShaderFirstPass////////////////////////////////////
+            /////////////////////////fragmentShaderFirstPass////////////////////////////////////
 
-      var div = document.createElement('script');
+            var div = document.createElement('script');
 
-      div.id = 'fragmentShaderFirstPass';
-      div.type = 'x-shader/x-fragment';
+            div.id = 'fragmentShaderFirstPass';
+            div.type = 'x-shader/x-fragment';
 
-      div.innerHTML =
-         `
-            varying vec3 worldSpaceCoords;
+            div.innerHTML =
+            `
+                  varying vec3 worldSpaceCoords;
 
-            void main()
-            {
-               //The fragment's world space coordinates as fragment output.
-               gl_FragColor = vec4( worldSpaceCoords.x , worldSpaceCoords.y, worldSpaceCoords.z, 1 );
-            }
-            `;
-      
-      //
-      mod.div.appendChild(div);
-      
-      /////////////////////////vertexShaderFirstPass////////////////////////////////////
-      var div = document.createElement('script');
+                  void main()
+                  {
+                  //The fragment's world space coordinates as fragment output.
+                  gl_FragColor = vec4( worldSpaceCoords.x , worldSpaceCoords.y, worldSpaceCoords.z, 1 );
+                  }
+                  `;
+            
+            //
+            mod.div.appendChild(div);
+            
+            /////////////////////////vertexShaderFirstPass////////////////////////////////////
+            var div = document.createElement('script');
 
-      div.id = 'vertexShaderFirstPass';
-      div.type = 'x-shader/x-vertex';
+            div.id = 'vertexShaderFirstPass';
+            div.type = 'x-shader/x-vertex';
 
-      div.innerHTML =
-         `
-            varying vec3 worldSpaceCoords;
+            div.innerHTML =
+            `
+                  varying vec3 worldSpaceCoords;
 
-            void main()
-            {
-               //Set the world space coordinates of the back faces vertices as output.
-               worldSpaceCoords = position + vec3(0.5, 0.5, 0.5); //move it from [-0.5;0.5] to [0,1]
-               gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
-            }
-            `;
-      
-      //
-      mod.div.appendChild(div);
-      /////////////////////////fragmentShaderSecondPass////////////////////////////////////
-      var div = document.createElement('script');
+                  void main()
+                  {
+                  //Set the world space coordinates of the back faces vertices as output.
+                  worldSpaceCoords = position + vec3(0.5, 0.5, 0.5); //move it from [-0.5;0.5] to [0,1]
+                  gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+                  }
+                  `;
+            
+            //
+            mod.div.appendChild(div);
+            /////////////////////////fragmentShaderSecondPass////////////////////////////////////
+            var div = document.createElement('script');
 
-      div.id = 'fragmentShaderSecondPass';
-      div.type = 'x-shader/x-fragment';
+            div.id = 'fragmentShaderSecondPass';
+            div.type = 'x-shader/x-fragment';
 
-      
-      div.innerHTML=fragmentShaderSecondPass();
-      mod.div.appendChild(div);
+            
+            div.innerHTML=fragmentShaderSecondPass();
+            mod.div.appendChild(div);
 
-      /////////////////////vertexShaderSecondPass///////////////////
-      var div = document.createElement('script');
+            /////////////////////vertexShaderSecondPass///////////////////
+            var div = document.createElement('script');
 
-      div.id = 'vertexShaderSecondPass';
-      div.type = 'x-shader/x-vertex';
+            div.id = 'vertexShaderSecondPass';
+            div.type = 'x-shader/x-vertex';
 
-      div.innerHTML =
-         `
-            varying vec3 worldSpaceCoords;
-            varying vec4 projectedCoords;
+            div.innerHTML =
+            `
+                  varying vec3 worldSpaceCoords;
+                  varying vec4 projectedCoords;
 
 
-            void main()
-            {
-               
-               worldSpaceCoords = (modelMatrix * vec4(position + vec3(0.5, 0.5,0.5), 1.0 )).xyz;
-               gl_Position = projectionMatrix *  modelViewMatrix * vec4( position, 1.0 );
-               projectedCoords =  projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+                  void main()
+                  {
+                  
+                  worldSpaceCoords = (modelMatrix * vec4(position + vec3(0.5, 0.5,0.5), 1.0 )).xyz;
+                  gl_Position = projectionMatrix *  modelViewMatrix * vec4( position, 1.0 );
+                  projectedCoords =  projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
 
-            }
-            `;
-      //
-      mod.div.appendChild(div);
-
-   }
+                  }
+                  `;
+            //
+            mod.div.appendChild(div);
+      }
    
    //
    // fragment shader (the one that does all the work)
@@ -495,12 +530,13 @@ function open_view_window() {
       var txt =
          `
             const float PI = 3.1415926535897932384626433832795;
+            #define rendType `+mod.rendType+`
             varying vec3 worldSpaceCoords;
             varying vec4 projectedCoords;
             uniform sampler2D tex;
             uniform float steps;
             uniform float alphaCorrection;
-            uniform float rendType;
+            // uniform float rendType;
             uniform vec3 cameraPos;
             // The maximum distance through our rendering volume is sqrt(3).
             // The maximum number of steps we take to travel a distance of 1 is 512.
@@ -517,7 +553,6 @@ function open_view_window() {
             float orgMax=1.0;
             vec3 viewDirection;
             
-
 
             float map(vec3 p)
             {
@@ -580,11 +615,11 @@ function open_view_window() {
             }
             vec3 frontLight (vec3 normal) {
                
-               vec3 camera= cameraPos-0.5;
-               float t=dot(normalize(normal), normalize(-camera));
-               vec3 c;
-               c = vec3(t,t,t);
-               return c;
+                  vec3 camera= cameraPos-0.5;
+                  float t=dot(normalize(normal), normalize(-camera));
+                  vec3 c;
+                  c = vec3(t,t,t);
+                  return c;
             }
 
             vec3 ClosestPointOnLine(vec3 start ,vec3 direction ,vec3 vPoint )
@@ -618,6 +653,33 @@ function open_view_window() {
                vec3 Closest = A + AB * t;
                return Closest;
             }
+            vec3 calcNormal( in vec3 pos )
+            {
+                  // vec2 e = vec2(1.0,-1.0)*0.5773*0.0005;
+                  // return normalize( e.xyy*map( pos + e.xyy ) + 
+                  //                         e.yyx*map( pos + e.yyx ) + 
+                  //                         e.yxy*map( pos + e.yxy ) + 
+                  //                         e.xxx*map( pos + e.xxx ) );
+                  
+                  // vec3 eps = vec3( 0.0005, 0.0, 0.0 );
+                  // vec3 nor = vec3(
+                  //       map(pos+eps.xyy) - map(pos-eps.xyy),
+                  //       map(pos+eps.yxy) - map(pos-eps.yxy),
+                  //       map(pos+eps.yyx) - map(pos-eps.yyx) );
+                  // return normalize(nor);
+
+                  const float eps = 0.01;
+                  vec3 n;
+                  n.x=map(pos + vec3(eps, 0, 0)   ) - map(pos - vec3(eps, 0, 0));
+                  n.y=map(pos + vec3(0, eps, 0)   ) - map(pos - vec3(0, eps, 0));
+                  n.z=map(pos + vec3(0, 0, eps)   ) - map(pos - vec3(0, 0, eps));
+                  //problem with 
+                  // n.x=result - map(pos - vec3(eps, 0, 0));
+                  // n.y=result - map(pos - vec3(0, eps, 0));
+                  // n.z=result - map(pos - vec3(0, 0, eps));
+                  return normalize(n);
+                  
+            }
 
             //Acts like a texture3D using Z slices and trilinear filtering.
             vec4 sampleAs3DTextureCustom( vec3 texCoord )
@@ -634,64 +696,56 @@ function open_view_window() {
                if(result>0.0)
                {
                   m.a=1.0;
-                  const float eps = 0.01;
                   vec3 p=vec3(X,Y,Z);
-                  vec3 n;
-                  // n.x=map(p + vec3(eps, 0, 0)   ) - map(p - vec3(eps, 0, 0));
-                  // n.y=map(p + vec3(0, eps, 0)   ) - map(p - vec3(0, eps, 0));
-                  // n.z=map(p + vec3(0, 0, eps)   ) - map(p - vec3(0, 0, eps));
-                  n.x=result - map(p - vec3(eps, 0, 0));
-                  n.y=result - map(p - vec3(0, eps, 0));
-                  n.z=result - map(p - vec3(0, 0, eps));
+                  vec3 n=calcNormal( p );
 
-                  int r=int(rendType);
-                  // switch(r)
-                  {
-                     if(r==0) //default
+                  #if rendType==0
+                  //default
                      {
-                        float tempConst=0.00;
+                        float tempConst=0.001;
                         m.rgb=frontLight(n)+tempConst;
-                        // break;
                      }
-                     else if(r==1) //xray
+                  #elif rendType==1
+                  //xray
                      {
                         m=vec4(1.0,1.0,1.0,0.01);
-                        // break;
                      }
-                     else if(r==2) //height map
+                  #elif rendType==2
+                  //height map
                      {
                         m.r=texCoord.z;
                         m.g=texCoord.z;
                         m.b=texCoord.z;
-                        // break;
                      }
-                     else if(r==3) //depth/height map variable
+                  #elif rendType==3
+                  //depth/height map variable
                      {
                         vec3 cp=ClosestPointOnLine(-cameraPos,cameraPos,texCoord);
                         float d= (distance(cp, normalize(cameraPos)*2.0));
                         m.r=d;
                         m.g=d;
                         m.b=d;
-                        // break;
                      }
-                     else if(r==4) //normals
+                  #elif rendType==4
+                  //normals
                      {
-                        m.rgb=normalize(n);
-                        // break;
+                        m.r= (n.r - (-1.0)) * (1.0 - 0.0) / (1.0 - (-1.0)) + 0.0;
+                        m.g= (n.g - (-1.0)) * (1.0 - 0.0) / (1.0 - (-1.0)) + 0.0;
+                        m.b= (n.b - (-1.0)) * (1.0 - 0.0) / (1.0 - (-1.0)) + 0.0;
                      }
-                     else if(r==5) //fixed lights
+                  #elif rendType==5
+                  //fixed lights
                      {
                         float tempConst=0.05;
                         m.rgb=simpleLambert (n)+tempConst;
-                        // break;
                      }
-                     else if(r==6) //fixed lights specular
+                  #elif rendType==6
+                  //fixed lights specular
                      {
                         float tempConst=0.00;
                         m.rgb=specular (n)+tempConst;
-                        // break;
                      }
-                  }
+                  #endif
                   
                }
                return m ;
@@ -808,6 +862,38 @@ function open_view_window() {
       container = win.document.createElement('div');
       container.style.overflow = 'hidden';
       win.document.body.appendChild(container);
+
+      ///////////////////////////////////////////axes////////////////////////////
+      //GL Axes Container
+      // win.document.body.appendChild(document.createElement('br')) ;  
+      containerAxes = win.document.createElement('div');
+      containerAxes.style.overflow = 'hidden';
+      containerAxes.style.position = 'absolute';
+      containerAxes.style.zIndex = 100;
+      containerAxes.style.left = 0;
+      containerAxes.style.bottom = 0;
+      containerAxes.style.margin = 20;
+      win.document.body.appendChild(containerAxes);
+      //
+      //cameraAxes
+      //
+      cameraAxes = new THREE.PerspectiveCamera( 50, 100 / 100, 1, 1000 );
+      cameraAxes.up = new THREE.Vector3(0, 0, 1);
+      //
+      //rendererAxes
+      //
+      rendererAxes = new THREE.WebGLRenderer({ alpha: true } );
+      rendererAxes.setClearColor( 0x000000, 0 );
+      rendererAxes.setSize( 100, 100 );
+      containerAxes.appendChild( rendererAxes.domElement );
+      //
+      //sceneAxes
+      //
+      sceneAxes=new THREE.Scene();
+      axes = new THREE.AxisHelper( 100 );
+      sceneAxes.add( axes );   
+
+      ///////////////////////////////////////////////////////////////////////////////////
       
       //
       //camera
@@ -820,6 +906,7 @@ function open_view_window() {
       camera.lookAt(new THREE.Vector3(0,0,0));
       camera.updateProjectionMatrix();
       center= new THREE.Vector3(0,0,0);
+
       
       
       //
@@ -855,7 +942,6 @@ function open_view_window() {
          side: THREE.FrontSide,
          uniforms: { tex:  { type: "t", value: rtTexture },
                   steps : {type: "1f" , value: mod.steps.value }, 
-                  rendType : {type: "1f" , value: mod.rendType},
                   xLimit1 : {type: "1f" , value: mod.xLimit1 }, 
                   xLimit2 : {type: "1f" , value: mod.xLimit2 }, 
                   yLimit1 : {type: "1f" , value: mod.yLimit1 }, 
@@ -866,6 +952,42 @@ function open_view_window() {
                   cameraPos :{value:  tempCam.normalize()} 
                }
       });
+
+      //HELPER GRID
+      gridHelper = new THREE.GridHelper( gridHelpersSize, 20 );//SIZE DIVISION
+      var geometry = new THREE.SphereGeometry( 0.1,32,32);
+      var material = new THREE.MeshNormalMaterial();
+      sphereO = new THREE.Mesh( geometry, material );
+
+      var materialX = new THREE.LineBasicMaterial({
+            color: 0xFF0000
+      });
+      var materialY = new THREE.LineBasicMaterial({
+            color: 0x00FF00
+      });
+      
+      var geometryX = new THREE.Geometry();
+      geometryX.vertices.push(
+            new THREE.Vector3( -5, 0, 0 ),
+            new THREE.Vector3(  5, 0, 0 )
+      );
+      var geometryY = new THREE.Geometry();
+      geometryY.vertices.push(
+            new THREE.Vector3( 0, -5, 0 ),
+            new THREE.Vector3( 0,  5, 0 )
+      );
+      
+      var lineX = new THREE.Line( geometryX, materialX );
+      var lineY = new THREE.Line( geometryY, materialY );
+
+      gridHelper.add(lineX);
+      gridHelper.add(lineY);
+      sceneSecondPass.add( gridHelper );
+      // sceneSecondPass.add( sphereO );
+      gridHelper.geometry.rotateX( Math.PI / 2 );
+      
+      updateGridHelper();
+      
       
       //
       //cube renderer
@@ -873,6 +995,7 @@ function open_view_window() {
       boxGeometry = new THREE.BoxGeometry(1.0, 1.0, 1.0);
       boxGeometry.doubleSided = true;
 
+      materialSecondPass.transparent =true;
       var meshFirstPass = new THREE.Mesh( boxGeometry, materialFirstPass );
       meshSecondPass = new THREE.Mesh( boxGeometry, materialSecondPass );
 
@@ -895,6 +1018,7 @@ function open_view_window() {
       destCtx.drawImage(container.childNodes[0], 0, 0);
 
 
+      clock=new THREE.Clock();
       //
       //controls
       //
@@ -987,16 +1111,18 @@ function open_view_window() {
    //
    //context menu
    //
-   function context_menu(evt) {
+   function context_menu(evt) 
+   {
       evt.preventDefault();
       evt.stopPropagation();
       return (false);
    }
 
    //
-    // mouse_down
-    //
-      function mouse_down(evt) { 
+   // mouse_down
+   //
+   function mouse_down(evt) 
+   { 
       evt.preventDefault();
       evt.stopPropagation();
       mod.button = evt.button;
@@ -1016,7 +1142,8 @@ function open_view_window() {
    //
    // mouse_move
    //
-   function mouse_move(evt) {
+   function mouse_move(evt) 
+   {
       evt.preventDefault();
       evt.stopPropagation();
       var dx = evt.clientX-mod.x;
@@ -1055,7 +1182,8 @@ function open_view_window() {
    //
    // mouse_wheel
    //
-   function mouse_wheel(evt) {
+   function mouse_wheel(evt) 
+   {
       evt.preventDefault();
       evt.stopPropagation();
       var dy = evt.deltaY/win.innerHeight;
@@ -1071,44 +1199,94 @@ function open_view_window() {
    //
    //redraw
    //
-   function redraw(updateUniforms){
-      render(updateUniforms);
+   
+
+   function frame() 
+   {
+      if (delta == 5) {
+            delta=0;
+            clearInterval(frameID);
+      } else {
+            delta++; 
+            render(true,mod.steps.value*delta/5);
+      }
+   }  
+
+   function redraw(updateUniforms)
+   {
+      if(mod.rendPerformance==1)
+      {
+            if(frameID!=null)
+            {
+                  clearInterval(frameID);
+            }
+            frameID=setInterval(frame, interval);   
+      }else
+      {
+            if(frameID!=null)
+            {
+                  clearInterval(frameID);
+            }
+            render(updateUniforms,mod.steps.value);
+      }
    }
    mod.redraw=redraw;
+
+   function updateGridHelper()
+   {
+      //TODO: later move/rotate camera based on changes
+      //update grid helper based on limits
+      gridHelper.geometry.rotateX( - Math.PI / 2 );
+      gridHelper.scale.x=gridHelpersSize/(Math.abs(mod.xLimit2  - mod.xLimit1)*gridHelpersSize/2.0);
+      gridHelper.scale.y=gridHelpersSize/(Math.abs(mod.yLimit2  - mod.yLimit1)*gridHelpersSize/2.0);
+      gridHelper.position.x=( (0.0 - (mod.xLimit1)) * (0.5  - (-0.5)) / (mod.xLimit2 - (mod.xLimit1)) + (-0.5));
+      gridHelper.position.y=( (0.0 - (mod.yLimit1)) * (0.5  - (-0.5)) / (mod.yLimit2 - (mod.yLimit1)) + (-0.5));
+      gridHelper.position.z=( (0.0 - (mod.zLimit1)) * (0.5  - (-0.5)) / (mod.zLimit2 - (mod.zLimit1)) + (-0.5));
+      gridHelper.geometry.rotateX( Math.PI / 2 );
+      
+      sphereO.scale.x=gridHelpersSize/(Math.abs(mod.xLimit2  - mod.xLimit1)*gridHelpersSize/0.5);
+      sphereO.scale.y=gridHelpersSize/(Math.abs(mod.yLimit2  - mod.yLimit1)*gridHelpersSize/0.5);
+      sphereO.scale.z=gridHelpersSize/(Math.abs(mod.zLimit2  - mod.zLimit1)*gridHelpersSize/0.5);
+     
+      sphereO.position.x=( (0.0 - (mod.xLimit1)) * (0.5  - (-0.5)) / (mod.xLimit2 - (mod.xLimit1)) + (-0.5));
+      sphereO.position.y=( (0.0 - (mod.yLimit1)) * (0.5  - (-0.5)) / (mod.yLimit2 - (mod.yLimit1)) + (-0.5));
+      sphereO.position.z=( (0.0 - (mod.zLimit1)) * (0.5  - (-0.5)) / (mod.zLimit2 - (mod.zLimit1)) + (-0.5));
+   }
 
    //
    //render
    //
-   function render(updateUniforms ) {
+   function render(updateUniforms ,resolutionStep) {
       if(updateUniforms)
       {
-         materialSecondPass.uniforms.steps.value = mod.steps.value;
-         materialSecondPass.uniforms.alphaCorrection.value = mod.alphaCorrection;
-         materialSecondPass.uniforms.rendType.value=mod.rendType;
-         materialSecondPass.uniforms.xLimit1.value =mod.xLimit1 ;
-         materialSecondPass.uniforms.xLimit2.value =mod.xLimit2 ; 
-         materialSecondPass.uniforms.yLimit1.value =mod.yLimit1 ; 
-         materialSecondPass.uniforms.yLimit2.value =mod.yLimit2 ; 
-         materialSecondPass.uniforms.zLimit1.value =mod.zLimit1 ; 
-         materialSecondPass.uniforms.zLimit2.value =mod.zLimit2 ;
+            
+            materialSecondPass.uniforms.steps.value = resolutionStep;
+            materialSecondPass.uniforms.alphaCorrection.value = mod.alphaCorrection;
+            materialSecondPass.uniforms.xLimit1.value =mod.xLimit1 ;
+            materialSecondPass.uniforms.xLimit2.value =mod.xLimit2 ; 
+            materialSecondPass.uniforms.yLimit1.value =mod.yLimit1 ; 
+            materialSecondPass.uniforms.yLimit2.value =mod.yLimit2 ; 
+            materialSecondPass.uniforms.zLimit1.value =mod.zLimit1 ; 
+            materialSecondPass.uniforms.zLimit2.value =mod.zLimit2 ;
+
+
+            //TODO: Find the error with xray and fix it
+            if(mod.rendType=='1')//xray
+            {
+                  materialSecondPass.transparent =false;
+            }else
+            {
+                  materialSecondPass.transparent =true;
+            }
+
+            updateGridHelper();
       }
 
       var tempCam=new THREE.Vector3(camera.position.x,camera.position.y,camera.position.z);
 
       materialSecondPass.uniforms.cameraPos.value=tempCam.normalize();
-      var l=new THREE.Vector3(0.0,0.0,-1.0);
-      // console.log( (tempCam));
-
-      //l.add(tempCam) 
-      // tempCam=new THREE.Vector3(0,0.5)
       tempCam.normalize();
       tempCam.addScalar(0.5);
-      var  cp=ClosestPointOnLine(new THREE.Vector3(-tempCam.x,-tempCam.y,-tempCam.z),tempCam,new THREE.Vector3(0,0,1));    
-      var d= (cp.distanceTo(tempCam)*1.0/(1.0));
-      cp=ClosestPointOnLine(new THREE.Vector3(-tempCam.x,-tempCam.y,-tempCam.z),tempCam,new THREE.Vector3(0,1,1));
-      var f= (cp.distanceTo(tempCam)*1.0/(1.0));
-      // console.log(d+","+f);
-      // console.log(camera.position.length());
 
       //Render first pass and store the world space coords of the back face fragments into the texture.
       renderer.render( sceneFirstPass, camera, rtTexture, true );
@@ -1116,29 +1294,18 @@ function open_view_window() {
       //Render the second pass and perform the volume rendering.
       renderer.render( sceneSecondPass, camera );
 
+      //render axes camera
+      cameraAxes.position.x=camera.position.x;
+      cameraAxes.position.y=camera.position.y;
+      cameraAxes.position.z=camera.position.z;
+	cameraAxes.position.sub( center ); 
+	cameraAxes.position.setLength( 300 );
+      cameraAxes.lookAt( sceneAxes.position.clone() );  
+
+      rendererAxes.render( sceneAxes, cameraAxes );
+
       updateModViewer();
       
-   }
-
-   function ClosestPointOnLine( start , direction , vPoint )
-   {
-      var vVector1 = vPoint.sub(start) ;
-      var temp=new THREE.Vector3(0,0,0);
-      temp.copy(direction);
-      var vVector2 = temp.normalize();
-   
-      var t = vVector2.dot( vVector1);
-   
-      if (t <= 0)
-      {
-         return start;
-      }
-      
-      var vVector3 = vVector2.multiplyScalar(t) ;
-   
-      var vClosestPoint = start.add(vVector3);
-   
-      return vClosestPoint;
    }
 
    //
@@ -1187,7 +1354,6 @@ function open_view_window() {
          side: THREE.FrontSide,
          uniforms: { tex:  { type: "t", value: rtTexture },
                   steps : {type: "1f" , value: mod.steps.value }, 
-                  rendType : {type: "1f" , value: mod.rendType}, 
                   xLimit1 : {type: "1f" , value: mod.xLimit1 }, 
                   xLimit2 : {type: "1f" , value: mod.xLimit2 }, 
                   yLimit1 : {type: "1f" , value: mod.yLimit1 }, 
@@ -1202,6 +1368,7 @@ function open_view_window() {
       //new THREE.Vector3(20.0,-60.0,-40.0)
       meshSecondPass.material=materialSecondPass;
       meshSecondPass.material.needsUpdate = true;
+      meshSecondPass.material.transparent =true;
 
       redraw(true);
 
@@ -1212,43 +1379,47 @@ function open_view_window() {
 
    }
    mod.updateShaderFunction=updateShaderFunction;
-   //
+      
+      //
       //controls
       //
-      function drag(deltaX, deltaY) {
-      var radPerPixel = (Math.PI / 450),
-         deltaPhi = radPerPixel * deltaX,
-         deltaTheta = radPerPixel * deltaY,
-         pos = camera.position.sub(center),
-         radius = pos.length(),
-         theta = Math.acos(pos.z / radius),
-         phi = Math.atan2(pos.y, pos.x);
+      function drag(deltaX, deltaY) 
+      {
+            var radPerPixel = (Math.PI / 450),
+            deltaPhi = radPerPixel * deltaX,
+            deltaTheta = radPerPixel * deltaY,
+            pos = camera.position.sub(center),
+            radius = pos.length(),
+            theta = Math.acos(pos.z / radius),
+            phi = Math.atan2(pos.y, pos.x);
 
-      // Subtract deltaTheta and deltaPhi
-      theta = Math.min(Math.max(theta - deltaTheta, 0), Math.PI);
-      phi -= deltaPhi;
+            // Subtract deltaTheta and deltaPhi
+            theta = Math.min(Math.max(theta - deltaTheta, 0), Math.PI);
+            phi -= deltaPhi;
 
-      // Turn back into Cartesian coordinates
-      pos.x = radius * Math.sin(theta) * Math.cos(phi);
-      pos.y = radius * Math.sin(theta) * Math.sin(phi);
-      pos.z = radius * Math.cos(theta);
+            // Turn back into Cartesian coordinates
+            pos.x = radius * Math.sin(theta) * Math.cos(phi);
+            pos.y = radius * Math.sin(theta) * Math.sin(phi);
+            pos.z = radius * Math.cos(theta);
 
-      camera.position.add(center);
-      camera.lookAt(center);
-      redraw(false);
-   }
+            camera.position.add(center);
+            camera.lookAt(center);
+            redraw(false);
+      }
 
-   ///
-   function zoomIn() {
-      camera.position.sub(center).multiplyScalar(0.9).add(center);
-      redraw(false);
-   }
+      ///
+      function zoomIn() 
+      {
+            camera.position.sub(center).multiplyScalar(0.9).add(center);
+            redraw(false);
+      }
 
-   ///
-   function zoomOut() {
-      camera.position.sub(center).multiplyScalar(1.1).add(center);
-      redraw(false);
-   }
+      ///
+      function zoomOut() 
+      {
+            camera.position.sub(center).multiplyScalar(1.1).add(center);
+            redraw(false);
+      }
 }
 
 //
