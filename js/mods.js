@@ -488,9 +488,14 @@ window.addEventListener('contextmenu',function(evt){
          evt.stopPropagation()
          document.body.removeChild(evt.target.parentNode)
          mods.ui.menu = null
-         for (var id in mods.ui.selected) {
-            var div = document.getElementById(id)
-            delete_module(id)
+         if ((Object.keys(mods.ui.selected).length) == 0) {
+            set_prompt("nothing selected")
+            }
+         else {
+            for (var id in mods.ui.selected) {
+               var div = document.getElementById(id)
+               delete_module(id)
+               }
             }
          })
       //
