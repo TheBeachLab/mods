@@ -1208,7 +1208,6 @@ function open_view_window() {
             clearInterval(frameID);
       } else {
             delta++; 
-            console.log(delta/5);
             render(true,mod.steps.value*delta/5);
       }
    }  
