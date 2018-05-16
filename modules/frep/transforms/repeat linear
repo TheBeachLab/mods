@@ -26,6 +26,8 @@ var name = 'frep repeat linear'
 //
 var init = function() {
    mod.x.checked = true
+   mod.y.checked = false 
+   mod.z.checked = false 
    mod.spacing.value = 0
    mod.number.value = 10
    }

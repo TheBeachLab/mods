@@ -28,6 +28,8 @@ var init = function() {
    mod.origin0.value = 0
    mod.origin1.value = 0
    mod.x.checked = true
+   mod.y.checked = false
+   mod.z.checked = false 
    }
 //
 // inputs
