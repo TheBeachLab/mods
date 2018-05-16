@@ -495,6 +495,7 @@ window.addEventListener('contextmenu',function(evt){
             for (var id in mods.ui.selected) {
                var div = document.getElementById(id)
                delete_module(id)
+               mods.ui.selected = {}
                }
             }
          })
