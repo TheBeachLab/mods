@@ -764,8 +764,11 @@ function prog_load(prog) {
          }
       args.definition = str
       args.id = idnumber
-      args.top = module.top
-      args.left = module.left
+      var t = mods_transform()
+      var xw = t.ox-t.tx+(mods.ui.xstart-t.ox)/t.s
+      var yw = t.oy-t.ty+(mods.ui.ystart-t.oy)/t.s-mods.ui.header
+      args.top = parseFloat(module.top)+yw
+      args.left = parseFloat(module.left)+xw
       args.filename = module.filename
       add_module(args)
       }
