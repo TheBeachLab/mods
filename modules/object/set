@@ -26,28 +26,12 @@ var name = 'set object'
 //
 var init = function() {
    //
-   add_output()
-   mod.output[0].nodeValue = 'settings 0'
-   add_variable()
-   mod.name[0][0].nodeValue = 'variable 00'
-   mod.value[0][0].value = 'value 00'
-   add_variable()
-   mod.name[0][1].nodeValue = 'variable 01'
-   mod.value[0][1].value = 'value 01'
-   //add_event()
-   //
-   add_output()
-   mod.output[1].nodeValue = 'settings 1'
-   add_variable()
-   mod.name[1][0].nodeValue = 'variable 10'
-   mod.value[1][0].value = 'value 10'
-   add_variable()
-   mod.name[1][1].nodeValue = 'variable 11'
-   mod.value[1][1].value = 'value 11'
-   add_variable()
-   mod.name[1][2].nodeValue = 'variable 12'
-   mod.value[1][2].value = 'value 12'
-   //add_event()
+   add_output('settings 0')
+   add_variable('variable 0','var00')
+   mod.var00.value = 'value 00'
+   add_variable('variable 1','var01')
+   mod.var01.value = 'value 01'
+   add_event()
    //
    }
 //
@@ -97,6 +81,8 @@ function add_output() {
    mod.value.push([])
    }
 function add_variable() {
+   mod.name[0][0].nodeValue = 'variable 00'
+   mod.output[0].nodeValue = 'settings 0'
    var text = document.createTextNode('')
       mod.name[mod.output.length-1].push(text)
       mod.div.appendChild(text)
