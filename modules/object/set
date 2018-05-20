@@ -26,12 +26,17 @@ var name = 'set object'
 //
 var init = function() {
    //
-   add_output('settings 0')
-   add_variable('variable 0','var00')
+   add_output('first setting')
+   add_variable('offset number','var00')
    mod.var00.value = 'value 00'
-   add_variable('variable 1','var01')
+   add_variable('variable two','var01')
    mod.var01.value = 'value 01'
-   add_event()
+   //
+   add_output('second setting')
+   add_variable('variable one','var10')
+   mod.var10.value = 'value 10'
+   add_variable('variable two','var11')
+   mod.var11.value = 'value 11'
    //
    }
 //
@@ -57,55 +62,44 @@ var interface = function(div){
 //
 // local functions
 //
-function add_output() {
-   if (mod.output == undefined) {
-      mod.output = []
-      mod.button = []
-      mod.label = []
-      mod.name = []
-      mod.value = []
+function add_output(label) {
+   if (mod.settings == undefined) {
+      mod.settings = {}
       }
    var btn = document.createElement('button')
       btn.style.padding = mods.ui.padding
       btn.style.margin = 1
       var span = document.createElement('span')
-      var text = document.createTextNode('')
-         mod.output.push(text)
+      var text = document.createTextNode(label)
          span.appendChild(text)
-      mod.label.push(span)
       btn.appendChild(span)
-      mod.button.push(btn)
+      var f = function(label) {
+         btn.addEventListener('click',function() {
+            for (var s in mod.settings)
+               mod.settings[s].span.style.fontWeight = 'normal'
+            mod.settings[label].span.style.fontWeight = 'bold'
+            var vars = {}
+            for (var v in mod.settings[label].variables)
+               vars[v] = mod.settings[label].variables[v].value
+            outputs.settings.event(vars)
+            })
+         }(label)
+      mod.settings[label] = {span:span,variables:{}}
       mod.div.appendChild(btn)
+      mod.setting = label
    mod.div.appendChild(document.createElement('br'))
-   mod.name.push([])
-   mod.value.push([])
    }
-function add_variable() {
-   mod.name[0][0].nodeValue = 'variable 00'
-   mod.output[0].nodeValue = 'settings 0'
-   var text = document.createTextNode('')
-      mod.name[mod.output.length-1].push(text)
+function add_variable(label,variable) {
+   var text = document.createTextNode(label)
       mod.div.appendChild(text)
    mod.div.appendChild(document.createTextNode(': '))
    input = document.createElement('input')
       input.type = 'text'
       input.size = 10
-      mod.value[mod.output.length-1].push(input)
+      mod[variable] = input
       mod.div.appendChild(input)
+   mod.settings[mod.setting].variables[label] = input 
    mod.div.appendChild(document.createElement('br'))
-   }
-function add_event() {
-   mod.button[mod.button.length-1].addEventListener('click',function() {
-      var vars = {}
-      for (var v = 0; v < mod.name[mod.name.length-1].length; ++v)
-         console.log(v)
-         //mod.output[mod.texts[s][v].nodeValue] = mod.inputs[s][v].value
-      //outputs.settings.event(vars)
-      //for (var i = 0; i < mod.label.length; ++i)
-      //   mod.labels[i].style.fontWeight = 'normal'
-      //mod.labels[s].style.fontWeight = 'bold'
-      })
-   mod.out += 1
    }
 //
 // return values
