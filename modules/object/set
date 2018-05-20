@@ -27,7 +27,7 @@ var name = 'set object'
 var init = function() {
    //
    add_output('first setting')
-   add_variable('offset number','var00')
+   add_variable('variable one','var00')
    mod.var00.value = 'value 00'
    add_variable('variable two','var01')
    mod.var01.value = 'value 01'
