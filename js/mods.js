@@ -1879,8 +1879,8 @@ function name_touchmove(evt) {
    var t = mods_transform()
    for (var id in mods.ui.selected) {
       var div = document.getElementById(id)
-         var dx = evt.changedTouches[0].pageX-mods.ui.xstart
-         var dy = evt.changedTouches[0].pageY-mods.ui.ystart
+         var dx = (evt.changedTouches[0].pageX-mods.ui.xstart)/t.s
+         var dy = (evt.changedTouches[0].pageY-mods.ui.ystart)/t.s
          var newleft = parseFloat(div.dataset.left)+dx
          var newtop = parseFloat(div.dataset.top)+dy
          div.style.left = newleft+'px'
@@ -1895,8 +1895,8 @@ function name_touchup(evt) {
    for (var id in mods.ui.selected) {
       var div = document.getElementById(id)
          div.style.zIndex = 0
-         var dx = evt.changedTouches[0].pageX-mods.ui.xstart
-         var dy = evt.changedTouches[0].pageY-mods.ui.ystart
+         var dx = (evt.changedTouches[0].pageX-mods.ui.xstart)/t.s
+         var dy = (evt.changedTouches[0].pageY-mods.ui.ystart)/t.s
          div.dataset.left = parseFloat(div.dataset.left)+dx
          div.dataset.top = parseFloat(div.dataset.top)+dy
          window.removeEventListener('touchmove',name_touchmove)
