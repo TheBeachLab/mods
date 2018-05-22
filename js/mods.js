@@ -1876,66 +1876,32 @@ function name_touchdown(evt) {
 function name_touchmove(evt) {
    evt.preventDefault()
    evt.stopPropagation()
-   var div = document.getElementById(mods.id)
-      var dx = evt.changedTouches[0].pageX-mods.ui.xstart
-      var dy = evt.changedTouches[0].pageY-mods.ui.ystart
-      var newleft = parseFloat(div.dataset.left)+dx
-      var newtop = parseFloat(div.dataset.top)+dy
-      div.style.left = newleft+'px'
-      div.style.top = newtop+'px'
-   draw_links(mods.id,mods.ui.link_color)
+   var t = mods_transform()
+   for (var id in mods.ui.selected) {
+      var div = document.getElementById(id)
+         var dx = evt.changedTouches[0].pageX-mods.ui.xstart
+         var dy = evt.changedTouches[0].pageY-mods.ui.ystart
+         var newleft = parseFloat(div.dataset.left)+dx
+         var newtop = parseFloat(div.dataset.top)+dy
+         div.style.left = newleft+'px'
+         div.style.top = newtop+'px'
+      draw_links(id,mods.ui.link_color)
+      }
    }
-function window_touchup(evt) {
+function name_touchup(evt) {
    evt.preventDefault()
    evt.stopPropagation()
-   var div = document.getElementById(mods.id)
-      div.style.zIndex = 0
-      var dx = evt.changedTouches[0].pageX-mods.ui.start
-      var dy = evt.changedTouches[0].pageY-mods.ui.ystart
-      div.dataset.left = parseFloat(div.dataset.left)+dx
-      div.dataset.top = parseFloat(div.dataset.top)+dy
-      window.removeEventListener('touchmove',name_touchmove)
-      window.removeEventListener('touchend',name_touchup)
+   var t = mods_transform()
+   for (var id in mods.ui.selected) {
+      var div = document.getElementById(id)
+         div.style.zIndex = 0
+         var dx = evt.changedTouches[0].pageX-mods.ui.xstart
+         var dy = evt.changedTouches[0].pageY-mods.ui.ystart
+         div.dataset.left = parseFloat(div.dataset.left)+dx
+         div.dataset.top = parseFloat(div.dataset.top)+dy
+         window.removeEventListener('touchmove',name_touchmove)
+         window.removeEventListener('touchend',name_touchup)
+      }
+   mods.ui.selected = {}
    }
-
-  /*
-  //
-  // removing UI helper functions that don't belong here
-  //
-  function make_text_input (div, name, size) {
-    div.appendChild(document.createElement('br'))
-    div.appendChild(document.createTextNode(name + ': '))
-    var input = document.createElement('input')
-    input.type = 'text'
-    input.size = size
-    div.appendChild(input)
-    return input
-  }
-  function make_button_input (div, text) {
-    div.appendChild(document.createElement('br'))
-    var button = document.createElement('button')
-    button.style.padding = mods.ui.padding
-    button.style.margin = 1
-    button.appendChild(document.createTextNode(text))
-    div.appendChild(button)
-    return button
-  }
-  function make_checkbox_input (div, prefix) {
-    div.appendChild(document.createElement('br'))
-    div.appendChild(document.createTextNode(prefix + ': '))
-    var checkbox = document.createElement('input')
-    checkbox.type = 'checkbox'
-    div.appendChild(checkbox)
-    return checkbox
-  }
-  function make_text_display (div, prefix) {
-    div.appendChild(document.createElement('br'))
-    div.appendChild(document.createTextNode(prefix + ': '))
-    var span = document.createElement('span')
-    span.innerHTML = ''
-    div.appendChild(span)
-    return span
-  }
-  */
-  
 })()
