@@ -655,8 +655,8 @@ var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg")
    svg.style.left = 0
    svg.style.zIndex = 0
    svg.style.overflow = 'visible'
-   svg.setAttribute('width',1)
-   svg.setAttribute('height',1)
+   svg.setAttribute('width',2)
+   svg.setAttribute('height',2)
    svg.setAttribute('id','svg')
    svg.setAttributeNS("http://www.w3.org/2000/xmlns/","xmlns:xlink","http://www.w3.org/1999/xlink")
    document.body.appendChild(svg)
