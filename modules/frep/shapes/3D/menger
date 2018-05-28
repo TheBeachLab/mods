@@ -51,9 +51,7 @@ var outputs = {
          var fn = `Math.min(${fn},Math.min(Y-0,${size}-Y))`
          var fn = `Math.min(${fn},Math.min(Z-0,${size}-Z))`
          for (var d = 0; d < depth; ++d) {
-            //var fn = `Math.min(${fn},Math.max(1/3-(Math.pow(3,${d})*X/${size})%1,(Math.pow(3,${d})*X/${size})%1-2/3))`
-            //var fn = `Math.min(${fn},Math.min((Math.pow(3,${d})*X/${size})%1-1/3,2/3-(Math.pow(3,${d})*X/${size})%1))`
-            var fn = `Math.min(${fn},-Math.min((X/${size})%1-1/3,2/3-(X/${size})%1))`
+            var fn = `Math.min(${fn},-Math.min(Math.min((Math.pow(3,${d})*X/${size})%1-1/3,2/3-(Math.pow(3,${d})*X/${size})%1),Math.min((Math.pow(3,${d})*Y/${size})%1-1/3,2/3-(Math.pow(3,${d})*Y/${size})%1)))`
             }
          var variables = ['X','Y','Z']
          var limits = [[0,size],[0,size],[0,size]]
