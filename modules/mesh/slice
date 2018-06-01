@@ -28,7 +28,7 @@ var init = function() {
    mod.rx.value = 0
    mod.ry.value = 0
    mod.rz.value = 0
-   mod.depth.value = 0
+   mod.z.value = 0
    mod.width.value = 1000
    }
 //
@@ -38,6 +38,12 @@ var inputs = {
    mesh:{type:'',
       event:function(evt){
          mod.mesh = new DataView(evt.detail)
+         draw_mesh()
+         slice_mesh()}},
+   variables:{type:'',
+      event:function(evt){
+         for (var p in evt.detail)
+            mod[p].value = evt.detail[p]
          draw_mesh()
          slice_mesh()}}}
 //
@@ -124,7 +130,7 @@ var interface = function(div){
       div.appendChild(text)
       mod.meshsize = text
    //
-   // slide depth
+   // slice z
    //
    div.appendChild(document.createElement('br'))
    div.appendChild(document.createTextNode('slice z: '))
@@ -135,7 +141,7 @@ var interface = function(div){
          slice_mesh()
          })
       div.appendChild(input)
-      mod.depth = input
+      mod.z = input
    div.appendChild(document.createTextNode(' (mesh units)'))
    //
    // slice width
@@ -315,6 +321,7 @@ function draw_mesh() {
 // slice mesh
 //   
 function slice_mesh() {
+   return
    var blob = new Blob(['('+worker.toString()+'())'])
    var url = window.URL.createObjectURL(blob)
    var webworker = new Worker(url)
@@ -347,7 +354,7 @@ function slice_mesh() {
       })
    var ctx = mod.slicecanvas.getContext("2d")
    ctx.clearRect(0,0,mod.slicecanvas.width,mod.slicecanvas.height)
-   var d = parseFloat(mod.depth.value)
+   var z = parseFloat(mod.z.value)
    var rx = parseFloat(mod.rx.value)
    var ry = parseFloat(mod.ry.value)
    var rz = parseFloat(mod.rz.value)
@@ -356,7 +363,7 @@ function slice_mesh() {
    var ctx = mod.img.getContext("2d")
    var img = ctx.getImageData(0,0,mod.img.width,mod.img.height)
    webworker.postMessage({
-      height:mod.img.height,width:mod.img.width,depth:d,
+      height:mod.img.height,width:mod.img.width,z:z,
       imgbuffer:img.data.buffer,mesh:mod.mesh,
       zmin:mod.zmin,zmax:mod.zmax,
       rx:rx,ry:ry,rz:rz},
@@ -366,7 +373,7 @@ function worker() {
    self.addEventListener('message',function(evt) {
       var h = evt.data.height
       var w = evt.data.width
-      var d = evt.data.depth
+      var z = evt.data.z
       var view = evt.data.mesh
       var rx = evt.data.rx
       var ry = evt.data.ry
@@ -445,16 +452,16 @@ function worker() {
          //
          // check for crossing
          //
-         if ((p[0][2] < (zmax-d)) && (p[2][2] > (zmax-d))) {
+         if ((p[0][2] < (zmax-z)) && (p[2][2] > (zmax-z))) {
             count += 1
             }
          /*
             //
             //  crossing found, check for side and save
             //
-            if (p[1][2] < d) {
+            if (p[1][2] < z) {
                }
-            else if (p[1][2] > d) {
+            else if (p[1][2] > z) {
                }
             else {
                }
