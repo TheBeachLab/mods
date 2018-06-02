@@ -53,7 +53,7 @@ var outputs = {
    image:{type:'RGBA',
       event:function(){
          }},
-   sliceInfo:{type:'',
+   imageInfo:{type:'',
       event:function(){
          }}}
 //

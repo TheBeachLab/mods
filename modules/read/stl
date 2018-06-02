@@ -26,8 +26,6 @@ var name = 'read STL'
 //
 var init = function() {
    mod.view = undefined
-   mod.mm.value = 1
-   mod.in.value = parseFloat(mod.mm.value)/25.4
    }
 //
 // inputs
@@ -40,10 +38,7 @@ var inputs = {
 var outputs = {
    mesh:{type:'',
       event:function(buffer){
-         mods.output(mod,'mesh',buffer)}},
-   meshInfo:{type:'',
-      event:function(buffer){
-         mods.output(mod,'STL',buffer)}}}
+         mods.output(mod,'mesh',buffer)}}}
 //
 // interface
 //
@@ -131,30 +126,6 @@ var interface = function(div){
          info.appendChild(text)
          mod.dzn = text
       div.appendChild(info)
-   //
-   // units
-   //
-   div.appendChild(document.createTextNode('units:'))
-   div.appendChild(document.createElement('br'))
-   div.appendChild(document.createTextNode('mm: '))
-   var input = document.createElement('input')
-      input.type = 'text'
-      input.size = 6
-      input.addEventListener('input',function(){
-         mod.in.value = parseFloat(mod.mm.value)/25.4
-         })
-      div.appendChild(input)
-      mod.mm = input
-   div.appendChild(document.createTextNode(' in: '))
-   var input = document.createElement('input')
-      input.type = 'text'
-      input.size = 6
-      input.addEventListener('input',function(){
-         mod.mm.value = parseFloat(mod.in.value)*25.4
-         })
-      div.appendChild(input)
-      mod.in = input
-   div.appendChild(document.createElement('br'))
    }
 //
 // local functions
