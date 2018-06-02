@@ -1,6 +1,9 @@
 //
 // mesh slice raster
 //
+// todo
+//    slice planar vertices
+//
 // Neil Gershenfeld
 // (c) Massachusetts Institute of Technology 2018
 //
@@ -157,6 +160,33 @@ var interface = function(div){
       div.appendChild(input)
       mod.width = input
    div.appendChild(document.createTextNode(' (pixels)'))
+   //
+   // view slice
+   //
+   div.appendChild(document.createElement('br'))
+   var btn = document.createElement('button')
+      btn.style.padding = mods.ui.padding
+      btn.style.margin = 1
+      btn.appendChild(document.createTextNode('view slice'))
+      btn.addEventListener('click',function(){
+         var win = window.open('')
+         var btn = document.createElement('button')
+            btn.appendChild(document.createTextNode('close'))
+            btn.style.padding = mods.ui.padding
+            btn.style.margin = 1
+            btn.addEventListener('click',function(){
+               win.close()
+               })
+            win.document.body.appendChild(btn)
+         win.document.body.appendChild(document.createElement('br'))
+         var canvas = document.createElement('canvas')
+            canvas.width = mod.img.width
+            canvas.height = mod.img.height
+            win.document.body.appendChild(canvas)
+         var ctx = canvas.getContext("2d")
+            ctx.drawImage(mod.img,0,0)
+         })
+      div.appendChild(btn)
    }
 //
 // local functions
@@ -325,7 +355,6 @@ function slice_mesh() {
    var url = window.URL.createObjectURL(blob)
    var webworker = new Worker(url)
    webworker.addEventListener('message',function(evt) {
-      console.log(evt.data.count)
       window.URL.revokeObjectURL(url)
       var h = mod.img.height
       var w = mod.img.width
@@ -405,24 +434,19 @@ function worker() {
       // function to draw line
       //
       function line(x0,y0,x1,y1) {
-         var ix0 = Math.round(w*(x0-xmin)/(xmax-xmin))
-         var iy0 = Math.round(h*(y0-ymin)/(ymax-ymin))
-         var ix1 = Math.round(w*(x1-xmin)/(xmax-xmin))
-         var iy1 = Math.round(h*(y1-ymin)/(ymax-ymin))
-         var dx = ix1-ix0
-         var dy = iy1-iy0
-         var ix = ix0
-         var iy = iy0
          var x = x0
          var y = y0
-         do {
+         var dx = (x1-x0)/100
+         var dy = (y1-y0)/100
+         for (var i = 0; i < 100; ++i) {
+            x += dx
+            y += dy
+            ix = Math.round(w*(x-xmin)/(xmax-xmin))
+            iy = Math.round(h*(y-ymin)/(ymax-ymin))
             buf[(h-1-iy)*w*4+ix*4+0] = 255
             buf[(h-1-iy)*w*4+ix*4+1] = 255
             buf[(h-1-iy)*w*4+ix*4+2] = 255
-            x += dx
-            y += dy
-            ix = Math.round(w*(x0-xmin)/(xmax-xmin))
-            } while (!((ix == ix0) && (iy == iy0)))
+            }
          }
       //
       // get vars from buffer
@@ -449,7 +473,6 @@ function worker() {
       // find triangles crossing the slice
       //
       var segs = []
-      var count = 0
       offset = 80+4
       for (var t = 0; t < triangles; ++t) {
          offset += 3*4
@@ -489,36 +512,46 @@ function worker() {
                return 0
             })
          //
-         // check for crossing
+         // check for crossings
          //
          if ((v[0][2] <= (zmax-depth)) && (v[2][2] >= (zmax-depth))) {
-            count += 1
             //
             //  crossing found, check for side and stroke
             //
-            line(v[0][0],v[0][1],v[1][0],v[1][1])
-            line(v[1][0],v[1][1],v[2][0],v[2][1])
-            line(v[2][0],v[2][1],v[0][0],v[0][1])
             if (v[1][2] < (zmax-depth)) {
-               ;
+               var x0 = v[2][0]+(v[0][0]-v[2][0])
+                  *(v[2][2]-(zmax-depth))/(v[2][2]-v[0][2])
+               var y0 = v[2][1]+(v[0][1]-v[2][1])
+                  *(v[2][2]-(zmax-depth))/(v[2][2]-v[0][2])
+               var x1 = v[2][0]+(v[1][0]-v[2][0])
+                  *(v[2][2]-(zmax-depth))/(v[2][2]-v[1][2])
+               var y1 = v[2][1]+(v[1][1]-v[2][1])
+                  *(v[2][2]-(zmax-depth))/(v[2][2]-v[1][2])
                }
             else if (v[1][2] > (zmax-depth)) {
-               ;
+               var x0 = v[2][0]+(v[0][0]-v[2][0])
+                  *(v[2][2]-(zmax-depth))/(v[2][2]-v[0][2])
+               var y0 = v[2][1]+(v[0][1]-v[2][1])
+                  *(v[2][2]-(zmax-depth))/(v[2][2]-v[0][2])
+               var x1 = v[1][0]+(v[0][0]-v[1][0])
+                  *(v[1][2]-(zmax-depth))/(v[1][2]-v[0][2])
+               var y1 = v[1][1]+(v[0][1]-v[1][1])
+                  *(v[1][2]-(zmax-depth))/(v[1][2]-v[0][2])
                }
             else {
-               ;
+               ; // todo
                }
+            line(x0,y0,x1,y1)
             }
          }
-      /*
       //
-      // loop over scan lines and fill interior
+      // fill interior
       //
-      */
+
       //
       // output the slice
       //
-      self.postMessage({count:count,buffer:buf.buffer},[buf.buffer])
+      self.postMessage({buffer:buf.buffer},[buf.buffer])
       })
    }
 //
