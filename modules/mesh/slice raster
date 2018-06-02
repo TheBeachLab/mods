@@ -1,5 +1,5 @@
 //
-// mesh slice
+// mesh slice raster
 //
 // Neil Gershenfeld
 // (c) Massachusetts Institute of Technology 2018
@@ -20,7 +20,7 @@ var mod = {}
 //
 // name
 //
-var name = 'mesh slice (under development)'
+var name = 'mesh slice raster'
 //
 // initialization
 //
@@ -405,16 +405,24 @@ function worker() {
       // function to draw line
       //
       function line(x0,y0,x1,y1) {
-         var ix0 = Math.floor(w*(x0-xmin)/(xmax-xmin))
-         var iy0 = Math.floor(h*(y0-ymin)/(ymax-ymin))
-         var ix1 = Math.floor(w*(x1-xmin)/(xmax-xmin))
-         var iy1 = Math.floor(h*(y1-ymin)/(ymax-ymin))
+         var ix0 = Math.round(w*(x0-xmin)/(xmax-xmin))
+         var iy0 = Math.round(h*(y0-ymin)/(ymax-ymin))
+         var ix1 = Math.round(w*(x1-xmin)/(xmax-xmin))
+         var iy1 = Math.round(h*(y1-ymin)/(ymax-ymin))
          var dx = ix1-ix0
          var dy = iy1-iy0
-         console.log(ix0,iy0)
-         buf[(h-1-iy0)*w*4+ix0*4+0] = 255
-         buf[(h-1-iy0)*w*4+ix0*4+1] = 255
-         buf[(h-1-iy0)*w*4+ix0*4+2] = 255
+         var ix = ix0
+         var iy = iy0
+         var x = x0
+         var y = y0
+         do {
+            buf[(h-1-iy)*w*4+ix*4+0] = 255
+            buf[(h-1-iy)*w*4+ix*4+1] = 255
+            buf[(h-1-iy)*w*4+ix*4+2] = 255
+            x += dx
+            y += dy
+            ix = Math.round(w*(x0-xmin)/(xmax-xmin))
+            } while (!((ix == ix0) && (iy == iy0)))
          }
       //
       // get vars from buffer
