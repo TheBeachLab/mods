@@ -55,6 +55,9 @@ var inputs = {
 var outputs = {
    image:{type:'RGBA',
       event:function(){
+         var ctx = mod.img.getContext("2d")
+         var img = ctx.getImageData(0,0,mod.img.width,mod.img.height)
+         mods.output(mod,'image',img)
          }},
    imageInfo:{type:'',
       event:function(){
@@ -378,7 +381,7 @@ function slice_mesh() {
       ctx.clearRect(0,0,mod.slicecanvas.width,mod.slicecanvas.height)
       ctx.drawImage(mod.img,x0,y0,wd,hd)
       webworker.terminate()
-      //outputs.image.event()
+      outputs.image.event()
       })
    var ctx = mod.slicecanvas.getContext("2d")
    ctx.clearRect(0,0,mod.slicecanvas.width,mod.slicecanvas.height)
@@ -524,7 +527,7 @@ function worker() {
                var y1 = v[2][1]+(v[1][1]-v[2][1])
                   *(v[2][2]-(zmax-depth))/(v[2][2]-v[1][2])
                }
-            else if (v[1][2] > (zmax-depth)) {
+            else if (v[1][2] >= (zmax-depth)) {
                var x0 = v[2][0]+(v[0][0]-v[2][0])
                   *(v[2][2]-(zmax-depth))/(v[2][2]-v[0][2])
                var y0 = v[2][1]+(v[0][1]-v[2][1])
@@ -534,15 +537,13 @@ function worker() {
                var y1 = v[1][1]+(v[0][1]-v[1][1])
                   *(v[1][2]-(zmax-depth))/(v[1][2]-v[0][2])
                }
-            else {
-               ; // todo
-               }
             line(x0,y0,x1,y1)
             }
          }
       //
       // fill interior
       //
+      /*
       for (var row = 0; row < h; ++row) {
          var inside = false
          for (var col = 0; col < w; ++col) {
@@ -557,6 +558,7 @@ function worker() {
             buf[(h-1-row)*w*4+col*4+3] = 255
             }
          }
+      */
       //
       // output the slice
       //
