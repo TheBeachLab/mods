@@ -2,6 +2,7 @@
 // mesh slice raster
 //
 // todo
+//    fill interior
 //    slice planar vertices
 //
 // Neil Gershenfeld
