@@ -459,10 +459,6 @@ function worker() {
       //
       for (var row = 0; row < h; ++row) {
          for (var col = 0; col < w; ++col) {
-            r = buf[(h-1-row)*w*4+col*4+0]
-            g = buf[(h-1-row)*w*4+col*4+1]
-            b = buf[(h-1-row)*w*4+col*4+2]
-            a = buf[(h-1-row)*w*4+col*4+3]
             buf[(h-1-row)*w*4+col*4+0] = 0
             buf[(h-1-row)*w*4+col*4+1] = 0
             buf[(h-1-row)*w*4+col*4+2] = 0
@@ -547,7 +543,20 @@ function worker() {
       //
       // fill interior
       //
-
+      for (var row = 0; row < h; ++row) {
+         var inside = false
+         for (var col = 0; col < w; ++col) {
+            r = buf[(h-1-row)*w*4+col*4+0]
+            if ((inside == false) && (r != 0))
+               inside == true
+            else if ((inside == true) && (r == 0))
+               inside == false
+            buf[(h-1-row)*w*4+col*4+0] = 0
+            buf[(h-1-row)*w*4+col*4+1] = 0
+            buf[(h-1-row)*w*4+col*4+2] = 0
+            buf[(h-1-row)*w*4+col*4+3] = 255
+            }
+         }
       //
       // output the slice
       //
