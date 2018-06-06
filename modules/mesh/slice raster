@@ -521,37 +521,40 @@ function worker() {
                   *(v[1][2]-(zmax-depth))/(v[1][2]-v[0][2])
                }
             if (y0 < y1)
-               segs.push([x0,y0,x1,y1])
+               segs.push({x0:x0,y0:y0,x1:x1,y1:y1})
             else
-               segs.push([x1,y1,x0,y0])
+               segs.push({x1:x1,y1:y1,x0:x0,y0:y0})
             }
          }
       //
       // sort segments
       // map reduce filter foreach sort summon heroes
       //
-      segs.map(
-
-
+      //var y0 = segs.map((p,index) => [p[1],index])
+      //var y1 = segs.map((p,index) => [p[3],index])
+      //y0.sort((a,b) => (a[0]-b[0]))
+      //y1.sort((a,b) => (a[0]-b[0]))
       //
       // fill interior
       //
-      /*
       for (var row = 0; row < h; ++row) {
-         var inside = false
+         var y = ymin+(ymax-ymin)*row/(h-1)
+         rowsegs = segs.filter(p => ((p.y0 <= y) && (p.y1 >= y)))
+         var xs = rowsegs.map(p => (p.x0+(p.x1-p.x0)*(y-p.y0)/(p.y1-p.y0)))
+         xs.sort((a,b) => (a-b))
          for (var col = 0; col < w; ++col) {
-            r = buf[(h-1-row)*w*4+col*4+0]
-            if ((inside == false) && (r != 0))
-               inside == true
-            else if ((inside == true) && (r == 0))
-               inside == false
-            buf[(h-1-row)*w*4+col*4+0] = 0
-            buf[(h-1-row)*w*4+col*4+1] = 0
-            buf[(h-1-row)*w*4+col*4+2] = 0
+            var x = xmin+(xmax-xmin)*col/(w-1)
+            var index = xs.findIndex((p) => (p > x))
+            if (index == -1)
+               var i = 0
+            else
+               var i = 255*((index)%2)
+            buf[(h-1-row)*w*4+col*4+0] = i
+            buf[(h-1-row)*w*4+col*4+1] = i
+            buf[(h-1-row)*w*4+col*4+2] = i
             buf[(h-1-row)*w*4+col*4+3] = 255
             }
          }
-      */
       //
       // output the slice
       //
