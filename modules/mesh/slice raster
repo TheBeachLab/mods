@@ -1,5 +1,9 @@
 //
 // mesh slice raster
+// 
+// todo
+//   test for parity errors
+//   equality tests
 //
 // Neil Gershenfeld
 // (c) Massachusetts Institute of Technology 2018
@@ -527,8 +531,9 @@ function worker() {
       //
       for (var row = 0; row < h; ++row) {
          var y = ymin+(ymax-ymin)*row/(h-1)
-         rowsegs = segs.filter(p => ((p.y0 < y) && (p.y1 > y)))
-         var xs = rowsegs.map(p => (p.x0+(p.x1-p.x0)*(y-p.y0)/(p.y1-p.y0)))
+         rowsegs = segs.filter(p => ((p.y0 <= y) && (p.y1 >= y)))
+         var xs = rowsegs.map(p =>
+            (p.x0+(p.x1-p.x0)*(y-p.y0)/(p.y1-p.y0)))
          xs.sort((a,b) => (a-b))
          for (var col = 0; col < w; ++col) {
             var x = xmin+(xmax-xmin)*col/(w-1)
@@ -536,7 +541,7 @@ function worker() {
             if (index == -1)
                var i = 0
             else
-               var i = 255*((index)%2)
+               var i = 255*(index%2)
             buf[(h-1-row)*w*4+col*4+0] = i
             buf[(h-1-row)*w*4+col*4+1] = i
             buf[(h-1-row)*w*4+col*4+2] = i
