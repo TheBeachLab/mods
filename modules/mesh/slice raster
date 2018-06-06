@@ -1,10 +1,6 @@
 //
 // mesh slice raster
 //
-// todo
-//    fill interior
-//    slice planar vertices
-//
 // Neil Gershenfeld
 // (c) Massachusetts Institute of Technology 2018
 //
@@ -496,9 +492,9 @@ function worker() {
          //
          // check for crossings
          //
-         if ((v[0][2] <= (zmax-depth)) && (v[2][2] >= (zmax-depth))) {
+         if ((v[0][2] < (zmax-depth)) && (v[2][2] > (zmax-depth))) {
             //
-            //  crossing found, check for side and stroke
+            //  crossing found, check for side and save
             //
             if (v[1][2] < (zmax-depth)) {
                var x0 = v[2][0]+(v[0][0]-v[2][0])
@@ -526,14 +522,6 @@ function worker() {
                segs.push({x0:x1,y0:y1,x1:x0,y1:y0})
             }
          }
-      //
-      // sort segments
-      // map reduce filter foreach sort summon heroes
-      //
-      //var y0 = segs.map((p,index) => [p[1],index])
-      //var y1 = segs.map((p,index) => [p[3],index])
-      //y0.sort((a,b) => (a[0]-b[0]))
-      //y1.sort((a,b) => (a[0]-b[0]))
       //
       // fill interior
       //
