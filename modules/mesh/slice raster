@@ -20,7 +20,7 @@ var mod = {}
 //
 // name
 //
-var name = 'mesh slice raster (under development)'
+var name = 'mesh slice raster'
 //
 // initialization
 //
