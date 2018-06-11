@@ -2,7 +2,6 @@
 // mesh slice raster
 // 
 // todo
-//    border
 //    shade z
 //
 // Neil Gershenfeld
@@ -36,6 +35,7 @@ var init = function() {
    mod.inunits.value = 1
    mod.depth.value = 0
    mod.width.value = 1000
+   mod.border.value = 0
    }
 //
 // inputs
@@ -203,6 +203,22 @@ var interface = function(div){
       mod.depth = input
    div.appendChild(document.createTextNode(' (enter)'))
    //
+   // slice border 
+   //
+   div.appendChild(document.createElement('br'))
+   div.appendChild(document.createTextNode('slice border (mesh units): '))
+   var input = document.createElement('input')
+      input.type = 'text'
+      input.size = 6
+      input.addEventListener('change',function(){
+         draw_mesh()
+         update_units()
+         slice_mesh()
+         })
+      div.appendChild(input)
+      mod.border = input
+   div.appendChild(document.createTextNode(' (enter)'))
+   //
    // slice width
    //
    div.appendChild(document.createElement('br'))
@@ -295,6 +311,7 @@ function draw_mesh() {
    var rx = parseFloat(mod.rx.value)*Math.PI/180
    var ry = parseFloat(mod.ry.value)*Math.PI/180
    var rz = parseFloat(mod.rz.value)*Math.PI/180
+   var border = parseFloat(mod.border.value)
    //
    // find limits
    //
@@ -349,6 +366,10 @@ function draw_mesh() {
       if (p2[2] > zmax) zmax = p2[2]
       if (p2[2] < zmin) zmin = p2[2]
       }
+   xmin -= border
+   xmax += border
+   ymin -= border
+   ymax += border
    mod.dx = xmax-xmin
    mod.dy = ymax-ymin
    mod.dz = zmax-zmin
