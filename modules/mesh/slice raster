@@ -36,6 +36,7 @@ var init = function() {
    mod.depth.value = 0
    mod.width.value = 1000
    mod.border.value = 0
+   mod.delta = 1e-6
    }
 //
 // inputs
@@ -298,6 +299,13 @@ function draw_mesh() {
       var x3 = Math.cos(rz)*x2-Math.sin(rz)*y2
       var y3 = Math.sin(rz)*x2+Math.cos(rz)*y2
       var z3 = z2
+      //
+      // perturb by lattice resolution
+      //    to remove slice degeneracies
+      //
+      x3 += mod.delta
+      y3 += mod.delta
+      z3 += mod.delta
       return([x3,y3,z3])
       }
    //
@@ -489,7 +497,7 @@ function slice_mesh() {
       xmin:mod.xmin,xmax:mod.xmax,
       ymin:mod.ymin,ymax:mod.ymax,
       zmin:mod.zmin,zmax:mod.zmax,
-      rx:rx,ry:ry,rz:rz},
+      rx:rx,ry:ry,rz:rz,delta:mod.delta},
       [img.data.buffer])
    }
 function worker() {
@@ -501,6 +509,7 @@ function worker() {
       var rx = evt.data.rx
       var ry = evt.data.ry
       var rz = evt.data.rz
+      var delta = evt.data.delta
       var xmin = evt.data.xmin
       var xmax = evt.data.xmax
       var ymin = evt.data.ymin
@@ -511,7 +520,6 @@ function worker() {
       //
       // function to rotate point
       //
-      var delta = (xmax-xmin)/(10*w)
       function rotate(x,y,z) {
          var x1 = x
          var y1 = Math.cos(rx)*y-Math.sin(rx)*z
@@ -634,7 +642,7 @@ function worker() {
          xs.sort((a,b) => (a-b))
          for (var col = 0; col < w; ++col) {
             var x = xmin+(xmax-xmin)*col/(w-1)
-            var index = xs.findIndex((p) => (p > x))
+            var index = xs.findIndex((p) => (p >= x))
             if (index == -1)
                var i = 0
             else
