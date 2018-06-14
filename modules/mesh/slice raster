@@ -3,6 +3,9 @@
 // 
 // todo
 //    shade z
+//        transfer mesh
+//    include slice plane triangles
+//    scale perturbation to resolution
 //
 // Neil Gershenfeld
 // (c) Massachusetts Institute of Technology 2018
@@ -45,15 +48,14 @@ var inputs = {
    mesh:{type:'STL',
       event:function(evt){
          mod.mesh = new DataView(evt.detail)
-         draw_mesh()
-         update_units()
+         find_limits()
          slice_mesh()}},
    variables:{type:'',
       event:function(evt){
          for (var p in evt.detail)
             mod[p].value = evt.detail[p]
-         draw_mesh()
-         update_units()
+         find_limits()
+         //draw_mesh()
          slice_mesh()}}}
 //
 // outputs
@@ -114,8 +116,8 @@ var interface = function(div){
       input.type = 'text'
       input.size = 6
       input.addEventListener('change',function(){
-         draw_mesh()
-         update_units()
+         find_limits()
+         //draw_mesh()
          slice_mesh()
          })
       div.appendChild(input)
@@ -125,8 +127,8 @@ var interface = function(div){
       input.type = 'text'
       input.size = 6
       input.addEventListener('change',function(){
-         draw_mesh()
-         update_units()
+         find_limits()
+         //draw_mesh()
          slice_mesh()
          })
       div.appendChild(input)
@@ -136,8 +138,8 @@ var interface = function(div){
       input.type = 'text'
       input.size = 6
       input.addEventListener('change',function(){
-         draw_mesh()
-         update_units()
+         find_limits()
+         //draw_mesh()
          slice_mesh()
          })
       div.appendChild(input)
@@ -155,7 +157,8 @@ var interface = function(div){
       input.size = 6
       input.addEventListener('change',function(){
          mod.inunits.value = parseFloat(mod.mmunits.value)/25.4
-         update_units()
+         find_limits()
+         //draw_mesh()
          slice_mesh()
          })
       div.appendChild(input)
@@ -166,7 +169,8 @@ var interface = function(div){
       input.size = 6
       input.addEventListener('change',function(){
          mod.mmunits.value = parseFloat(mod.inunits.value)*25.4
-         update_units()
+         find_limits()
+         //draw_mesh()
          slice_mesh()
          })
       div.appendChild(input)
@@ -212,8 +216,8 @@ var interface = function(div){
       input.type = 'text'
       input.size = 6
       input.addEventListener('change',function(){
-         draw_mesh()
-         update_units()
+         find_limits()
+         //draw_mesh()
          slice_mesh()
          })
       div.appendChild(input)
@@ -264,28 +268,154 @@ var interface = function(div){
 //
 // local functions
 //
-// update units
+// find limits
 //
-function update_units() {
-   mod.meshsize.nodeValue = 
-      mod.dx.toFixed(3)+' x '+
-      mod.dy.toFixed(3)+' x '+
-      mod.dz.toFixed(3)+' (mesh units)'
-   var mm = parseFloat(mod.mmunits.value)
-   mod.mmsize.nodeValue = 
-      (mod.dx*mm).toFixed(3)+' x '+
-      (mod.dy*mm).toFixed(3)+' x '+
-      (mod.dz*mm).toFixed(3)+' (mm)'
-   var inches = parseFloat(mod.inunits.value)
-   mod.insize.nodeValue = 
-      (mod.dx*inches).toFixed(3)+' x '+
-      (mod.dy*inches).toFixed(3)+' x '+
-      (mod.dz*inches).toFixed(3)+' (in)'
+function find_limits() {
+   var blob = new Blob(['('+limits_worker.toString()+'())'])
+   var url = window.URL.createObjectURL(blob)
+   var webworker = new Worker(url)
+   webworker.addEventListener('message',function(evt) {
+      window.URL.revokeObjectURL(url)
+      mod.triangles = evt.data.triangles
+      mod.xmin = evt.data.xmin
+      mod.xmax = evt.data.xmax
+      mod.ymin = evt.data.ymin
+      mod.ymax = evt.data.ymax
+      mod.zmin = evt.data.zmin
+      mod.zmax = evt.data.zmax
+      mod.dx = mod.xmax-mod.xmin
+      mod.dy = mod.ymax-mod.ymin
+      mod.dz = mod.zmax-mod.zmin
+      mod.meshsize.nodeValue = 
+         mod.dx.toFixed(3)+' x '+
+         mod.dy.toFixed(3)+' x '+
+         mod.dz.toFixed(3)+' (mesh units)'
+      var mm = parseFloat(mod.mmunits.value)
+      mod.mmsize.nodeValue = 
+         (mod.dx*mm).toFixed(3)+' x '+
+         (mod.dy*mm).toFixed(3)+' x '+
+         (mod.dz*mm).toFixed(3)+' (mm)'
+      var inches = parseFloat(mod.inunits.value)
+      mod.insize.nodeValue = 
+         (mod.dx*inches).toFixed(3)+' x '+
+         (mod.dy*inches).toFixed(3)+' x '+
+         (mod.dz*inches).toFixed(3)+' (in)'
+      })
+   var rx = parseFloat(mod.rx.value)
+   var ry = parseFloat(mod.ry.value)
+   var rz = parseFloat(mod.rz.value)
+   var border = parseFloat(mod.border.value)
+   webworker.postMessage({
+      mesh:mod.mesh,
+      rx:rx,ry:ry,rz:rz,
+      border:border,delta:mod.delta})
+   }
+function limits_worker() {
+   self.addEventListener('message',function(evt) {
+      var view = evt.data.mesh
+      var depth = evt.data.depth
+      var rx = evt.data.rx*Math.PI/180
+      var ry = evt.data.ry*Math.PI/180
+      var rz = evt.data.rz*Math.PI/180
+      var border = evt.data.border
+      var delta = evt.data.delta
+      //
+      // function to rotate point
+      //
+      function rotate(x,y,z) {
+         var x1 = x
+         var y1 = Math.cos(rx)*y-Math.sin(rx)*z
+         var z1 = Math.sin(rx)*y+Math.cos(rx)*z
+         var x2 = Math.cos(ry)*x1-Math.sin(ry)*z1
+         var y2 = y1
+         var z2 = Math.sin(ry)*x1+Math.cos(ry)*z1
+         var x3 = Math.cos(rz)*x2-Math.sin(rz)*y2
+         var y3 = Math.sin(rz)*x2+Math.cos(rz)*y2
+         var z3 = z2
+         //
+         // perturb to remove slice degeneracies
+         //
+         x3 += delta
+         y3 += delta
+         z3 += delta
+         return([x3,y3,z3])
+         }
+      //
+      // get vars
+      //
+      var endian = true
+      var triangles = view.getUint32(80,endian)
+      var size = 80+4+triangles*(4*12+2)
+      //
+      // find limits
+      //
+      var offset = 80+4
+      var x0,x1,x2,y0,y1,y2,z0,z1,z2
+      var xmin = Number.MAX_VALUE
+      var xmax = -Number.MAX_VALUE
+      var ymin = Number.MAX_VALUE
+      var ymax = -Number.MAX_VALUE
+      var zmin = Number.MAX_VALUE
+      var zmax = -Number.MAX_VALUE
+      for (var t = 0; t < triangles; ++t) {
+         offset += 3*4
+         x0 = view.getFloat32(offset,endian)
+         offset += 4
+         y0 = view.getFloat32(offset,endian)
+         offset += 4
+         z0 = view.getFloat32(offset,endian)
+         offset += 4
+         x1 = view.getFloat32(offset,endian)
+         offset += 4
+         y1 = view.getFloat32(offset,endian)
+         offset += 4
+         z1 = view.getFloat32(offset,endian)
+         offset += 4
+         x2 = view.getFloat32(offset,endian)
+         offset += 4
+         y2 = view.getFloat32(offset,endian)
+         offset += 4
+         z2 = view.getFloat32(offset,endian)
+         offset += 4
+         offset += 2
+         var p0 = rotate(x0,y0,z0)
+         if (p0[0] > xmax) xmax = p0[0]
+         if (p0[0] < xmin) xmin = p0[0]
+         if (p0[1] > ymax) ymax = p0[1]
+         if (p0[1] < ymin) ymin = p0[1]
+         if (p0[2] > zmax) zmax = p0[2]
+         if (p0[2] < zmin) zmin = p0[2]
+         var p1 = rotate(x1,y1,z1)
+         if (p1[0] > xmax) xmax = p1[0]
+         if (p1[0] < xmin) xmin = p1[0]
+         if (p1[1] > ymax) ymax = p1[1]
+         if (p1[1] < ymin) ymin = p1[1]
+         if (p1[2] > zmax) zmax = p1[2]
+         if (p1[2] < zmin) zmin = p1[2]
+         var p2 = rotate(x2,y2,z2)
+         if (p2[0] > xmax) xmax = p2[0]
+         if (p2[0] < xmin) xmin = p2[0]
+         if (p2[1] > ymax) ymax = p2[1]
+         if (p2[1] < ymin) ymin = p2[1]
+         if (p2[2] > zmax) zmax = p2[2]
+         if (p2[2] < zmin) zmin = p2[2]
+         }
+      xmin -= border
+      xmax += border
+      ymin -= border
+      ymax += border
+      //
+      // return
+      //
+      self.postMessage({triangles:triangles,
+         xmin:xmin,xmax:xmax,ymin:ymin,ymax:ymax,
+         zmin:zmin,zmax:zmax})
+      })
    }
 //
 // draw mesh
 //
-function draw_mesh() {
+function draw_mesh_stroke() {
    //
    // function to rotate point
    //
@@ -300,8 +430,7 @@ function draw_mesh() {
       var y3 = Math.sin(rz)*x2+Math.cos(rz)*y2
       var z3 = z2
       //
-      // perturb by lattice resolution
-      //    to remove slice degeneracies
+      // perturb to remove slice degeneracies
       //
       x3 += mod.delta
       y3 += mod.delta
@@ -451,7 +580,7 @@ function draw_mesh() {
 // slice mesh
 //   
 function slice_mesh() {
-   var blob = new Blob(['('+worker.toString()+'())'])
+   var blob = new Blob(['('+slice_worker.toString()+'())'])
    var url = window.URL.createObjectURL(blob)
    var webworker = new Worker(url)
    webworker.addEventListener('message',function(evt) {
@@ -500,7 +629,7 @@ function slice_mesh() {
       rx:rx,ry:ry,rz:rz,delta:mod.delta},
       [img.data.buffer])
    }
-function worker() {
+function slice_worker() {
    self.addEventListener('message',function(evt) {
       var h = evt.data.height
       var w = evt.data.width
@@ -531,8 +660,7 @@ function worker() {
          var y3 = Math.sin(rz)*x2+Math.cos(rz)*y2
          var z3 = z2
          //
-         // perturb by lattice resolution
-         //    to remove slice degeneracies
+         // perturb to remove slice degeneracies
          //
          x3 += delta
          y3 += delta
