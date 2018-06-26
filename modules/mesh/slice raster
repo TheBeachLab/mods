@@ -45,14 +45,12 @@ var inputs = {
    mesh:{type:'STL',
       event:function(evt){
          mod.mesh = new DataView(evt.detail)
-         find_limits()
-         slice_mesh()}},
+         find_limits()}},
    variables:{type:'',
       event:function(evt){
          for (var p in evt.detail)
             mod[p].value = evt.detail[p]
-         find_limits()
-         slice_mesh()}}}
+         find_limits()}}}
 //
 // outputs
 //
@@ -96,7 +94,6 @@ var interface = function(div){
    //
    // mesh units
    //
-   div.appendChild(document.createElement('br'))
    div.appendChild(document.createTextNode('mesh units: (enter)'))
    div.appendChild(document.createElement('br'))
    div.appendChild(document.createTextNode('mm: '))
@@ -106,7 +103,6 @@ var interface = function(div){
       input.addEventListener('change',function(){
          mod.inunits.value = parseFloat(mod.mmunits.value)/25.4
          find_limits()
-         slice_mesh()
          })
       div.appendChild(input)
       mod.mmunits = input
@@ -117,7 +113,6 @@ var interface = function(div){
       input.addEventListener('change',function(){
          mod.mmunits.value = parseFloat(mod.inunits.value)*25.4
          find_limits()
-         slice_mesh()
          })
       div.appendChild(input)
       mod.inunits = input
@@ -147,7 +142,7 @@ var interface = function(div){
       input.type = 'text'
       input.size = 6
       input.addEventListener('change',function(){
-         slice_mesh()
+         find_limits()
          })
       div.appendChild(input)
       mod.depth = input
@@ -161,7 +156,7 @@ var interface = function(div){
       input.type = 'text'
       input.size = 6
       input.addEventListener('change',function(){
-         slice_mesh()
+         find_limits()
          })
       div.appendChild(input)
       mod.border = input
@@ -175,7 +170,7 @@ var interface = function(div){
       input.type = 'text'
       input.size = 6
       input.addEventListener('change',function(){
-         slice_mesh()
+         find_limits()
          })
       div.appendChild(input)
       mod.width = input
@@ -243,6 +238,8 @@ function find_limits() {
          (mod.dx*inches).toFixed(3)+' x '+
          (mod.dy*inches).toFixed(3)+' x '+
          (mod.dz*inches).toFixed(3)+' (in)'
+      mods.fit(mod.div)
+      slice_mesh()
       })
    var border = parseFloat(mod.border.value)
    webworker.postMessage({
