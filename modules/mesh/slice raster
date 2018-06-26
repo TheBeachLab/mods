@@ -2,8 +2,6 @@
 // mesh slice raster
 // 
 // todo
-//    shade z
-//        transfer mesh
 //    include slice plane triangles
 //    scale perturbation to resolution
 //
@@ -45,12 +43,12 @@ var inputs = {
    mesh:{type:'STL',
       event:function(evt){
          mod.mesh = new DataView(evt.detail)
-         find_limits()}},
+         find_limits_slice()}},
    variables:{type:'',
       event:function(evt){
          for (var p in evt.detail)
             mod[p].value = evt.detail[p]
-         find_limits()}}}
+         find_limits_slice()}}}
 //
 // outputs
 //
@@ -102,7 +100,7 @@ var interface = function(div){
       input.size = 6
       input.addEventListener('change',function(){
          mod.inunits.value = parseFloat(mod.mmunits.value)/25.4
-         find_limits()
+         find_limits_slice()
          })
       div.appendChild(input)
       mod.mmunits = input
@@ -112,7 +110,7 @@ var interface = function(div){
       input.size = 6
       input.addEventListener('change',function(){
          mod.mmunits.value = parseFloat(mod.inunits.value)*25.4
-         find_limits()
+         find_limits_slice()
          })
       div.appendChild(input)
       mod.inunits = input
@@ -142,7 +140,7 @@ var interface = function(div){
       input.type = 'text'
       input.size = 6
       input.addEventListener('change',function(){
-         find_limits()
+         find_limits_slice()
          })
       div.appendChild(input)
       mod.depth = input
@@ -156,7 +154,7 @@ var interface = function(div){
       input.type = 'text'
       input.size = 6
       input.addEventListener('change',function(){
-         find_limits()
+         find_limits_slice()
          })
       div.appendChild(input)
       mod.border = input
@@ -170,7 +168,7 @@ var interface = function(div){
       input.type = 'text'
       input.size = 6
       input.addEventListener('change',function(){
-         find_limits()
+         find_limits_slice()
          })
       div.appendChild(input)
       mod.width = input
@@ -206,9 +204,9 @@ var interface = function(div){
 //
 // local functions
 //
-// find limits
+// find limits then slice
 //
-function find_limits() {
+function find_limits_slice() {
    var blob = new Blob(['('+limits_worker.toString()+'())'])
    var url = window.URL.createObjectURL(blob)
    var webworker = new Worker(url)
@@ -253,18 +251,6 @@ function limits_worker() {
       var border = evt.data.border
       var delta = evt.data.delta
       //
-      // function to rotate point
-      //
-      function rotate(x,y,z) {
-         //
-         // perturb to remove slice degeneracies
-         //
-         x3 = x+delta
-         y3 = y+delta
-         z3 = z+delta
-         return([x3,y3,z3])
-         }
-      //
       // get vars
       //
       var endian = true
@@ -283,46 +269,43 @@ function limits_worker() {
       var zmax = -Number.MAX_VALUE
       for (var t = 0; t < triangles; ++t) {
          offset += 3*4
-         x0 = view.getFloat32(offset,endian)
+         x0 = view.getFloat32(offset,endian)+delta
          offset += 4
-         y0 = view.getFloat32(offset,endian)
+         y0 = view.getFloat32(offset,endian)+delta
          offset += 4
-         z0 = view.getFloat32(offset,endian)
+         z0 = view.getFloat32(offset,endian)+delta
          offset += 4
-         x1 = view.getFloat32(offset,endian)
+         x1 = view.getFloat32(offset,endian)+delta
          offset += 4
-         y1 = view.getFloat32(offset,endian)
+         y1 = view.getFloat32(offset,endian)+delta
          offset += 4
-         z1 = view.getFloat32(offset,endian)
+         z1 = view.getFloat32(offset,endian)+delta
          offset += 4
-         x2 = view.getFloat32(offset,endian)
+         x2 = view.getFloat32(offset,endian)+delta
          offset += 4
-         y2 = view.getFloat32(offset,endian)
+         y2 = view.getFloat32(offset,endian)+delta
          offset += 4
-         z2 = view.getFloat32(offset,endian)
+         z2 = view.getFloat32(offset,endian)+delta
          offset += 4
          offset += 2
-         var p0 = rotate(x0,y0,z0)
-         if (p0[0] > xmax) xmax = p0[0]
-         if (p0[0] < xmin) xmin = p0[0]
-         if (p0[1] > ymax) ymax = p0[1]
-         if (p0[1] < ymin) ymin = p0[1]
-         if (p0[2] > zmax) zmax = p0[2]
-         if (p0[2] < zmin) zmin = p0[2]
-         var p1 = rotate(x1,y1,z1)
-         if (p1[0] > xmax) xmax = p1[0]
-         if (p1[0] < xmin) xmin = p1[0]
-         if (p1[1] > ymax) ymax = p1[1]
-         if (p1[1] < ymin) ymin = p1[1]
-         if (p1[2] > zmax) zmax = p1[2]
-         if (p1[2] < zmin) zmin = p1[2]
-         var p2 = rotate(x2,y2,z2)
-         if (p2[0] > xmax) xmax = p2[0]
-         if (p2[0] < xmin) xmin = p2[0]
-         if (p2[1] > ymax) ymax = p2[1]
-         if (p2[1] < ymin) ymin = p2[1]
-         if (p2[2] > zmax) zmax = p2[2]
-         if (p2[2] < zmin) zmin = p2[2]
+         if (x0 > xmax) xmax = x0
+         if (x0 < xmin) xmin = x0
+         if (y0 > ymax) ymax = y0
+         if (y0 < ymin) ymin = y0
+         if (z0 > zmax) zmax = z0
+         if (z0 < zmin) zmin = z0
+         if (x1 > xmax) xmax = x1
+         if (x1 < xmin) xmin = x1
+         if (y1 > ymax) ymax = y1
+         if (y1 < ymin) ymin = y1
+         if (z1 > zmax) zmax = z1
+         if (z1 < zmin) zmin = z1
+         if (x2 > xmax) xmax = x2
+         if (x2 < xmin) xmin = x2
+         if (y2 > ymax) ymax = y2
+         if (y2 < ymin) ymin = y2
+         if (z2 > zmax) zmax = z2
+         if (z2 < zmin) zmin = z2
          }
       xmin -= border
       xmax += border
@@ -401,18 +384,6 @@ function slice_worker() {
       var zmax = evt.data.zmax
       var buf = new Uint8ClampedArray(evt.data.imgbuffer)
       //
-      // function to rotate point
-      //
-      function rotate(x,y,z) {
-         //
-         // perturb to remove slice degeneracies
-         //
-         x3 = x+delta
-         y3 = y+delta
-         z3 = z+delta
-         return([x3,y3,z3])
-         }
-      //
       // get vars from buffer
       //
       var endian = true
@@ -436,30 +407,29 @@ function slice_worker() {
       offset = 80+4
       for (var t = 0; t < triangles; ++t) {
          offset += 3*4
-         x0 = view.getFloat32(offset,endian)
+         x0 = view.getFloat32(offset,endian)+delta
          offset += 4
-         y0 = view.getFloat32(offset,endian)
+         y0 = view.getFloat32(offset,endian)+delta
          offset += 4
-         z0 = view.getFloat32(offset,endian)
+         z0 = view.getFloat32(offset,endian)+delta
          offset += 4
-         x1 = view.getFloat32(offset,endian)
+         x1 = view.getFloat32(offset,endian)+delta
          offset += 4
-         y1 = view.getFloat32(offset,endian)
+         y1 = view.getFloat32(offset,endian)+delta
          offset += 4
-         z1 = view.getFloat32(offset,endian)
+         z1 = view.getFloat32(offset,endian)+delta
          offset += 4
-         x2 = view.getFloat32(offset,endian)
+         x2 = view.getFloat32(offset,endian)+delta
          offset += 4
-         y2 = view.getFloat32(offset,endian)
+         y2 = view.getFloat32(offset,endian)+delta
          offset += 4
-         z2 = view.getFloat32(offset,endian)
+         z2 = view.getFloat32(offset,endian)+delta
          offset += 4
          //
-         // rotate vertices
+         // assemble vertices
          //
          offset += 2
-         var v = [rotate(x0,y0,z0),
-            rotate(x1,y1,z1),rotate(x2,y2,z2)]
+         var v = [[x0,y0,z0],[x1,y1,z1],[x2,y2,z2]]
          //
          // sort z
          //
