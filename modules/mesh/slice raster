@@ -249,7 +249,7 @@ function limits_worker() {
       var view = evt.data.mesh
       var depth = evt.data.depth
       var border = evt.data.border
-      var delta = evt.data.delta
+      var delta = evt.data.delta // perturb to remove degeneracies
       //
       // get vars
       //
@@ -375,7 +375,7 @@ function slice_worker() {
       var w = evt.data.width
       var depth = evt.data.depth
       var view = evt.data.mesh
-      var delta = evt.data.delta
+      var delta = evt.data.delta // perturb to remove degeneracies
       var xmin = evt.data.xmin
       var xmax = evt.data.xmax
       var ymin = evt.data.ymin
