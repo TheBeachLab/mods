@@ -2,7 +2,8 @@
 // mesh slice raster
 // 
 // todo
-//    shade z
+//    include slice plane triangles
+//    scale perturbation to resolution
 //
 // Neil Gershenfeld
 // (c) Massachusetts Institute of Technology 2018
@@ -28,13 +29,12 @@ var name = 'mesh slice raster'
 // initialization
 //
 var init = function() {
-   mod.rx.value = 0
-   mod.ry.value = 0
-   mod.rz.value = 0
    mod.mmunits.value = 25.4
    mod.inunits.value = 1
    mod.depth.value = 0
    mod.width.value = 1000
+   mod.border.value = 0
+   mod.delta = 1e-6
    }
 //
 // inputs
@@ -43,16 +43,12 @@ var inputs = {
    mesh:{type:'STL',
       event:function(evt){
          mod.mesh = new DataView(evt.detail)
-         draw_mesh()
-         update_units()
-         slice_mesh()}},
+         find_limits_slice()}},
    variables:{type:'',
       event:function(evt){
          for (var p in evt.detail)
             mod[p].value = evt.detail[p]
-         draw_mesh()
-         update_units()
-         slice_mesh()}}}
+         find_limits_slice()}}}
 //
 // outputs
 //
@@ -78,16 +74,7 @@ var outputs = {
 var interface = function(div){
    mod.div = div
    //
-   // mesh canvas
-   //
-   var canvas = document.createElement('canvas')
-      canvas.width = mods.ui.canvas
-      canvas.height = mods.ui.canvas
-      canvas.style.backgroundColor = 'rgb(255,255,255)'
-      div.appendChild(canvas)
-      mod.meshcanvas = canvas
-   //
-   // slice canvas
+   // on-screen slice canvas
    //
    div.appendChild(document.createTextNode(' '))
    var canvas = document.createElement('canvas')
@@ -103,49 +90,9 @@ var interface = function(div){
    var canvas = document.createElement('canvas')
       mod.img = canvas
    //
-   // mesh rotation
-   //
-   div.appendChild(document.createTextNode('rotation (degrees):'))
-   div.appendChild(document.createElement('br'))
-   div.appendChild(document.createTextNode(' x: '))
-   var input = document.createElement('input')
-      input.type = 'text'
-      input.size = 6
-      input.addEventListener('change',function(){
-         draw_mesh()
-         update_units()
-         slice_mesh()
-         })
-      div.appendChild(input)
-      mod.rx = input
-   div.appendChild(document.createTextNode(' y: '))
-   var input = document.createElement('input')
-      input.type = 'text'
-      input.size = 6
-      input.addEventListener('change',function(){
-         draw_mesh()
-         update_units()
-         slice_mesh()
-         })
-      div.appendChild(input)
-      mod.ry = input
-   div.appendChild(document.createTextNode(' z: '))
-   var input = document.createElement('input')
-      input.type = 'text'
-      input.size = 6
-      input.addEventListener('change',function(){
-         draw_mesh()
-         update_units()
-         slice_mesh()
-         })
-      div.appendChild(input)
-      mod.rz = input
-   div.appendChild(document.createTextNode(' (enter)'))
-   //
    // mesh units
    //
-   div.appendChild(document.createElement('br'))
-   div.appendChild(document.createTextNode('units:'))
+   div.appendChild(document.createTextNode('mesh units: (enter)'))
    div.appendChild(document.createElement('br'))
    div.appendChild(document.createTextNode('mm: '))
    var input = document.createElement('input')
@@ -153,8 +100,7 @@ var interface = function(div){
       input.size = 6
       input.addEventListener('change',function(){
          mod.inunits.value = parseFloat(mod.mmunits.value)/25.4
-         update_units()
-         slice_mesh()
+         find_limits_slice()
          })
       div.appendChild(input)
       mod.mmunits = input
@@ -164,19 +110,17 @@ var interface = function(div){
       input.size = 6
       input.addEventListener('change',function(){
          mod.mmunits.value = parseFloat(mod.inunits.value)*25.4
-         update_units()
-         slice_mesh()
+         find_limits_slice()
          })
       div.appendChild(input)
       mod.inunits = input
-   div.appendChild(document.createTextNode(' (enter)'))
    //
    // mesh size
    //
    div.appendChild(document.createElement('br'))
-   div.appendChild(document.createTextNode('size:'))
+   div.appendChild(document.createTextNode('mesh size:'))
    div.appendChild(document.createElement('br'))
-   var text = document.createTextNode('XxYxZ (mesh units)')
+   var text = document.createTextNode('XxYxZ (units)')
       div.appendChild(text)
       mod.meshsize = text
    div.appendChild(document.createElement('br'))
@@ -191,30 +135,44 @@ var interface = function(div){
    // slice depth
    //
    div.appendChild(document.createElement('br'))
-   div.appendChild(document.createTextNode('slice depth (mesh units): '))
+   div.appendChild(document.createTextNode('slice Z depth: '))
    var input = document.createElement('input')
       input.type = 'text'
       input.size = 6
       input.addEventListener('change',function(){
-         slice_mesh()
+         find_limits_slice()
          })
       div.appendChild(input)
       mod.depth = input
-   div.appendChild(document.createTextNode(' (enter)'))
+   div.appendChild(document.createTextNode(' (units)'))
+   //
+   // slice border 
+   //
+   div.appendChild(document.createElement('br'))
+   div.appendChild(document.createTextNode('slice border: '))
+   var input = document.createElement('input')
+      input.type = 'text'
+      input.size = 6
+      input.addEventListener('change',function(){
+         find_limits_slice()
+         })
+      div.appendChild(input)
+      mod.border = input
+   div.appendChild(document.createTextNode(' (units)'))
    //
    // slice width
    //
    div.appendChild(document.createElement('br'))
-   div.appendChild(document.createTextNode('slice width (pixels): '))
+   div.appendChild(document.createTextNode('slice width: '))
    var input = document.createElement('input')
       input.type = 'text'
       input.size = 6
       input.addEventListener('change',function(){
-         slice_mesh()
+         find_limits_slice()
          })
       div.appendChild(input)
       mod.width = input
-   div.appendChild(document.createTextNode(' (enter)'))
+   div.appendChild(document.createTextNode(' (pixels)'))
    //
    // view slice
    //
@@ -246,182 +204,126 @@ var interface = function(div){
 //
 // local functions
 //
-// update units
+// find limits then slice
 //
-function update_units() {
-   mod.meshsize.nodeValue = 
-      mod.dx.toFixed(3)+' x '+
-      mod.dy.toFixed(3)+' x '+
-      mod.dz.toFixed(3)+' (mesh units)'
-   var mm = parseFloat(mod.mmunits.value)
-   mod.mmsize.nodeValue = 
-      (mod.dx*mm).toFixed(3)+' x '+
-      (mod.dy*mm).toFixed(3)+' x '+
-      (mod.dz*mm).toFixed(3)+' (mm)'
-   var inches = parseFloat(mod.inunits.value)
-   mod.insize.nodeValue = 
-      (mod.dx*inches).toFixed(3)+' x '+
-      (mod.dy*inches).toFixed(3)+' x '+
-      (mod.dz*inches).toFixed(3)+' (in)'
+function find_limits_slice() {
+   var blob = new Blob(['('+limits_worker.toString()+'())'])
+   var url = window.URL.createObjectURL(blob)
+   var webworker = new Worker(url)
+   webworker.addEventListener('message',function(evt) {
+      window.URL.revokeObjectURL(url)
+      mod.triangles = evt.data.triangles
+      mod.xmin = evt.data.xmin
+      mod.xmax = evt.data.xmax
+      mod.ymin = evt.data.ymin
+      mod.ymax = evt.data.ymax
+      mod.zmin = evt.data.zmin
+      mod.zmax = evt.data.zmax
+      mod.dx = mod.xmax-mod.xmin
+      mod.dy = mod.ymax-mod.ymin
+      mod.dz = mod.zmax-mod.zmin
+      mod.meshsize.nodeValue = 
+         mod.dx.toFixed(3)+' x '+
+         mod.dy.toFixed(3)+' x '+
+         mod.dz.toFixed(3)+' (units)'
+      var mm = parseFloat(mod.mmunits.value)
+      mod.mmsize.nodeValue = 
+         (mod.dx*mm).toFixed(3)+' x '+
+         (mod.dy*mm).toFixed(3)+' x '+
+         (mod.dz*mm).toFixed(3)+' (mm)'
+      var inches = parseFloat(mod.inunits.value)
+      mod.insize.nodeValue = 
+         (mod.dx*inches).toFixed(3)+' x '+
+         (mod.dy*inches).toFixed(3)+' x '+
+         (mod.dz*inches).toFixed(3)+' (in)'
+      mods.fit(mod.div)
+      slice_mesh()
+      })
+   var border = parseFloat(mod.border.value)
+   webworker.postMessage({
+      mesh:mod.mesh,
+      border:border,delta:mod.delta})
    }
-//
-// draw mesh
-//
-function draw_mesh() {
-   //
-   // function to rotate point
-   //
-   function rotate(x,y,z) {
-      var x1 = x
-      var y1 = Math.cos(rx)*y-Math.sin(rx)*z
-      var z1 = Math.sin(rx)*y+Math.cos(rx)*z
-      var x2 = Math.cos(ry)*x1-Math.sin(ry)*z1
-      var y2 = y1
-      var z2 = Math.sin(ry)*x1+Math.cos(ry)*z1
-      var x3 = Math.cos(rz)*x2-Math.sin(rz)*y2
-      var y3 = Math.sin(rz)*x2+Math.cos(rz)*y2
-      var z3 = z2
-      return([x3,y3,z3])
-      }
-   //
-   // get vars
-   //
-   var view = mod.mesh
-   var endian = true
-   var triangles = view.getUint32(80,endian)
-   mod.triangles = triangles
-   var size = 80+4+triangles*(4*12+2)
-   var rx = parseFloat(mod.rx.value)*Math.PI/180
-   var ry = parseFloat(mod.ry.value)*Math.PI/180
-   var rz = parseFloat(mod.rz.value)*Math.PI/180
-   //
-   // find limits
-   //
-   var offset = 80+4
-   var x0,x1,x2,y0,y1,y2,z0,z1,z2
-   var xmin = Number.MAX_VALUE
-   var xmax = -Number.MAX_VALUE
-   var ymin = Number.MAX_VALUE
-   var ymax = -Number.MAX_VALUE
-   var zmin = Number.MAX_VALUE
-   var zmax = -Number.MAX_VALUE
-   for (var t = 0; t < triangles; ++t) {
-      offset += 3*4
-      x0 = view.getFloat32(offset,endian)
-      offset += 4
-      y0 = view.getFloat32(offset,endian)
-      offset += 4
-      z0 = view.getFloat32(offset,endian)
-      offset += 4
-      x1 = view.getFloat32(offset,endian)
-      offset += 4
-      y1 = view.getFloat32(offset,endian)
-      offset += 4
-      z1 = view.getFloat32(offset,endian)
-      offset += 4
-      x2 = view.getFloat32(offset,endian)
-      offset += 4
-      y2 = view.getFloat32(offset,endian)
-      offset += 4
-      z2 = view.getFloat32(offset,endian)
-      offset += 4
-      offset += 2
-      var p0 = rotate(x0,y0,z0)
-      if (p0[0] > xmax) xmax = p0[0]
-      if (p0[0] < xmin) xmin = p0[0]
-      if (p0[1] > ymax) ymax = p0[1]
-      if (p0[1] < ymin) ymin = p0[1]
-      if (p0[2] > zmax) zmax = p0[2]
-      if (p0[2] < zmin) zmin = p0[2]
-      var p1 = rotate(x1,y1,z1)
-      if (p1[0] > xmax) xmax = p1[0]
-      if (p1[0] < xmin) xmin = p1[0]
-      if (p1[1] > ymax) ymax = p1[1]
-      if (p1[1] < ymin) ymin = p1[1]
-      if (p1[2] > zmax) zmax = p1[2]
-      if (p1[2] < zmin) zmin = p1[2]
-      var p2 = rotate(x2,y2,z2)
-      if (p2[0] > xmax) xmax = p2[0]
-      if (p2[0] < xmin) xmin = p2[0]
-      if (p2[1] > ymax) ymax = p2[1]
-      if (p2[1] < ymin) ymin = p2[1]
-      if (p2[2] > zmax) zmax = p2[2]
-      if (p2[2] < zmin) zmin = p2[2]
-      }
-   mod.dx = xmax-xmin
-   mod.dy = ymax-ymin
-   mod.dz = zmax-zmin
-   mod.xmin = xmin
-   mod.ymin = ymin
-   mod.zmin = zmin
-   mod.xmax = xmax
-   mod.ymax = ymax
-   mod.zmax = zmax
-   //
-   // draw projection
-   //
-   var ctx = mod.meshcanvas.getContext('2d')
-   var w = mod.meshcanvas.width
-   var h = mod.meshcanvas.height
-   ctx.clearRect(0,0,w,h)
-   var dx = mod.dx
-   var dy = mod.dy
-   if (dx > dy) {
-      var xo = 0
-      var yo = h*.5*(1-dy/dx)
-      var xw = w
-      var yh = w*dy/dx
-      }
-   else {
-      var xo = w*.5*(1-dx/dy)
-      var yo = 0
-      var xw = h*dx/dy
-      var yh = h
-      }
-   ctx.beginPath()
-   offset = 80+4
-   for (var t = 0; t < triangles; ++t) {
-      offset += 3*4
-      x0 = view.getFloat32(offset,endian)
-      offset += 4
-      y0 = view.getFloat32(offset,endian)
-      offset += 4
-      z0 = view.getFloat32(offset,endian)
-      offset += 4
-      x1 = view.getFloat32(offset,endian)
-      offset += 4
-      y1 = view.getFloat32(offset,endian)
-      offset += 4
-      z1 = view.getFloat32(offset,endian)
-      offset += 4
-      x2 = view.getFloat32(offset,endian)
-      offset += 4
-      y2 = view.getFloat32(offset,endian)
-      offset += 4
-      z2 = view.getFloat32(offset,endian)
-      offset += 4
-      offset += 2
-      var p0 = rotate(x0,y0,z0)
-      var p1 = rotate(x1,y1,z1)
-      var p2 = rotate(x2,y2,z2)
-      x0 = xo+xw*(p0[0]-xmin)/dx
-      y0 = yo+yh*(ymax-p0[1])/dy
-      x1 = xo+xw*(p1[0]-xmin)/dx
-      y1 = yo+yh*(ymax-p1[1])/dy
-      x2 = xo+xw*(p2[0]-xmin)/dx
-      y2 = yo+yh*(ymax-p2[1])/dy
-      ctx.moveTo(x0,y0)
-      ctx.lineTo(x1,y1)
-      ctx.lineTo(x2,y2)
-      ctx.lineTo(x0,y0)
-      }
-   ctx.stroke()
+function limits_worker() {
+   self.addEventListener('message',function(evt) {
+      var view = evt.data.mesh
+      var depth = evt.data.depth
+      var border = evt.data.border
+      var delta = evt.data.delta // perturb to remove degeneracies
+      //
+      // get vars
+      //
+      var endian = true
+      var triangles = view.getUint32(80,endian)
+      var size = 80+4+triangles*(4*12+2)
+      //
+      // find limits
+      //
+      var offset = 80+4
+      var x0,x1,x2,y0,y1,y2,z0,z1,z2
+      var xmin = Number.MAX_VALUE
+      var xmax = -Number.MAX_VALUE
+      var ymin = Number.MAX_VALUE
+      var ymax = -Number.MAX_VALUE
+      var zmin = Number.MAX_VALUE
+      var zmax = -Number.MAX_VALUE
+      for (var t = 0; t < triangles; ++t) {
+         offset += 3*4
+         x0 = view.getFloat32(offset,endian)+delta
+         offset += 4
+         y0 = view.getFloat32(offset,endian)+delta
+         offset += 4
+         z0 = view.getFloat32(offset,endian)+delta
+         offset += 4
+         x1 = view.getFloat32(offset,endian)+delta
+         offset += 4
+         y1 = view.getFloat32(offset,endian)+delta
+         offset += 4
+         z1 = view.getFloat32(offset,endian)+delta
+         offset += 4
+         x2 = view.getFloat32(offset,endian)+delta
+         offset += 4
+         y2 = view.getFloat32(offset,endian)+delta
+         offset += 4
+         z2 = view.getFloat32(offset,endian)+delta
+         offset += 4
+         offset += 2
+         if (x0 > xmax) xmax = x0
+         if (x0 < xmin) xmin = x0
+         if (y0 > ymax) ymax = y0
+         if (y0 < ymin) ymin = y0
+         if (z0 > zmax) zmax = z0
+         if (z0 < zmin) zmin = z0
+         if (x1 > xmax) xmax = x1
+         if (x1 < xmin) xmin = x1
+         if (y1 > ymax) ymax = y1
+         if (y1 < ymin) ymin = y1
+         if (z1 > zmax) zmax = z1
+         if (z1 < zmin) zmin = z1
+         if (x2 > xmax) xmax = x2
+         if (x2 < xmin) xmin = x2
+         if (y2 > ymax) ymax = y2
+         if (y2 < ymin) ymin = y2
+         if (z2 > zmax) zmax = z2
+         if (z2 < zmin) zmin = z2
+         }
+      xmin -= border
+      xmax += border
+      ymin -= border
+      ymax += border
+      //
+      // return
+      //
+      self.postMessage({triangles:triangles,
+         xmin:xmin,xmax:xmax,ymin:ymin,ymax:ymax,
+         zmin:zmin,zmax:zmax})
+      })
    }
 //
 // slice mesh
 //   
 function slice_mesh() {
-   var blob = new Blob(['('+worker.toString()+'())'])
+   var blob = new Blob(['('+slice_worker.toString()+'())'])
    var url = window.URL.createObjectURL(blob)
    var webworker = new Worker(url)
    webworker.addEventListener('message',function(evt) {
@@ -454,9 +356,6 @@ function slice_mesh() {
    var ctx = mod.slicecanvas.getContext("2d")
    ctx.clearRect(0,0,mod.slicecanvas.width,mod.slicecanvas.height)
    var depth = parseFloat(mod.depth.value)
-   var rx = parseFloat(mod.rx.value)
-   var ry = parseFloat(mod.ry.value)
-   var rz = parseFloat(mod.rz.value)
    mod.img.width = parseInt(mod.width.value)
    mod.img.height = Math.round(mod.img.width*mod.dy/mod.dx)
    var ctx = mod.img.getContext("2d")
@@ -467,18 +366,16 @@ function slice_mesh() {
       xmin:mod.xmin,xmax:mod.xmax,
       ymin:mod.ymin,ymax:mod.ymax,
       zmin:mod.zmin,zmax:mod.zmax,
-      rx:rx,ry:ry,rz:rz},
+      delta:mod.delta},
       [img.data.buffer])
    }
-function worker() {
+function slice_worker() {
    self.addEventListener('message',function(evt) {
       var h = evt.data.height
       var w = evt.data.width
       var depth = evt.data.depth
       var view = evt.data.mesh
-      var rx = evt.data.rx
-      var ry = evt.data.ry
-      var rz = evt.data.rz
+      var delta = evt.data.delta // perturb to remove degeneracies
       var xmin = evt.data.xmin
       var xmax = evt.data.xmax
       var ymin = evt.data.ymin
@@ -486,29 +383,6 @@ function worker() {
       var zmin = evt.data.zmin
       var zmax = evt.data.zmax
       var buf = new Uint8ClampedArray(evt.data.imgbuffer)
-      //
-      // function to rotate point
-      //
-      var delta = (xmax-xmin)/(10*w)
-      function rotate(x,y,z) {
-         var x1 = x
-         var y1 = Math.cos(rx)*y-Math.sin(rx)*z
-         var z1 = Math.sin(rx)*y+Math.cos(rx)*z
-         var x2 = Math.cos(ry)*x1-Math.sin(ry)*z1
-         var y2 = y1
-         var z2 = Math.sin(ry)*x1+Math.cos(ry)*z1
-         var x3 = Math.cos(rz)*x2-Math.sin(rz)*y2
-         var y3 = Math.sin(rz)*x2+Math.cos(rz)*y2
-         var z3 = z2
-         //
-         // perturb by lattice resolution
-         //    to remove slice degeneracies
-         //
-         x3 += delta
-         y3 += delta
-         z3 += delta
-         return([x3,y3,z3])
-         }
       //
       // get vars from buffer
       //
@@ -533,30 +407,29 @@ function worker() {
       offset = 80+4
       for (var t = 0; t < triangles; ++t) {
          offset += 3*4
-         x0 = view.getFloat32(offset,endian)
+         x0 = view.getFloat32(offset,endian)+delta
          offset += 4
-         y0 = view.getFloat32(offset,endian)
+         y0 = view.getFloat32(offset,endian)+delta
          offset += 4
-         z0 = view.getFloat32(offset,endian)
+         z0 = view.getFloat32(offset,endian)+delta
          offset += 4
-         x1 = view.getFloat32(offset,endian)
+         x1 = view.getFloat32(offset,endian)+delta
          offset += 4
-         y1 = view.getFloat32(offset,endian)
+         y1 = view.getFloat32(offset,endian)+delta
          offset += 4
-         z1 = view.getFloat32(offset,endian)
+         z1 = view.getFloat32(offset,endian)+delta
          offset += 4
-         x2 = view.getFloat32(offset,endian)
+         x2 = view.getFloat32(offset,endian)+delta
          offset += 4
-         y2 = view.getFloat32(offset,endian)
+         y2 = view.getFloat32(offset,endian)+delta
          offset += 4
-         z2 = view.getFloat32(offset,endian)
+         z2 = view.getFloat32(offset,endian)+delta
          offset += 4
          //
-         // rotate vertices
+         // assemble vertices
          //
          offset += 2
-         var v = [rotate(x0,y0,z0),
-            rotate(x1,y1,z1),rotate(x2,y2,z2)]
+         var v = [[x0,y0,z0],[x1,y1,z1],[x2,y2,z2]]
          //
          // sort z
          //
@@ -612,7 +485,7 @@ function worker() {
          xs.sort((a,b) => (a-b))
          for (var col = 0; col < w; ++col) {
             var x = xmin+(xmax-xmin)*col/(w-1)
-            var index = xs.findIndex((p) => (p > x))
+            var index = xs.findIndex((p) => (p >= x))
             if (index == -1)
                var i = 0
             else
