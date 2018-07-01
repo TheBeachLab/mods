@@ -1,6 +1,8 @@
 //
 // frep view slice
 //
+// todo depth units info
+//
 // Neil Gershenfeld
 // (c) Massachusetts Institute of Technology 2018
 //
@@ -25,8 +27,11 @@ var name = 'frep view slice'
 // initialization
 //
 var init = function() {
+   mod.mmunits.value = 25.4
+   mod.inunits.value = 1
+   mod.depth.value = 1
    mod.width.value = 1000
-   mod.z.value = 0
+   mod.border.value = 0
    }
 //
 // inputs
@@ -34,8 +39,9 @@ var init = function() {
 var inputs = {
    shape:{type:'frep',
       event:function(evt){
-         mod.fn.value = evt.detail.function
-         view_slice(evt.detail)
+         mod.frep = evt.detail
+         limits()
+         slice()
          }}}
 //
 // outputs
@@ -68,79 +74,94 @@ var interface = function(div){
    var canvas = document.createElement('canvas')
       mod.img = canvas
    //
-   // x
+   // frep units
    //
-   div.appendChild(document.createTextNode('x: '))
+   div.appendChild(document.createTextNode('frep units: (enter)'))
+   div.appendChild(document.createElement('br'))
+   div.appendChild(document.createTextNode('mm: '))
    var input = document.createElement('input')
       input.type = 'text'
-      input.size = 3
-      input.addEventListener('input',function(){
-         mod.y.value = ''
-         mod.z.value = ''
+      input.size = 6
+      input.addEventListener('change',function(){
+         mod.inunits.value = parseFloat(mod.mmunits.value)/25.4
+         limits()
+         slice()
          })
       div.appendChild(input)
-      mod.x = input
-   //
-   // y
-   //
-   div.appendChild(document.createTextNode(' y: '))
+      mod.mmunits = input
+   div.appendChild(document.createTextNode(' in: '))
    var input = document.createElement('input')
       input.type = 'text'
-      input.size = 3
-      input.addEventListener('input',function(){
-         mod.x.value = ''
-         mod.z.value = ''
+      input.size = 6
+      input.addEventListener('change',function(){
+         mod.mmunits.value = parseFloat(mod.inunits.value)*25.4
+         limits()
+         slice()
          })
       div.appendChild(input)
-      mod.y = input
-   //
-   // z
-   //
-   div.appendChild(document.createTextNode(' z: '))
-   var input = document.createElement('input')
-      input.type = 'text'
-      input.size = 3
-      input.addEventListener('input',function(){
-         mod.x.value = ''
-         mod.y.value = ''
-         })
-      div.appendChild(input)
-      mod.z = input
+      mod.inunits = input
    div.appendChild(document.createElement('br'))
    //
-   // width
+   // frep size
    //
-   div.appendChild(document.createTextNode('width: '))
+   div.appendChild(document.createTextNode('frep size:'))
+   div.appendChild(document.createElement('br'))
+   var text = document.createTextNode('XxYxZ (units)')
+      div.appendChild(text)
+      mod.meshsize = text
+   div.appendChild(document.createElement('br'))
+   var text = document.createTextNode('XxYxZ (mm)')
+      div.appendChild(text)
+      mod.mmsize = text
+   div.appendChild(document.createElement('br'))
+   var text = document.createTextNode('XxYxZ (in)')
+      div.appendChild(text)
+      mod.insize = text
+   div.appendChild(document.createElement('br'))
+   //
+   // slice depth
+   //
+   div.appendChild(document.createTextNode('slice Z depth: '))
+   var input = document.createElement('input')
+      input.type = 'text'
+      input.size = 3
+      input.addEventListener('change',function(){
+         limits()
+         slice()
+         })
+      div.appendChild(input)
+      mod.depth = input
+   div.appendChild(document.createTextNode(' (units)'))
+   div.appendChild(document.createElement('br'))
+   //
+   // slice border 
+   //
+   div.appendChild(document.createTextNode('slice border: '))
+   var input = document.createElement('input')
+      input.type = 'text'
+      input.size = 6
+      input.addEventListener('change',function(){
+         limits()
+         slice()
+         })
+      div.appendChild(input)
+      mod.border = input
+   div.appendChild(document.createTextNode(' (units)'))
+   div.appendChild(document.createElement('br'))
+   //
+   // slice width
+   //
+   div.appendChild(document.createTextNode('slice width: '))
    var input = document.createElement('input')
       input.type = 'text'
       input.size = 3
       input.addEventListener('input',function(){
-         mod.height.value = ''
+         limits()
+         slice()
          })
       div.appendChild(input)
       mod.width = input
-   //
-   // height
-   //
-   div.appendChild(document.createTextNode(' height: '))
-   var input = document.createElement('input')
-      input.type = 'text'
-      input.size = 3
-      input.addEventListener('input',function(){
-         mod.width.value = ''
-         })
-      div.appendChild(input)
-      mod.height = input
-   div.appendChild(document.createElement('br'))
-   //
-   // function
-   //
-   div.appendChild(document.createTextNode('function: '))
-   var input = document.createElement('input')
-      input.type = 'text'
-      input.size = 10
-      div.appendChild(input)
-      mod.fn = input
+   div.appendChild(document.createTextNode(' (pixels)'))
    div.appendChild(document.createElement('br'))
    //
    // view button
@@ -149,7 +170,7 @@ var interface = function(div){
    var btn = document.createElement('button')
       btn.style.padding = mods.ui.padding
       btn.style.margin = 1
-      btn.appendChild(document.createTextNode('view'))
+      btn.appendChild(document.createTextNode('view slice'))
       btn.addEventListener('click',function(){
          mod.win = window.open('')
          mod.win.document.body.style.overflow = 'hidden'
@@ -184,54 +205,34 @@ var interface = function(div){
 //
 // local functions
 //
-// view_slice
+// limits
 //
-function view_slice(shape) {   
-   var fn = shape.function
-   var vars = shape.variables
-   var limits = shape.limits
-   var type = shape.type
-   var x = parseFloat(mod.x.value)
-   var y = parseFloat(mod.y.value)
-   var z = parseFloat(mod.z.value)
-   var w = parseInt(mod.width.value)
-   var h = parseInt(mod.height.value)
+function limits() {
+   }
+//
+// slice
+//
+function slice() {   
+   var fn = mod.frep.function
+   var vars = mod.frep.variables
+   var limits = mod.frep.limits
+   var type = mod.frep.type
+   var depth = parseFloat(mod.depth.value)
+   var border = parseFloat(mod.border.value)
+   var xvar = vars[0]
+   var xlimits = limits[0]
+   var yvar = vars[1]
+   var ylimits = limits[1]
    if (vars.length == 2) {
-      var xvar = vars[0]
-      var xlimits = limits[0]
-      var yvar = vars[1]
-      var ylimits = limits[1]
       var zvar = ''
-      var zval = 0
+      var zlimits = []
       }
-   else if (!isNaN(x)) {
-      var xvar = vars[1]
-      var xlimits = limits[1]
-      var yvar = vars[2]
-      var ylimits = limits[2]
-      var zvar = vars[0]
-      var zval = x
-      }
-   else if (!isNaN(y)) {
-      var xvar = vars[0]
-      var xlimits = limits[0]
-      var yvar = vars[2]
-      var ylimits = limits[2]
-      var zvar = vars[1]
-      var zval = y
-      }
-   else if (!isNaN(z)) {
-      var xvar = vars[0]
-      var xlimits = limits[0]
-      var yvar = vars[1]
-      var ylimits = limits[1]
+   else if (vars.length == 3) {
       var zvar = vars[2]
-      var zval = z
+      var zlimits = limits[2]
       }
-   if (!isNaN(w))
-      h = Math.floor(w*(ylimits[1]-ylimits[0])/(xlimits[1]-xlimits[0]))
-   else
-      w = Math.floor(h*(xlimits[1]-xlimits[0])/(ylimits[1]-ylimits[0]))
+   var w = parseInt(mod.width.value)
+   var h = Math.floor(w*(ylimits[1]-ylimits[0])/(xlimits[1]-xlimits[0]))
    mod.img.height = h
    mod.img.width = w
    var blob = new Blob(['('+worker.toString()+'())'])
@@ -292,9 +293,9 @@ function view_slice(shape) {
    var img = ctx.getImageData(0,0,mod.img.width,mod.img.height)
    webworker.postMessage({
       height:img.height,width:img.width,
-      xvar:xvar,yvar:yvar,zvar:zvar,zval:zval,
-      xlimits:xlimits,ylimits:ylimits,
-      function:fn,
+      xvar:xvar,yvar:yvar,zvar:zvar,
+      xlimits:xlimits,ylimits:ylimits,zlimits:zlimits,
+      depth:depth,border:border,function:fn,
       buffer:img.data.buffer},
       [img.data.buffer])
    }
@@ -308,9 +309,12 @@ function worker() {
       var xvar = evt.data.xvar
       var yvar = evt.data.yvar
       var zvar = evt.data.zvar
-      var zval = evt.data.zval
       var xlimits = evt.data.xlimits
       var ylimits = evt.data.ylimits
+      var zlimits = evt.data.zlimits
+      var depth = evt.data.depth
+      var border = evt.data.border
+      var zval = depth
       var buf = new Uint8ClampedArray(evt.data.buffer)
       var f = new Function(xvar,yvar,zvar,'return ('+evt.data.function+')')
       var x,y,v
