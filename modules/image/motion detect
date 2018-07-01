@@ -2,7 +2,7 @@
 // motion detect
 //
 // Neil Gershenfeld 
-// (c) Massachusetts Institute of Technology 2017
+// (c) Massachusetts Institute of Technology 2018
 // 
 // This work may be reproduced, modified, distributed, performed, and 
 // displayed for any purpose, but must acknowledge the mods
@@ -31,11 +31,9 @@ var init = function() {
    mod.threshold.value = 0.025
    mod.latency.value = 15
    mod.delay.value = 1
-   mod.reload.value = 1000
    mod.dpi = 100
    mod.win = null
    mod.time = 0
-   mod.count = 0
    //
    // trigger image after latency (for start-up)
    //
@@ -162,16 +160,6 @@ var interface = function(div){
       mod.delay = input
    div.appendChild(document.createTextNode(' (s)'))
    div.appendChild(document.createElement('br'))
-   //
-   // reload
-   //
-   div.appendChild(document.createTextNode('reload: '))
-   var input = document.createElement('input')
-      input.type = 'text'
-      input.size = 6
-      div.appendChild(input)
-      mod.reload = input
-   div.appendChild(document.createTextNode(' (#)'))
    }
 //
 // local functions
@@ -224,12 +212,6 @@ function compare_images() {
          outputs.imageInfo.event(obj)
          outputs.image.event()
          mod.time = time
-         //
-         // check for reload
-         //
-         mod.count += 1
-         if (mod.count == parseInt(mod.reload.value))
-            window.location.reload(true)
          }
       //
       // update canvas
@@ -269,10 +251,6 @@ function compare_images() {
          else
             ctx.drawImage(mod.img,0,0,ch*iw/ih,ch)
          }
-      //
-      // terminate worker
-      //
-      webworker.terminate()
       //
       // trigger next image
       //
@@ -314,6 +292,7 @@ function worker() {
          }
       change = change/(w*h)
       self.postMessage({change:change})
+      self.close()
       })
    }
 //
