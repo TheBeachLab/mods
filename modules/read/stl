@@ -172,7 +172,6 @@ function stl_load_handler(event) {
       var mesh = evt.data.mesh
       var view = new DataView(evt.data.mesh)
       var triangles = view.getUint32(80,endian)
-      console.log(triangles)
       //
       // image
       //
@@ -199,6 +198,27 @@ function stl_load_handler(event) {
       [img.data.buffer,event.target.result])
 function draw_limits_worker() {
    self.addEventListener('message',function(evt) {
+      //
+      // draw line
+      //
+      function line(x0,y0,x1,y1) {
+         ix0 = Math.floor(xo+xw*(x0-xmin)/dx)
+         iy0 = Math.floor(yo+yh*(ymax-y0)/dy)
+         ix1 = Math.floor(xo+xw*(x1-xmin)/dx)
+         iy1 = Math.floor(yo+yh*(ymax-y1)/dy)
+         row = iy0
+         col = ix0
+         image[(height-1-row)*width*4+col*4+0] = 0
+         image[(height-1-row)*width*4+col*4+1] = 0
+         image[(height-1-row)*width*4+col*4+2] = 0
+         image[(height-1-row)*width*4+col*4+3] = 255
+         row = iy1
+         col = ix1
+         image[(height-1-row)*width*4+col*4+0] = 0
+         image[(height-1-row)*width*4+col*4+1] = 0
+         image[(height-1-row)*width*4+col*4+2] = 0
+         image[(height-1-row)*width*4+col*4+3] = 255
+         }
       //
       // get variables
       //
@@ -299,22 +319,9 @@ function draw_limits_worker() {
          z2 = view.getFloat32(offset,endian)
          offset += 4
          offset += 2
-         var ix0 = Math.floor(xo+xw*(x0-xmin)/dx)
-         var iy0 = Math.floor(yo+yh*(ymax-y0)/dy)
-         var row = iy0
-         var col = ix0
-         image[(height-1-row)*width*4+col*4+0] = 0
-         image[(height-1-row)*width*4+col*4+1] = 0
-         image[(height-1-row)*width*4+col*4+2] = 0
-         image[(height-1-row)*width*4+col*4+3] = 255
-         var ix1 = Math.floor(xo+xw*(x1-xmin)/dx)
-         var iy1 = Math.floor(yo+yh*(ymax-y1)/dy)
-         var row = iy1
-         var col = ix1
-         image[(height-1-row)*width*4+col*4+0] = 0
-         image[(height-1-row)*width*4+col*4+1] = 0
-         image[(height-1-row)*width*4+col*4+2] = 0
-         image[(height-1-row)*width*4+col*4+3] = 255
+         line(x0,y0,x1,y1)
+         line(x1,y1,x2,y2)
+         line(x2,y2,x0,y0)
          }
       //
       // return results and close
