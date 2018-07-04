@@ -132,17 +132,15 @@ function stl_read_handler(event) {
 // load handler
 //
 function stl_load_handler(event) {
-   var endian = true
-   var view = new DataView(event.target.result)
-   mod.view = view
-   var triangles = view.getUint32(80,endian)
-   mod.triangles = triangles
-   var size = 80+4+triangles*(4*12+2)
    //
    // check for binary STL
    //
+   var endian = true
+   var view = new DataView(event.target.result)
+   var triangles = view.getUint32(80,endian)
+   var size = 80+4+triangles*(4*12+2)
    if (size != view.byteLength) {
-      mod.size.nodeValue = 'error: STL not binary'
+      mod.sizen.nodeValue = 'error: not binary STL'
       mod.trianglesn.nodeValue = ''
       mod.dxn.nodeValue = ''
       mod.dyn.nodeValue = ''
@@ -152,71 +150,183 @@ function stl_load_handler(event) {
    mod.sizen.nodeValue = 'size: '+size
    mod.trianglesn.nodeValue = 'triangles: '+triangles
    //
-   // find limits
+   // find limits and draw
    //
-   var offset = 80+4
-   var x0,x1,x2,y0,y1,y2,z0,z1,z2
-   var xmin = Number.MAX_VALUE
-   var xmax = -Number.MAX_VALUE
-   var ymin = Number.MAX_VALUE
-   var ymax = -Number.MAX_VALUE
-   var zmin = Number.MAX_VALUE
-   var zmax = -Number.MAX_VALUE
-   for (var t = 0; t < triangles; ++t) {
-      offset += 3*4
-      x0 = view.getFloat32(offset,endian)
-      offset += 4
-      if (x0 > xmax) xmax = x0
-      if (x0 < xmin) xmin = x0
-      y0 = view.getFloat32(offset,endian)
-      offset += 4
-      if (y0 > ymax) ymax = y0
-      if (y0 < ymin) ymin = y0
-      z0 = view.getFloat32(offset,endian)
-      offset += 4
-      if (z0 > zmax) zmax = z0
-      if (z0 < zmin) zmin = z0
-      x1 = view.getFloat32(offset,endian)
-      offset += 4
-      if (x1 > xmax) xmax = x1
-      if (x1 < xmin) xmin = x1
-      y1 = view.getFloat32(offset,endian)
-      offset += 4
-      if (y1 > ymax) ymax = y1
-      if (y1 < ymin) ymin = y1
-      z1 = view.getFloat32(offset,endian)
-      offset += 4
-      if (z1 > zmax) zmax = z1
-      if (z1 < zmin) zmin = z1
-      x2 = view.getFloat32(offset,endian)
-      offset += 4
-      if (x2 > xmax) xmax = x2
-      if (x2 < xmin) xmin = x2
-      y3 = view.getFloat32(offset,endian)
-      offset += 4
-      if (y2 > ymax) ymax = y2
-      if (y2 < ymin) ymin = y2
-      z2 = view.getFloat32(offset,endian)
-      offset += 4
-      if (z2 > zmax) zmax = z2
-      if (z2 < zmin) zmin = z2
-      offset += 2
-      }
-   var dx = xmax-xmin
-   var dy = ymax-ymin
-   var dz = zmax-zmin
-   mod.dxn.nodeValue = 'dx: '+dx.toFixed(3)
-   mod.dyn.nodeValue = 'dy: '+dy.toFixed(3)
-   mod.dzn.nodeValue = 'dz: '+dz.toFixed(3)
-   mod.dx = dx
-   mod.dy = dy
-   mod.dz = dz
-   mod.xmin = xmin
-   mod.ymin = ymin
-   mod.zmin = zmin
-   mod.xmax = xmax
-   mod.ymax = ymax
-   mod.zmax = zmax
+   var blob = new Blob(['('+draw_limits_worker.toString()+'())'])
+   var url = window.URL.createObjectURL(blob)
+   var webworker = new Worker(url)
+   webworker.addEventListener('message',function(evt) {
+      //
+      // worker response
+      //
+      window.URL.revokeObjectURL(url)
+      //
+      // size
+      //
+      mod.dxn.nodeValue = 'dx: '+evt.data.dx.toFixed(3)
+      mod.dyn.nodeValue = 'dy: '+evt.data.dy.toFixed(3)
+      mod.dzn.nodeValue = 'dz: '+evt.data.dz.toFixed(3)
+      //
+      // mesh
+      //
+      var mesh = evt.data.mesh
+      var view = new DataView(evt.data.mesh)
+      var triangles = view.getUint32(80,endian)
+      console.log(triangles)
+      //
+      // image
+      //
+      var image = evt.data.image
+      var height = mod.canvas.height
+      var width = mod.canvas.width
+      var buffer = new Uint8ClampedArray(evt.data.image)
+      var imgdata = new ImageData(buffer,width,height)
+      var ctx = mod.canvas.getContext("2d")
+      ctx.putImageData(imgdata,0,0)
+      //
+      // output mesh
+      //
+      })
+   var ctx = mod.canvas.getContext("2d")
+   ctx.clearRect(0,0,mod.canvas.width,mod.canvas.height)
+   var img = ctx.getImageData(0,0,mod.canvas.width,mod.canvas.height)
+   //
+   // call worker
+   //
+   webworker.postMessage({
+      height:mod.canvas.height,width:mod.canvas.width,
+      image:img.data.buffer,mesh:event.target.result},
+      [img.data.buffer,event.target.result])
+function draw_limits_worker() {
+   self.addEventListener('message',function(evt) {
+      //
+      // get variables
+      //
+      var height = evt.data.height
+      var width = evt.data.width
+      var endian = true
+      var image = new Uint8ClampedArray(evt.data.image)
+      var view = new DataView(evt.data.mesh)
+      var triangles = view.getUint32(80,endian)
+      //
+      // find limits
+      //
+      var offset = 80+4
+      var x0,x1,x2,y0,y1,y2,z0,z1,z2
+      var xmin = Number.MAX_VALUE
+      var xmax = -Number.MAX_VALUE
+      var ymin = Number.MAX_VALUE
+      var ymax = -Number.MAX_VALUE
+      var zmin = Number.MAX_VALUE
+      var zmax = -Number.MAX_VALUE
+      for (var t = 0; t < triangles; ++t) {
+         offset += 3*4
+         x0 = view.getFloat32(offset,endian)
+         offset += 4
+         if (x0 > xmax) xmax = x0
+         if (x0 < xmin) xmin = x0
+         y0 = view.getFloat32(offset,endian)
+         offset += 4
+         if (y0 > ymax) ymax = y0
+         if (y0 < ymin) ymin = y0
+         z0 = view.getFloat32(offset,endian)
+         offset += 4
+         if (z0 > zmax) zmax = z0
+         if (z0 < zmin) zmin = z0
+         x1 = view.getFloat32(offset,endian)
+         offset += 4
+         if (x1 > xmax) xmax = x1
+         if (x1 < xmin) xmin = x1
+         y1 = view.getFloat32(offset,endian)
+         offset += 4
+         if (y1 > ymax) ymax = y1
+         if (y1 < ymin) ymin = y1
+         z1 = view.getFloat32(offset,endian)
+         offset += 4
+         if (z1 > zmax) zmax = z1
+         if (z1 < zmin) zmin = z1
+         x2 = view.getFloat32(offset,endian)
+         offset += 4
+         if (x2 > xmax) xmax = x2
+         if (x2 < xmin) xmin = x2
+         y3 = view.getFloat32(offset,endian)
+         offset += 4
+         if (y2 > ymax) ymax = y2
+         if (y2 < ymin) ymin = y2
+         z2 = view.getFloat32(offset,endian)
+         offset += 4
+         if (z2 > zmax) zmax = z2
+         if (z2 < zmin) zmin = z2
+         offset += 2
+         }
+      var dx = xmax-xmin
+      var dy = ymax-ymin
+      var dz = zmax-zmin
+      //
+      // draw mesh
+      //
+      if (dx > dy) {
+         var xo = 0
+         var yo = height*.5*(1-dy/dx)
+         var xw = width
+         var yh = width*dy/dx
+         }
+      else {
+         var xo = width*.5*(1-dx/dy)
+         var yo = 0
+         var xw = height*dx/dy
+         var yh = height
+         }
+      offset = 80+4
+      for (var t = 0; t < triangles; ++t) {
+         offset += 3*4
+         x0 = view.getFloat32(offset,endian)
+         offset += 4
+         y0 = view.getFloat32(offset,endian)
+         offset += 4
+         z0 = view.getFloat32(offset,endian)
+         offset += 4
+         x1 = view.getFloat32(offset,endian)
+         offset += 4
+         y1 = view.getFloat32(offset,endian)
+         offset += 4
+         z1 = view.getFloat32(offset,endian)
+         offset += 4
+         x2 = view.getFloat32(offset,endian)
+         offset += 4
+         y3 = view.getFloat32(offset,endian)
+         offset += 4
+         z2 = view.getFloat32(offset,endian)
+         offset += 4
+         offset += 2
+         var ix0 = Math.floor(xo+xw*(x0-xmin)/dx)
+         var iy0 = Math.floor(yo+yh*(ymax-y0)/dy)
+         var row = iy0
+         var col = ix0
+         image[(height-1-row)*width*4+col*4+0] = 0
+         image[(height-1-row)*width*4+col*4+1] = 0
+         image[(height-1-row)*width*4+col*4+2] = 0
+         image[(height-1-row)*width*4+col*4+3] = 255
+         var ix1 = Math.floor(xo+xw*(x1-xmin)/dx)
+         var iy1 = Math.floor(yo+yh*(ymax-y1)/dy)
+         var row = iy1
+         var col = ix1
+         image[(height-1-row)*width*4+col*4+0] = 0
+         image[(height-1-row)*width*4+col*4+1] = 0
+         image[(height-1-row)*width*4+col*4+2] = 0
+         image[(height-1-row)*width*4+col*4+3] = 255
+         }
+      //
+      // return results and close
+      //
+      self.postMessage({
+         dx:dx,dy:dy,dz:dz,
+         image:evt.data.image,mesh:evt.data.mesh},[evt.data.image,evt.data.mesh])
+      self.close()
+      })
+   }
+   }
+function old_stl_load_handler(event) {
    //
    // draw xy projection
    //
