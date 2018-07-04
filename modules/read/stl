@@ -218,6 +218,17 @@ function draw_limits_worker() {
          image[(height-1-row)*width*4+col*4+1] = 0
          image[(height-1-row)*width*4+col*4+2] = 0
          image[(height-1-row)*width*4+col*4+3] = 255
+
+         idx = ix1-ix0
+         idy = iy1-iy0
+         if (Math.abs(idx) > Math.abs(idy)) {
+            }
+         else if (Math.abs(idy) > Math.abs(idx)) {
+            }
+         else if (idx != 0) {
+            }
+         else {
+            }
          }
       //
       // get variables
