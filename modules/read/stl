@@ -191,6 +191,7 @@ function stl_load_handler(event) {
       height:mod.canvas.height,width:mod.canvas.width,
       image:img.data.buffer,mesh:event.target.result},
       [img.data.buffer,event.target.result])
+   }
 function draw_limits_worker() {
    self.addEventListener('message',function(evt) {
       //
@@ -349,61 +350,6 @@ function draw_limits_worker() {
          image:evt.data.image,mesh:evt.data.mesh},[evt.data.image,evt.data.mesh])
       self.close()
       })
-   }
-   }
-function old_stl_load_handler(event) {
-   //
-   // draw xy projection
-   //
-   var ctx = mod.canvas.getContext('2d')
-   var w = mod.canvas.width
-   var h = mod.canvas.height
-   ctx.clearRect(0,0,w,h)
-   if (dx > dy) {
-      var xo = 0
-      var yo = h*.5*(1-dy/dx)
-      var xw = w
-      var yh = w*dy/dx
-      }
-   else {
-      var xo = w*.5*(1-dx/dy)
-      var yo = 0
-      var xw = h*dx/dy
-      var yh = h
-      }
-   ctx.beginPath()
-   offset = 80+4
-   for (var t = 0; t < triangles; ++t) {
-      offset += 3*4
-      x0 = view.getFloat32(offset,endian)
-      offset += 4
-      y0 = view.getFloat32(offset,endian)
-      offset += 4
-      z0 = view.getFloat32(offset,endian)
-      offset += 4
-      x1 = view.getFloat32(offset,endian)
-      offset += 4
-      y1 = view.getFloat32(offset,endian)
-      offset += 4
-      z1 = view.getFloat32(offset,endian)
-      offset += 4
-      x2 = view.getFloat32(offset,endian)
-      offset += 4
-      y2 = view.getFloat32(offset,endian)
-      offset += 4
-      z2 = view.getFloat32(offset,endian)
-      offset += 4
-      offset += 2
-      ctx.moveTo(xo+xw*(x0-xmin)/dx,yo+yh*(ymax-y0)/dy)
-      ctx.lineTo(xo+xw*(x1-xmin)/dx,yo+yh*(ymax-y1)/dy)
-      ctx.lineTo(xo+xw*(x2-xmin)/dx,yo+yh*(ymax-y2)/dy)
-      ctx.lineTo(xo+xw*(x0-xmin)/dx,yo+yh*(ymax-y0)/dy)
-      }
-   ctx.stroke()
-   //
-   // output mesh
-   //
-   outputs.mesh.event(event.target.result)
    }
 //
 // return values
