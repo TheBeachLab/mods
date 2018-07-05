@@ -195,7 +195,7 @@ function stl_load_handler(event) {
 function draw_limits_worker() {
    self.addEventListener('message',function(evt) {
       //
-      // draw line
+      // function to draw line
       //
       function line(x0,y0,x1,y1) {
          var ix0 = Math.floor(xo+xw*(x0-xmin)/dx)
@@ -288,7 +288,7 @@ function draw_limits_worker() {
          offset += 4
          if (x2 > xmax) xmax = x2
          if (x2 < xmin) xmin = x2
-         y3 = view.getFloat32(offset,endian)
+         y2 = view.getFloat32(offset,endian)
          offset += 4
          if (y2 > ymax) ymax = y2
          if (y2 < ymin) ymin = y2
