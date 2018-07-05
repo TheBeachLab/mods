@@ -51,7 +51,15 @@ var outputs = {
          var ctx = mod.img.getContext("2d")
          var img = ctx.getImageData(0,0,mod.img.width,mod.img.height)
          mods.output(mod,'image',img)
-         }}}
+         }},
+   imageInfo:{type:'object',
+      event:function(){
+         var obj = {}
+         obj.name = mod.name.nodeValue
+         obj.dpi = parseFloat(mod.dpitext.value)
+         obj.width = mod.img.width
+         obj.height = mod.img.height
+         mods.output(mod,'imageInfo',obj)}}}
 //
 // interface
 //
