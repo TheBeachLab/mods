@@ -167,12 +167,6 @@ function stl_load_handler(event) {
       mod.dyn.nodeValue = 'dy: '+evt.data.dy.toFixed(3)
       mod.dzn.nodeValue = 'dz: '+evt.data.dz.toFixed(3)
       //
-      // mesh
-      //
-      var mesh = evt.data.mesh
-      var view = new DataView(evt.data.mesh)
-      var triangles = view.getUint32(80,endian)
-      //
       // image
       //
       var image = evt.data.image
@@ -183,8 +177,9 @@ function stl_load_handler(event) {
       var ctx = mod.canvas.getContext("2d")
       ctx.putImageData(imgdata,0,0)
       //
-      // output mesh
+      // output
       //
+      outputs.mesh.event(evt.data.mesh)
       })
    var ctx = mod.canvas.getContext("2d")
    ctx.clearRect(0,0,mod.canvas.width,mod.canvas.height)
