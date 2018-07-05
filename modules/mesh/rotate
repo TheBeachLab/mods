@@ -316,14 +316,14 @@ function rotate_mesh_worker() {
       if (dx > dy) {
          var xo = 0
          var yo = height*.5*(1-dy/dx)
-         var xw = width
-         var yh = width*dy/dx
+         var xw = (width-1)
+         var yh = (width-1)*dy/dx
          }
       else {
          var xo = width*.5*(1-dx/dy)
          var yo = 0
-         var xw = height*dx/dy
-         var yh = height
+         var xw = (height-1)*dx/dy
+         var yh = (height-1)
          }
       offset = 80+4
       var newoffset = 80+4
