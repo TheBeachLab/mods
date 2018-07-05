@@ -317,6 +317,7 @@ function limits_worker() {
       self.postMessage({triangles:triangles,
          xmin:xmin,xmax:xmax,ymin:ymin,ymax:ymax,
          zmin:zmin,zmax:zmax})
+      self.close()
       })
    }
 //
@@ -349,7 +350,6 @@ function slice_mesh() {
       var ctx = mod.slicecanvas.getContext("2d")
       ctx.clearRect(0,0,mod.slicecanvas.width,mod.slicecanvas.height)
       ctx.drawImage(mod.img,x0,y0,wd,hd)
-      webworker.terminate()
       outputs.image.event()
       outputs.imageInfo.event()
       })
@@ -500,6 +500,7 @@ function slice_worker() {
       // output the slice
       //
       self.postMessage({buffer:buf.buffer},[buf.buffer])
+      self.close()
       })
    }
 //
