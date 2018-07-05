@@ -202,32 +202,44 @@ function draw_limits_worker() {
       // draw line
       //
       function line(x0,y0,x1,y1) {
-         ix0 = Math.floor(xo+xw*(x0-xmin)/dx)
-         iy0 = Math.floor(yo+yh*(ymax-y0)/dy)
-         ix1 = Math.floor(xo+xw*(x1-xmin)/dx)
-         iy1 = Math.floor(yo+yh*(ymax-y1)/dy)
-         row = iy0
-         col = ix0
-         image[(height-1-row)*width*4+col*4+0] = 0
-         image[(height-1-row)*width*4+col*4+1] = 0
-         image[(height-1-row)*width*4+col*4+2] = 0
-         image[(height-1-row)*width*4+col*4+3] = 255
-         row = iy1
-         col = ix1
-         image[(height-1-row)*width*4+col*4+0] = 0
-         image[(height-1-row)*width*4+col*4+1] = 0
-         image[(height-1-row)*width*4+col*4+2] = 0
-         image[(height-1-row)*width*4+col*4+3] = 255
-
-         idx = ix1-ix0
-         idy = iy1-iy0
-         if (Math.abs(idx) > Math.abs(idy)) {
+         var ix0 = Math.floor(xo+xw*(x0-xmin)/dx)
+         var iy0 = Math.floor(yo+yh*(ymax-y0)/dy)
+         var ix1 = Math.floor(xo+xw*(x1-xmin)/dx)
+         var iy1 = Math.floor(yo+yh*(ymax-y1)/dy)
+         var row,col
+         var idx = ix1-ix0
+         var idy = iy1-iy0
+         if (Math.abs(idy) > Math.abs(idx)) {
+            (idy > 0) ?
+               (row0=iy0,col0=ix0,row1=iy1,col1=ix1):
+               (row0=iy1,col0=ix1,row1=iy0,col1=ix0)
+            for (row = row0; row <= row1; ++row) {
+               col = Math.floor(col0+(col1-col0)*(row-row0)/(row1-row0))
+               image[row*width*4+col*4+0] = 0
+               image[row*width*4+col*4+1] = 0
+               image[row*width*4+col*4+2] = 0
+               image[row*width*4+col*4+3] = 255
+               }
             }
-         else if (Math.abs(idy) > Math.abs(idx)) {
-            }
-         else if (idx != 0) {
+         else if ((Math.abs(idx) >= Math.abs(idy)) && (idx != 0)) {
+            (idx > 0) ?
+               (row0=iy0,col0=ix0,row1=iy1,col1=ix1):
+               (row0=iy1,col0=ix1,row1=iy0,col1=ix0)
+            for (col = col0; col <= col1; ++col) {
+               row = Math.floor(row0+(row1-row0)*(col-col0)/(col1-col0))
+               image[row*width*4+col*4+0] = 0
+               image[row*width*4+col*4+1] = 0
+               image[row*width*4+col*4+2] = 0
+               image[row*width*4+col*4+3] = 255
+               }
             }
          else {
+            row = iy0
+            col = ix0
+            image[row*width*4+col*4+0] = 0
+            image[row*width*4+col*4+1] = 0
+            image[row*width*4+col*4+2] = 0
+            image[row*width*4+col*4+3] = 255
             }
          }
       //
@@ -325,7 +337,7 @@ function draw_limits_worker() {
          offset += 4
          x2 = view.getFloat32(offset,endian)
          offset += 4
-         y3 = view.getFloat32(offset,endian)
+         y2 = view.getFloat32(offset,endian)
          offset += 4
          z2 = view.getFloat32(offset,endian)
          offset += 4
