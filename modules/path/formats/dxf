@@ -1,5 +1,5 @@
 //
-// path to G-code
+// path to DXF
 //
 // Neil Gershenfeld 
 // (c) Massachusetts Institute of Technology 2018
@@ -20,7 +20,7 @@ var mod = {}
 //
 // name
 //
-var name = 'path to G-code'
+var name = 'path to DXF (unfinished)'
 //
 // initialization
 //
@@ -150,36 +150,59 @@ var interface = function(div){
 // local functions
 //
 function make_path() {
+   /*
+   var units = 1/25.4
    var dx = mod.width/mod.dpi
    var nx = mod.width
    var scale = dx/(nx-1)
-   var cut_speed = parseFloat(mod.cutspeed.value)/25.4
-   var plunge_speed = parseFloat(mod.plungespeed.value)/25.4
-   var jog_speed = parseFloat(mod.jogspeed.value)/25.4
-   var jog_height = parseFloat(mod.jogheight.value)/25.4
-   var spindle_speed = parseFloat(mod.spindlespeed.value)
-   var tool = parseInt(mod.tool.value)
-   str = "%\n" // tape start
-   str += "G17\n" // xy plane
-   str += "G20\n" // inches
-   str += "G40\n" // cancel tool radius compensation
-   str += "G49\n" // cancel tool length compensation
-   str += "G54\n" // coordinate system 1
-   str += "G80\n" // cancel canned cycles
-   str += "G90\n" // absolute coordinates
-   str += "G94\n" // feed/minute units
-   str += "T"+tool+"M06\n" // tool selection, tool change
-   str += "F"+cut_speed.toFixed(4)+"\n" // feed rate
-   str += "S"+spindle_speed+"\n" // spindle speed
-   if (mod.coolanton.checked)
-      str += "M08\n" // coolant on
-   str += "G00Z"+jog_height.toFixed(4)+"\n" // move up before starting spindle
-   str += "M03\n" // spindle on clockwise
-   str += "G04 P1\n" // give spindle 1 second to spin up
+   str = "999\nDXF written by mods\n"
+   str += "0\nSECTION\n"
+   str += "2\nHEADER\n"
+   str += "9\n$ACADVER\n1\nAC1009\n"
+   str += "9\n$EXTMIN\n"
+   str += "10\n%f\n",units*v->xmin
+   str += "20\n%f\n",units*v->ymin
+   if (v->path->dof == 3)
+      str += "30\n%f\n",units*(v->zmin)
+   str += "9\n$EXTMAX\n"
+   str += "10\n%f\n",units*(v->xmin+v->dx)
+   str += "20\n%f\n",units*(v->ymin+v->dy)
+   if (v->path->dof == 3)
+      str += "30\n%f\n",units*(v->zmin+v->dz)
+   str += "0\nENDSEC\n"
+   str += "0\nSECTION\n"
+   str += "2\nTABLES\n"
+   str += "0\nTABLE\n"
+   str += "2\nLTYPE\n70\n1\n"
+   str += "0\nLTYPE\n"
+   str += "2\nCONTINUOUS\n"
+   str += "70\n64\n3\n"
+   str += "Solid line\n"
+   str += "72\n65\n73\n0\n40\n0.000000\n"
+   str += "0\nENDTAB\n"
+   str += "0\nTABLE\n2\nLAYER\n70\n1\n"
+   str += "0\nLAYER\n2\ndefault\n70\n64\n62\n7\n6\n"
+   str += "CONTINUOUS\n0\nENDTAB\n"
+   str += "0\nENDSEC\n"
+   str += "0\nSECTION\n"
+   str += "2\nBLOCKS\n"
+   str += "0\nENDSEC\n"
+   str += "0\nSECTION\n"
+   str += "2\nENTITIES\n"
    //
    // follow segments
    //
    for (var seg = 0; seg < mod.path.length; ++seg) {
+
+      x = v->path->segment->point->first->value;
+      y = v->ny - v->path->segment->point->first->next->value;
+      if (v->path->dof == 3)
+         z = v->path->segment->point->first->next->next->value;
+      x0 = units*(v->xmin+scale*x);
+      y0 = units*(v->ymin+scale*y);
+      if (v->path->dof == 3)
+         z0 = units*(v->zmin+scale*z);
+
       //
       // move up to starting point
       //
@@ -193,7 +216,34 @@ function make_path() {
       z = scale*mod.path[seg][0][2]
       str += "G01Z"+z.toFixed(4)+" F"+plunge_speed.toFixed(4)+"\n"
       str += "F"+cut_speed.toFixed(4)+"\n" //restore xy feed rate
+
+      //
+      // follow points
+      //
       for (var pt = 1; pt < mod.path[seg].length; ++pt) {
+      
+         x = v->path->segment->point->first->value;
+         y = v->ny - v->path->segment->point->first->next->value;
+         if (v->path->dof == 3)
+            z = v->path->segment->point->first->next->next->value;
+         x1 = units*(v->xmin+scale*x);
+         y1 = units*(v->ymin+scale*y);
+         if (v->path->dof == 3)
+            z1 = units*(v->zmin+scale*z);
+         str += "0\nLINE\n"
+         str += "10\n%f\n",x0
+         str += "20\n%f\n",y0
+         if (v->path->dof == 3)
+            str += "30\n%f\n",z0
+         str += "11\n%f\n",x1
+         str += "21\n%f\n",y1
+         if (v->path->dof == 3)
+            str += "31\n%f\n",z1
+         x0 = x1;
+         y0 = y1;
+         if (v->path->dof == 3)
+            z0 = z1;
+            
          //
          // move to next point
          //
@@ -201,21 +251,19 @@ function make_path() {
          y = scale*mod.path[seg][pt][1]
          z = scale*mod.path[seg][pt][2]
          str += "G01X"+x.toFixed(4)+"Y"+y.toFixed(4)+"Z"+z.toFixed(4)+"\n"
+
          }
       }
    //
    // finish
    //
-   str += "G00Z"+jog_height.toFixed(4)+"\n" // move up before stopping spindle
-   str += "M05\n" // spindle stop
-   if (mod.coolanton.checked)
-      str += "M09\n" // coolant off
-   str += "M30\n" // program end and reset
-   str += "%\n" // tape end
+   str += "0\nENDSEC\n"
+   str += "0\nEOF\n"
    //
    // output file
    //
    outputs.file.event(str)
+   */
    }
 //
 // return values
@@ -229,4 +277,3 @@ return ({
    interface:interface
    })
 }())
-

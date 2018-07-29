@@ -1,5 +1,5 @@
 //
-// path to G-code
+// path to SVG
 //
 // Neil Gershenfeld 
 // (c) Massachusetts Institute of Technology 2018
@@ -20,7 +20,7 @@ var mod = {}
 //
 // name
 //
-var name = 'path to G-code'
+var name = 'path to SVG (unfinished)'
 //
 // initialization
 //
