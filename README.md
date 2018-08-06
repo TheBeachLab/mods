@@ -1,13 +1,11 @@
 # Todo
 - editing
-    - subgraph select drag cut copy paste
+    - subgraph copy paste
     - nested module graphs
 - ui
-    - browser pan zoom
     - collapse nodes
     - refactor for skinning
 - processes
-    - STL slicer
     - three-axis rough and finish cuts
 - Cross-Origin Resource Sharing (CORS)
 - formats
