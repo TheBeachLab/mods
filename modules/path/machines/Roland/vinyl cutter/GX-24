@@ -32,7 +32,7 @@ var init = function() {
 // inputs
 //
 var inputs = {
-   toolpath:{type:'object',
+   path:{type:'',
       event:function(evt){
          mod.name = evt.detail.name
          mod.path = evt.detail.path
@@ -45,7 +45,7 @@ var inputs = {
 // outputs
 //
 var outputs = {
-   file:{type:'object',
+   file:{type:'',
       event:function(str){
          obj = {}
          obj.type = 'file'

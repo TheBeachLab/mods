@@ -1,5 +1,5 @@
 //
-// view toolpath
+// view path
 //
 // Neil Gershenfeld 
 // (c) Massachusetts Institute of Technology 2016
@@ -26,7 +26,7 @@ var mod = {}
 //
 // name
 //
-var name = 'view toolpath'
+var name = 'view path'
 //
 // initialization
 //
@@ -36,7 +36,7 @@ var init = function() {
 // inputs
 //
 var inputs = {
-   toolpath:{type:'object',
+   path:{type:'',
       event:function(evt){
          mod.path = evt.detail.path
          mod.name = evt.detail.name
@@ -46,7 +46,7 @@ var inputs = {
          mod.depth = evt.detail.depth
          show_path_info()
          show_path()
-         outputs.toolpath.event()
+         outputs.path.event()
          }},
    response:{type:'three.js',
       event:function(evt){
@@ -61,7 +61,7 @@ var inputs = {
 // outputs
 //
 var outputs = {
-   toolpath:{type:'object',
+   path:{type:'',
       event:function(){
          cmd = {}
          cmd.path = mod.path
@@ -69,7 +69,7 @@ var outputs = {
          cmd.dpi = mod.dpi
          cmd.width = mod.width
          cmd.height = mod.height
-         mods.output(mod,'toolpath',cmd)
+         mods.output(mod,'path',cmd)
          }},
    request:{type:'three.js',
       event:function(arg){

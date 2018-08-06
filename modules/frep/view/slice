@@ -30,6 +30,7 @@ var init = function() {
    mod.depth.value = 1
    mod.width.value = 1000
    mod.border.value = 0
+   mod.workers.value = 1
    }
 //
 // inputs
@@ -50,7 +51,15 @@ var outputs = {
          var ctx = mod.img.getContext("2d")
          var img = ctx.getImageData(0,0,mod.img.width,mod.img.height)
          mods.output(mod,'image',img)
-         }}}
+         }},
+   imageInfo:{type:'object',
+      event:function(){
+         var obj = {}
+         obj.name = mod.name.nodeValue
+         obj.dpi = parseFloat(mod.dpitext.value)
+         obj.width = mod.img.width
+         obj.height = mod.img.height
+         mods.output(mod,'imageInfo',obj)}}}
 //
 // interface
 //
@@ -119,7 +128,7 @@ var interface = function(div){
    //
    // slice depth
    //
-   div.appendChild(document.createTextNode('slice Z depth: '))
+   div.appendChild(document.createTextNode('slice z depth: '))
    var input = document.createElement('input')
       input.type = 'text'
       input.size = 3
@@ -160,6 +169,19 @@ var interface = function(div){
       div.appendChild(input)
       mod.width = input
    div.appendChild(document.createTextNode(' (pixels)'))
+   div.appendChild(document.createElement('br'))
+   //
+   // workers
+   //
+   div.appendChild(document.createTextNode('workers: '))
+   var input = document.createElement('input')
+      input.type = 'text'
+      input.size = 3
+      input.addEventListener('input',function(){
+         })
+      div.appendChild(input)
+      mod.workers = input
+   div.appendChild(document.createTextNode(' (threads)'))
    div.appendChild(document.createElement('br'))
    //
    // view button

@@ -36,7 +36,7 @@ var init = function() {
 // inputs
 //
 var inputs = {
-   toolpath:{type:'',
+   path:{type:'',
       event:function(evt){
          mod.name = evt.detail.name
          mod.path = evt.detail.path

@@ -1,8 +1,8 @@
 //
-// g-code
+// path to G-code
 //
 // Neil Gershenfeld 
-// (c) Massachusetts Institute of Technology 2017
+// (c) Massachusetts Institute of Technology 2018
 // 
 // This work may be reproduced, modified, distributed, performed, and 
 // displayed for any purpose, but must acknowledge the mods
@@ -20,7 +20,7 @@ var mod = {}
 //
 // name
 //
-var name = 'G-code'
+var name = 'path to G-code'
 //
 // initialization
 //
@@ -37,7 +37,7 @@ var init = function() {
 // inputs
 //
 var inputs = {
-   toolpath:{type:'object',
+   path:{type:'',
       event:function(evt){
          mod.name = evt.detail.name
          mod.path = evt.detail.path
@@ -50,7 +50,7 @@ var inputs = {
 // outputs
 //
 var outputs = {
-   file:{type:'object',
+   file:{type:'',
       event:function(str){
          obj = {}
          obj.name = mod.name+".nc"
