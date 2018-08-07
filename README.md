@@ -11,6 +11,7 @@
 - formats
     - HPGL input
     - SVG export
+    - DXF export
 - ...
 
 # To install and run mods locally
