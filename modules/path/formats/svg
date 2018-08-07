@@ -20,42 +20,31 @@ var mod = {}
 //
 // name
 //
-var name = 'path to SVG (unfinished)'
+var name = 'path to SVG'
 //
 // initialization
 //
 var init = function() {
-   mod.cutspeed.value = 20
-   mod.plungespeed.value = 20
-   mod.jogspeed.value = 75
-   mod.jogheight.value = 5
-   mod.spindlespeed.value = 10000
-   mod.tool.value = 1
-   mod.coolanton.checked = true   
    }
 //
 // inputs
 //
 var inputs = {
+   imageInfo:{type:'',
+      event:function(evt){
+         mod.imageInfo = evt.detail
+         }},
    path:{type:'',
       event:function(evt){
-         mod.name = evt.detail.name
-         mod.path = evt.detail.path
-         mod.dpi = evt.detail.dpi
-         mod.width = evt.detail.width
-         mod.height = evt.detail.height
-         make_path()
+         mod.path = evt.detail
          }}}
 //
 // outputs
 //
 var outputs = {
-   file:{type:'',
-      event:function(str){
-         obj = {}
-         obj.name = mod.name+".nc"
-         obj.contents = str
-         mods.output(mod,'file',obj)
+   SVG:{type:'',
+      event:function(evt){
+         mods.output(mod,'SVG',evt)
          }}}
 //
 // interface
@@ -63,159 +52,201 @@ var outputs = {
 var interface = function(div){
    mod.div = div
    //
-   // cut speed
+   // button
    //
-   div.appendChild(document.createTextNode('cut speed: '))
-   var input = document.createElement('input')
-      input.type = 'text'
-      input.size = 6
-      div.appendChild(input)
-      mod.cutspeed = input
-   div.appendChild(document.createTextNode(' (mm/s)'))
+   var btn = document.createElement('button')
+      btn.style.padding = mods.ui.padding
+      btn.style.margin = 1
+      var span = document.createElement('span')
+         var text = document.createTextNode('calculate masks')
+            mod.label = text
+            span.appendChild(text)
+         mod.labelspan = span
+         btn.appendChild(span)
+      btn.addEventListener('click',function(){
+         mod.index = 0
+         outputs.color.event(mod.palette[mod.index])
+         outputs.image.event()
+         })
+      div.appendChild(btn)
    div.appendChild(document.createElement('br'))
    //
-   // plunge speed
+   // fill
    //
-   div.appendChild(document.createTextNode('plunge speed: '))
+   div.appendChild(document.createTextNode('fill masks: '))
    var input = document.createElement('input')
-      input.type = 'text'
-      input.size = 6
+      input.type = 'checkbox'
+      input.id = mod.div.id+'fill'
       div.appendChild(input)
-      mod.plungespeed = input
-   div.appendChild(document.createTextNode(' (mm/s)'))
+      mod.fill = input
    div.appendChild(document.createElement('br'))
-   //
-   // jog speed
-   //
-   div.appendChild(document.createTextNode('jog speed: '))
-   var input = document.createElement('input')
-      input.type = 'text'
-      input.size = 6
-      div.appendChild(input)
-      mod.jogspeed = input
-   div.appendChild(document.createTextNode(' (mm/s)'))
-   div.appendChild(document.createElement('br'))
-   //
-   // jog height
-   //
-   div.appendChild(document.createTextNode('jog height: '))
-   var input = document.createElement('input')
-      input.type = 'text'
-      input.size = 6
-      div.appendChild(input)
-      mod.jogheight = input
-   div.appendChild(document.createTextNode(' (mm)'))
-   div.appendChild(document.createElement('br'))
-   //
-   // spindle speed
-   //
-   div.appendChild(document.createTextNode('spindle speed: '))
-   var input = document.createElement('input')
-      input.type = 'text'
-      input.size = 6
-      div.appendChild(input)
-      mod.spindlespeed = input
-   div.appendChild(document.createTextNode(' (RPM)'))
-   div.appendChild(document.createElement('br'))
-   //
-   // tool
-   //
-   div.appendChild(document.createTextNode('tool: '))
-   var input = document.createElement('input')
-      input.type = 'text'
-      input.size = 6
-      div.appendChild(input)
-      mod.tool = input
-   div.appendChild(document.createElement('br'))
-   //
-   // coolant
-   //
-   div.appendChild(document.createTextNode('coolant:'))
-   var input = document.createElement('input')
-      input.type = 'radio'
-      input.name = mod.div.id+'coolant'
-      input.id = mod.div.id+'coolanton'
-      div.appendChild(input)
-      mod.coolanton = input
-   div.appendChild(document.createTextNode('on'))
-   var input = document.createElement('input')
-      input.type = 'radio'
-      input.name = mod.div.id+'coolant'
-      input.id = mod.div.id+'coolantoff'
-      div.appendChild(input)
-      mod.coolantoff = input
-   div.appendChild(document.createTextNode('off'))
    }
 //
 // local functions
 //
-function make_path() {
-   var dx = mod.width/mod.dpi
-   var nx = mod.width
-   var scale = dx/(nx-1)
-   var cut_speed = parseFloat(mod.cutspeed.value)/25.4
-   var plunge_speed = parseFloat(mod.plungespeed.value)/25.4
-   var jog_speed = parseFloat(mod.jogspeed.value)/25.4
-   var jog_height = parseFloat(mod.jogheight.value)/25.4
-   var spindle_speed = parseFloat(mod.spindlespeed.value)
-   var tool = parseInt(mod.tool.value)
-   str = "%\n" // tape start
-   str += "G17\n" // xy plane
-   str += "G20\n" // inches
-   str += "G40\n" // cancel tool radius compensation
-   str += "G49\n" // cancel tool length compensation
-   str += "G54\n" // coordinate system 1
-   str += "G80\n" // cancel canned cycles
-   str += "G90\n" // absolute coordinates
-   str += "G94\n" // feed/minute units
-   str += "T"+tool+"M06\n" // tool selection, tool change
-   str += "F"+cut_speed.toFixed(4)+"\n" // feed rate
-   str += "S"+spindle_speed+"\n" // spindle speed
-   if (mod.coolanton.checked)
-      str += "M08\n" // coolant on
-   str += "G00Z"+jog_height.toFixed(4)+"\n" // move up before starting spindle
-   str += "M03\n" // spindle on clockwise
-   str += "G04 P1\n" // give spindle 1 second to spin up
+//
+// make_mask
+//
+function make_mask(path) {
    //
-   // follow segments
+   // save mask
    //
-   for (var seg = 0; seg < mod.path.length; ++seg) {
+   save_mask(path)
+   //
+   // check for next mask
+   //
+   if (mod.index < (mod.palette.length-1)) {
       //
-      // move up to starting point
+      // yes, output
       //
-      x = scale*mod.path[seg][0][0]
-      y = scale*mod.path[seg][0][1]
-      str += "Z"+jog_height.toFixed(4)+"\n"
-      str += "G00X"+x.toFixed(4)+"Y"+y.toFixed(4)+"Z"+jog_height.toFixed(4)+"\n"
+      mod.index += 1
+      outputs.color.event(mod.palette[mod.index])
+      outputs.image.event()
+      }
+   else {
       //
-      // move down
+      // no, done
       //
-      z = scale*mod.path[seg][0][2]
-      str += "G01Z"+z.toFixed(4)+" F"+plunge_speed.toFixed(4)+"\n"
-      str += "F"+cut_speed.toFixed(4)+"\n" //restore xy feed rate
-      for (var pt = 1; pt < mod.path[seg].length; ++pt) {
-         //
-         // move to next point
-         //
-         x = scale*mod.path[seg][pt][0]
-         y = scale*mod.path[seg][pt][1]
-         z = scale*mod.path[seg][pt][2]
-         str += "G01X"+x.toFixed(4)+"Y"+y.toFixed(4)+"Z"+z.toFixed(4)+"\n"
+      mod.labelspan.style.fontWeight = 'normal' 
+      }        
+   }
+//
+// save_mask
+//
+function save_mask(path) {
+   //
+   // create SVG
+   //
+   var imgwidth = mod.image.width/parseFloat(mod.imageInfo.dpi)
+   var imgheight = mod.image.height/parseFloat(mod.imageInfo.dpi)
+   var svgNS = "http://www.w3.org/2000/svg"
+   var svg = document.createElementNS(svgNS,"svg")
+      svg.setAttributeNS("http://www.w3.org/2000/xmlns/",
+         "xmlns:xlink","http://www.w3.org/1999/xlink")
+      svg.setAttribute('width',(3+imgwidth)+'in')
+      svg.setAttribute('height',(3+imgheight)+'in')
+      svg.style.backgroundColor = 'rgb(255,255,255)'
+      svg.setAttribute('viewBox','0 0 '+(3+imgwidth)+' '+(3+imgheight))
+   //
+   // background
+   //
+   var rect = document.createElementNS(svgNS,'rect')
+      rect.setAttribute('x','0')
+      rect.setAttribute('y','0')
+      rect.setAttribute('width',3+imgwidth)
+      rect.setAttribute('height',3+imgheight)
+      rect.setAttribute('stroke','none')
+      rect.setAttribute('fill','white')
+      svg.appendChild(rect)
+   //
+   // registration
+   //
+   var g = document.createElementNS(svgNS,'g')
+      svg.appendChild(g)
+   var polyline = document.createElementNS(svgNS,'polyline')
+      polyline.setAttribute('stroke','red')
+      polyline.setAttribute('stroke-width','0.01')
+      polyline.setAttribute('stroke-linecap','round')
+      polyline.setAttribute('fill','none')
+      polyline.setAttribute('points','0.5,0.5 '+
+         '0.5,'+(imgheight+2.5)+' '+
+         (imgwidth+2.5)+','+(imgheight+2.5)+' '+
+         (imgwidth+2.5)+',0.9 '+
+         (imgwidth+2.1)+',0.5 '+
+         '0.5,0.5')
+      g.appendChild(polyline)
+   var circle = document.createElementNS(svgNS,'circle')
+      circle.setAttribute('cx','1')
+      circle.setAttribute('cy','1')
+      circle.setAttribute('r','0.125')
+      circle.setAttribute('stroke','red')
+      circle.setAttribute('stroke-width','0.01')
+      circle.setAttribute('fill','none')
+      g.appendChild(circle)
+   var circle = document.createElementNS(svgNS,'circle')
+      circle.setAttribute('cx','1')
+      circle.setAttribute('cy',(2+imgheight))
+      circle.setAttribute('r','0.125')
+      circle.setAttribute('stroke','red')
+      circle.setAttribute('stroke-width','0.01')
+      circle.setAttribute('fill','none')
+      g.appendChild(circle)
+   var circle = document.createElementNS(svgNS,'circle')
+      circle.setAttribute('cx',(2+imgwidth))
+      circle.setAttribute('cy',(2+imgheight))
+      circle.setAttribute('r','0.125')
+      circle.setAttribute('stroke','red')
+      circle.setAttribute('stroke-width','0.01')
+      circle.setAttribute('fill','none')
+      g.appendChild(circle)
+   var circle = document.createElementNS(svgNS,'circle')
+      circle.setAttribute('cx',(2+imgwidth))
+      circle.setAttribute('cy','1')
+      circle.setAttribute('r','0.125')
+      circle.setAttribute('stroke','red')
+      circle.setAttribute('stroke-width','0.01')
+      circle.setAttribute('fill','none')
+      g.appendChild(circle)
+   //
+   // name
+   //
+   var name = mod.imageInfo.name+'.'+mod.palette[mod.index][0]
+   name += '.'+mod.palette[mod.index][1]
+   name += '.'+mod.palette[mod.index][2]
+   if (mod.palette[mod.index][3] != undefined)
+      name += '.'+mod.palette[mod.index][3]
+   var text = document.createElementNS(svgNS,'text')
+      text.setAttribute('id',mod.div.id+'svgtext')
+      text.setAttribute('x',(3+imgwidth)/2)
+      text.setAttribute('y','1')
+      text.setAttribute('fill','red')
+      text.setAttribute('font-size','.5')
+      text.setAttribute('text-anchor','middle')
+      text.setAttribute('dy','.2')
+      text.textContent = name
+      svg.appendChild(text)
+   //
+   // mask
+   //
+   var g = document.createElementNS(svgNS,'g')
+      svg.appendChild(g)
+   for (var seg = 0; seg < path.length; ++seg) {
+      var points = ''
+      for (var pt = 0; pt < path[seg].length; ++ pt) {
+         var x = 1.5+imgwidth*path[seg][pt][0]/(mod.image.width-1)
+         var y = 1.5+imgheight*(1-path[seg][pt][1]/(mod.image.height-1))
+         points += x+','+y+' '
+         }
+      var x = 1.5+imgwidth*path[seg][0][0]/(mod.image.width-1)
+      var y = 1.5+imgheight*(1-path[seg][0][1]/(mod.image.height-1))
+      points += x+','+y+' '
+      if (mod.fill.checked == true) {
+         var polyline = document.createElementNS(svgNS,'polyline')
+            polyline.setAttribute('stroke','none')
+            polyline.setAttribute('fill','black')
+            polyline.setAttribute('fill-rule','evenodd')
+            polyline.setAttribute('points',points)
+            g.appendChild(polyline)
+         }
+      else {
+         var polyline = document.createElementNS(svgNS,'polyline')
+            polyline.setAttribute('stroke','black')
+            polyline.setAttribute('stroke-width','0.01')
+            polyline.setAttribute('stroke-linecap','round')
+            polyline.setAttribute('fill','none')
+            polyline.setAttribute('points',points)
+            g.appendChild(polyline)
          }
       }
    //
-   // finish
+   // file
    //
-   str += "G00Z"+jog_height.toFixed(4)+"\n" // move up before stopping spindle
-   str += "M05\n" // spindle stop
-   if (mod.coolanton.checked)
-      str += "M09\n" // coolant off
-   str += "M30\n" // program end and reset
-   str += "%\n" // tape end
-   //
-   // output file
-   //
-   outputs.file.event(str)
+   var obj = {}
+   obj.type = 'file'
+   obj.name = name+'.svg'
+   var xml = new XMLSerializer().serializeToString(svg)
+   obj.contents = xml
+   outputs.SVG.event(obj)
    }
 //
 // return values
