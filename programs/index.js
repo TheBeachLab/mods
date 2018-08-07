@@ -30,6 +30,7 @@ program_menu('            cut svg','programs/machines/Roland/vinyl%2
 program_menu('            cut svg connect','programs/machines/Roland/vinyl%20cutter/GX-24/cut%20svg%20connect')
 program_label('   ShopBot')
 program_menu('      mill 2D png','programs/machines/ShopBot/mill%202D%20png')
+program_menu('      mill 2D png PCB','programs/machines/ShopBot/mill%202D%20png%20PCB')
 program_menu('      mill 2D stl','programs/machines/ShopBot/mill%202D%20stl')
 program_menu('      mill 2D svg','programs/machines/ShopBot/mill%202D%20svg')
 program_menu('      mill 2D svg connect','programs/machines/ShopBot/mill%202D%20svg%20connect')
