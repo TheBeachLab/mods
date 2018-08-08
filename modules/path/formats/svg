@@ -42,7 +42,7 @@ var inputs = {
 // outputs
 //
 var outputs = {
-   SVG:{type:'',
+   SVG:{type:'file',
       event:function(evt){
          mods.output(mod,'SVG',evt)
          }}}
