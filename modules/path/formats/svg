@@ -120,7 +120,7 @@ function convert(path) {
    //
    var obj = {}
    obj.type = 'file'
-   obj.name = name+'.svg'
+   obj.name = mod.imageInfo.name+'.svg'
    var xml = new XMLSerializer().serializeToString(svg)
    obj.contents = xml
    outputs.SVG.event(obj)
