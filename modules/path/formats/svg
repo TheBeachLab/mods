@@ -25,6 +25,7 @@ var name = 'path to SVG'
 // initialization
 //
 var init = function() {
+   mod.fill.checked = true
    }
 //
 // inputs
@@ -53,22 +54,6 @@ var outputs = {
 var interface = function(div){
    mod.div = div
    //
-   // on-screen SVG
-   //
-   var svgNS = "http://www.w3.org/2000/svg"
-   var svg = document.createElementNS(svgNS,"svg")
-   svg.setAttribute('id',mod.div.id+'svg')
-   svg.setAttributeNS("http://www.w3.org/2000/xmlns/",
-      "xmlns:xlink","http://www.w3.org/1999/xlink")
-   svg.setAttribute('width',mods.ui.canvas)
-   svg.setAttribute('height',mods.ui.canvas)
-   svg.style.backgroundColor = 'rgb(255,255,255)'
-   var g = document.createElementNS(svgNS,'g')
-   g.setAttribute('id',mod.div.id+'g')
-   svg.appendChild(g)
-   div.appendChild(svg)
-   div.appendChild(document.createElement('br'))   
-   //
    // fill
    //
    div.appendChild(document.createTextNode('fill: '))
@@ -93,24 +78,24 @@ function convert(path) {
    var svg = document.createElementNS(svgNS,"svg")
       svg.setAttributeNS("http://www.w3.org/2000/xmlns/",
          "xmlns:xlink","http://www.w3.org/1999/xlink")
-      svg.setAttribute('width',(3+imgwidth)+'in')
-      svg.setAttribute('height',(3+imgheight)+'in')
+      svg.setAttribute('width',imgwidth+'in')
+      svg.setAttribute('height',imgheight+'in')
       svg.style.backgroundColor = 'rgb(255,255,255)'
-      svg.setAttribute('viewBox','0 0 '+(3+imgwidth)+' '+(3+imgheight))
+      svg.setAttribute('viewBox','0 0 '+imgwidth+' '+imgheight)
    //
-   // path
+   // draw path
    //
    var g = document.createElementNS(svgNS,'g')
       svg.appendChild(g)
    for (var seg = 0; seg < path.length; ++seg) {
       var points = ''
       for (var pt = 0; pt < path[seg].length; ++ pt) {
-         var x = 1.5+imgwidth*path[seg][pt][0]/(mod.imageInfo.width-1)
-         var y = 1.5+imgheight*(1-path[seg][pt][1]/(mod.imageInfo.height-1))
+         var x = imgwidth*path[seg][pt][0]/(mod.imageInfo.width-1)
+         var y = imgheight*(1-path[seg][pt][1]/(mod.imageInfo.height-1))
          points += x+','+y+' '
          }
-      var x = 1.5+imgwidth*path[seg][0][0]/(mod.imageInfo.width-1)
-      var y = 1.5+imgheight*(1-path[seg][0][1]/(mod.imageInfo.height-1))
+      var x = imgwidth*path[seg][0][0]/(mod.imageInfo.width-1)
+      var y = imgheight*(1-path[seg][0][1]/(mod.imageInfo.height-1))
       points += x+','+y+' '
       if (mod.fill.checked == true) {
          var polyline = document.createElementNS(svgNS,'polyline')
@@ -131,7 +116,7 @@ function convert(path) {
          }
       }
    //
-   // file
+   // save file
    //
    var obj = {}
    obj.type = 'file'
