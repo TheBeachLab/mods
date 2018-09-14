@@ -27,7 +27,7 @@ var name = 'frep view slice'
 var init = function() {
    mod.mmunits.value = 25.4
    mod.inunits.value = 1
-   mod.depth.value = 1
+   mod.depth.value = 0.1
    mod.width.value = 1000
    mod.border.value = 0
    }
@@ -159,7 +159,7 @@ var interface = function(div){
    var input = document.createElement('input')
       input.type = 'text'
       input.size = 3
-      input.addEventListener('input',function(){
+      input.addEventListener('change',function(){
          limits()
          slice()
          })
@@ -216,8 +216,8 @@ function limits() {
    var ins = parseFloat(mod.inunits.value)
    var mms = parseFloat(mod.mmunits.value)
    var border = parseFloat(mod.border.value)
-   var dx = limits[0][1]-limits[0][0]
-   var dy = limits[1][1]-limits[1][0]
+   var dx = 2*border+limits[0][1]-limits[0][0]
+   var dy = 2*border+limits[1][1]-limits[1][0]
    var dz = limits[2][1]-limits[2][0]
    mod.meshsize.nodeValue =
       (dx).toFixed(3)+' x '+
@@ -339,6 +339,10 @@ function worker() {
       var zlimits = evt.data.zlimits
       var depth = evt.data.depth
       var border = evt.data.border
+      xlimits[0] -= border
+      xlimits[1] += border
+      ylimits[0] -= border
+      ylimits[1] += border
       var zval = depth
       var buf = new Uint8ClampedArray(evt.data.buffer)
       var f = new Function(xvar,yvar,zvar,'return ('+evt.data.function+')')
