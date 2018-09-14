@@ -51,14 +51,15 @@ var outputs = {
          var img = ctx.getImageData(0,0,mod.img.width,mod.img.height)
          mods.output(mod,'image',img)
          }},
-   imageInfo:{type:'object',
+   imageInfo:{type:'',
       event:function(){
          var obj = {}
-         obj.name = mod.name.nodeValue
-         obj.dpi = parseFloat(mod.dpitext.value)
+         obj.name = "frep view slice"
          obj.width = mod.img.width
          obj.height = mod.img.height
-         mods.output(mod,'imageInfo',obj)}}}
+         obj.dpi = mod.img.width/(mod.dx*parseFloat(mod.inunits.value))
+         mods.output(mod,'imageInfo',obj)
+         }}}
 //
 // interface
 //
@@ -216,22 +217,35 @@ function limits() {
    var ins = parseFloat(mod.inunits.value)
    var mms = parseFloat(mod.mmunits.value)
    var border = parseFloat(mod.border.value)
-   var dx = 2*border+limits[0][1]-limits[0][0]
-   var dy = 2*border+limits[1][1]-limits[1][0]
-   var dz = limits[2][1]-limits[2][0]
-   mod.meshsize.nodeValue =
-      (dx).toFixed(3)+' x '+
-      (dy).toFixed(3)+' x '+
-      (dz).toFixed(3)+' (units)'
-   mod.mmsize.nodeValue =
-      (mms*dx).toFixed(3)+' x '+
-      (mms*dy).toFixed(3)+' x '+
-      (mms*dz).toFixed(3)+' (mm)'
-   mod.insize.nodeValue = 
-      (ins*dx).toFixed(3)+' x '+
-      (ins*dy).toFixed(3)+' x '+
-      (ins*dz).toFixed(3)+' (in)'
-   //outputs.imageInfo.event()
+   mod.dx = 2*border+limits[0][1]-limits[0][0]
+   mod.dy = 2*border+limits[1][1]-limits[1][0]
+   if (mod.frep.variables.length == 2) {
+      mod.meshsize.nodeValue =
+         (mod.dx).toFixed(3)+' x '+
+         (mod.dy).toFixed(3)+' (units)'
+      mod.mmsize.nodeValue =
+         (mms*mod.dx).toFixed(3)+' x '+
+         (mms*mod.dy).toFixed(3)+' (mm)'
+      mod.insize.nodeValue = 
+         (ins*mod.dx).toFixed(3)+' x '+
+         (ins*mod.dy).toFixed(3)+' (in)'
+      }
+   else if (mod.frep.variables.length > 2) {
+      mod.dz = limits[2][1]-limits[2][0]
+      mod.meshsize.nodeValue =
+         (mod.dx).toFixed(3)+' x '+
+         (mod.dy).toFixed(3)+' x '+
+         (mod.dz).toFixed(3)+' (units)'
+      mod.mmsize.nodeValue =
+         (mms*mod.dx).toFixed(3)+' x '+
+         (mms*mod.dy).toFixed(3)+' x '+
+         (mms*mod.dz).toFixed(3)+' (mm)'
+      mod.insize.nodeValue = 
+         (ins*mod.dx).toFixed(3)+' x '+
+         (ins*mod.dy).toFixed(3)+' x '+
+         (ins*mod.dz).toFixed(3)+' (in)'
+      }
+   outputs.imageInfo.event()
    mods.fit(mod.div)
    }
 //
