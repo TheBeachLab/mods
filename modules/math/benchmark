@@ -32,7 +32,7 @@ var init = function() {
 // inputs
 //
 var inputs = {
-   start:{type:'event',
+   start:{type:'',
       event:function(evt){
          benchmark()}}}
 //
@@ -94,16 +94,16 @@ function benchmark() {
    var time = 0
    var workers = []
    var tstart = Date.now()
+   var blob = new Blob(['('+worker.toString()+'())'])
+   var url = window.URL.createObjectURL(blob)
    for (var index = 0; index < nworkers; ++index) {
-      var blob = new Blob(['('+worker.toString()+'())'])
-      var url = window.URL.createObjectURL(blob)
       workers[index] = new Worker(url)
       workers[index].addEventListener('message',function(evt) {
-         window.URL.revokeObjectURL(url)
          pi += evt.data.pi
          workers[evt.data.index].terminate()
          count += 1
          if (count == nworkers) {
+            window.URL.revokeObjectURL(url)
             var tend = Date.now()
             time = (tend-tstart)/1000
             mod.value.nodeValue = 'value: '+pi

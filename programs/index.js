@@ -36,6 +36,7 @@ program_menu('      mill 2D stl','programs/machines/ShopBot/mill%202D%20st
 program_menu('      mill 2D svg','programs/machines/ShopBot/mill%202D%20svg')
 program_menu('      mill 2D svg connect','programs/machines/ShopBot/mill%202D%20svg%20connect')
 program_label('math')
+program_menu('   benchmark','programs/math/benchmark')
 program_menu('   expressions','programs/math/expressions')
 program_label('processes')
 program_label('   cut')
