@@ -58,6 +58,7 @@ var outputs = {
          obj.width = mod.img.width
          obj.height = mod.img.height
          obj.dpi = mod.img.width/(mod.dx*parseFloat(mod.inunits.value))
+         obj.dpi = parseFloat(mod.width.value)/(mod.dx*parseFloat(mod.inunits.value))
          mods.output(mod,'imageInfo',obj)
          }}}
 //

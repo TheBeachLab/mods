@@ -2,7 +2,7 @@
 // convert rgba png
 //
 // Neil Gershenfeld 
-// (c) Massachusetts Institute of Technology 2017
+// (c) Massachusetts Institute of Technology 2018
 // 
 // This work may be reproduced, modified, distributed, performed, and 
 // displayed for any purpose, but must acknowledge the mods
@@ -43,6 +43,7 @@ var inputs = {
    imageInfo:{type:'object',
       event:function(evt){
          mod.name.value = evt.detail.name+'.png'
+         mod.dpitext.nodeValue = parseFloat(evt.detail.dpi).toFixed(3)+' dpi'
          }}
    }
 //
@@ -108,9 +109,13 @@ var interface = function(div){
          info.appendChild(input)
          mod.name = input
       info.appendChild(document.createElement('br'))
-      var text = document.createTextNode('px: ')
+      var text = document.createTextNode('px')
          info.appendChild(text)
          mod.pxtext = text
+      info.appendChild(document.createElement('br'))
+      var text = document.createTextNode('dpi')
+         info.appendChild(text)
+         mod.dpitext = text
       div.appendChild(info)
    }
 //
