@@ -40,7 +40,7 @@ var init = function() {
 // inputs
 //
 var inputs = {
-   imageInfo:{type:'object',
+   imageInfo:{type:'',
       event:function(evt){
          mod.name = evt.detail.name
          mod.dpi = evt.detail.dpi
@@ -50,7 +50,7 @@ var inputs = {
          ctx.canvas.width = mod.width
          ctx.canvas.height = mod.height
          }},
-   path:{type:'array',
+   path:{type:'',
       event:function(evt){
          if (mod.label.nodeValue == 'calculating') {
             draw_path(evt.detail)
@@ -73,7 +73,7 @@ var inputs = {
             }
          }
       },
-   settings:{type:'object',
+   settings:{type:'',
       event:function(evt){
          set_values(evt.detail)
          }
@@ -83,18 +83,18 @@ var inputs = {
 // outputs
 //
 var outputs = {
-   diameter:{type:'number',
+   diameter:{type:'',
       event:function(){
          mods.output(mod,'diameter',Math.ceil(mod.dpi*mod.dia_in.value))
          }
       },
-   offset:{type:'number',
+   offset:{type:'',
       event:function(){
          var pixels = mod.offset*parseFloat(mod.dia_in.value)*mod.dpi
          mods.output(mod,'offset',pixels)
          }
       },
-   toolpath:{type:'object',
+   toolpath:{type:'',
       event:function(){
          cmd = {}
          cmd.path = mod.path
