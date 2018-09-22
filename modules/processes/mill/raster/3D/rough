@@ -94,6 +94,11 @@ var outputs = {
          mods.output(mod,'offset',pixels)
          }
       },
+   depth:{type:'',
+      event:function(){
+         mods.output(mod,'depth',0)
+         }
+      },
    toolpath:{type:'',
       event:function(){
          cmd = {}
