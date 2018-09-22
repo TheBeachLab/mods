@@ -449,8 +449,7 @@ function add_depth() {
    var newpath = []
    for (var seg = 0; seg < mod.path.length; ++seg) {
       var depth = cut
-      if ((mod.path[seg][0][0] == mod.path[seg][mod.path[seg].length-1][0])
-         && (mod.path[seg][0][0] == mod.path[seg][mod.path[seg].length-1][0])) {
+      if (mod.path[seg][0][0] == mod.path[seg][mod.path[seg].length-1][0]) {
          var newseg = []
          while (depth <= max) {
             var idepth = -Math.round(mod.dpi*depth)
