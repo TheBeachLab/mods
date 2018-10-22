@@ -1,12 +1,13 @@
 # Todo
+- processes
+    - three-axis rough cut
+    - three-axis finish cut
 - editing
     - subgraph copy paste
     - nested module graphs
 - ui
     - collapse nodes
     - refactor for skinning
-- processes
-    - three-axis rough and finish cuts
 - Cross-Origin Resource Sharing (CORS)
 - formats
     - HPGL input
