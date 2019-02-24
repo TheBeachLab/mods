@@ -2,7 +2,7 @@
 // convert SVG image
 //
 // Neil Gershenfeld 
-// (c) Massachusetts Institute of Technology 2016
+// (c) Massachusetts Institute of Technology 2018
 // 
 // This work may be reproduced, modified, distributed, performed, and 
 // displayed for any purpose, but must acknowledge the mods
@@ -35,7 +35,7 @@ var inputs = {
       event:function(evt){
          mod.svg = evt.detail
          get_size()
-         draw_image()}}}
+         load_image()}}}
 //
 // outputs
 //
@@ -100,6 +100,18 @@ var interface = function(div){
          })
       div.appendChild(btn)
    //
+   // invert button
+   //
+   div.appendChild(document.createTextNode(' '))
+   var btn = document.createElement('button')
+      btn.style.padding = mods.ui.padding
+      btn.style.margin = 1
+      btn.appendChild(document.createTextNode('invert'))
+      btn.addEventListener('click',function(){
+         invert_image()
+         })
+      div.appendChild(btn)
+   //
    // dpi
    //
    div.appendChild(document.createElement('br'))
@@ -108,7 +120,7 @@ var interface = function(div){
       input.type = 'text'
       input.size = 6
       input.addEventListener('change',function(){
-         draw_image()
+         load_image()
          })
       div.appendChild(input)
       mod.dpi = input
@@ -122,11 +134,22 @@ var interface = function(div){
       input.type = 'text'
       input.size = 6
       input.addEventListener('change',function(){
-         draw_image()
+         load_image()
          })
       div.appendChild(input)
       mod.unitstext = input
    div.appendChild(document.createTextNode(' (enter)'))
+   //
+   // fill
+   //
+   div.appendChild(document.createElement('br'))
+   div.appendChild(document.createTextNode('fill background: '))
+   var input = document.createElement('input')
+      input.type = 'checkbox'
+      input.checked = true
+      input.id = mod.div.id+'fill'
+      div.appendChild(input)
+      mod.fill= input
    //
    // size
    //
@@ -197,43 +220,164 @@ function get_size() {
    mod.unitstext.value = units
    }
 //
-// draw image
+// load image
 //
-function draw_image() {
-   var dpi = parseFloat(mod.dpi.value)
-   var units = parseFloat(mod.unitstext.value)
-   var width = parseInt(dpi*mod.width/units)
-   var height = parseInt(dpi*mod.height/units)
-   mod.pixels.nodeValue = width+' x '+height+" (pixels)"
-   mod.inches.nodeValue = (width/dpi).toFixed(3)+' x '+(height/dpi).toFixed(3)+" (inches)"
-   mod.mm.nodeValue = (25.4*width/dpi).toFixed(3)+' x '+(25.4*height/dpi).toFixed(3)+" (mm)"
+function load_image() {
    var src = "data:image/svg+xml;base64,"+window.btoa(mod.svg)
    var img = new Image()
    img.setAttribute("src",src)
    img.onload = function() {
-      if (width > height) {
-         var x0 = 0
-         var y0 = mod.canvas.height*.5*(1-height/width)
-         var w = mod.canvas.width
-         var h = mod.canvas.width*height/width
-         }
-      else {
-         var x0 = mod.canvas.width*.5*(1-width/height)
-         var y0 = 0
-         var w = mod.canvas.height*width/height
-         var h = mod.canvas.height
-         }
+      var dpi = parseFloat(mod.dpi.value)
+      var units = parseFloat(mod.unitstext.value)
+      var width = parseInt(dpi*mod.width/units)
+      var height = parseInt(dpi*mod.height/units)
+      mod.pixels.nodeValue =
+         width+' x '+height+" (pixels)"
+      mod.inches.nodeValue =
+         (width/dpi).toFixed(3)+' x '+(height/dpi).toFixed(3)+" (inches)"
+      mod.mm.nodeValue =
+      (25.4*width/dpi).toFixed(3)+' x '+(25.4*height/dpi).toFixed(3)+" (mm)"
       mod.img.width = width
       mod.img.height = height
       var ctx = mod.img.getContext("2d")
-         ctx.clearRect(0,0,width,height)
-         ctx.drawImage(img,0,0,width,height)
-      var ctx = mod.canvas.getContext("2d")
-         ctx.clearRect(0,0,mod.canvas.width,mod.canvas.height)
-         ctx.drawImage(mod.img,x0,y0,w,h)
-      outputs.image.event()
-      outputs.imageInfo.event()
+      ctx.clearRect(0,0,width,height)
+      ctx.drawImage(img,0,0,width,height)
+      if (mod.fill.checked)
+         fill_image()
+      else
+         output_image()
       }
+   }
+//
+// output_image
+//
+function output_image() {
+   if (mod.img.width > mod.img.height) {
+      var x0 = 0
+      var y0 = mod.canvas.height*.5*(1-mod.img.height/mod.img.width)
+      var w = mod.canvas.width
+      var h = mod.canvas.width*mod.img.height/mod.img.width
+      }
+   else {
+      var x0 = mod.canvas.width*.5*(1-mod.img.width/mod.img.height)
+      var y0 = 0
+      var w = mod.canvas.height*mod.img.width/mod.img.height
+      var h = mod.canvas.height
+      }
+   var ctx = mod.canvas.getContext("2d")
+      ctx.clearRect(0,0,mod.canvas.width,mod.canvas.height)
+      ctx.drawImage(mod.img,x0,y0,w,h)
+   outputs.image.event()
+   outputs.imageInfo.event()
+   }
+//
+// fill image
+//
+function fill_image() {
+   var blob = new Blob(['('+fill_worker.toString()+'())'])
+   var url = window.URL.createObjectURL(blob)
+   var webworker = new Worker(url)
+   webworker.addEventListener('message',function(evt) {
+      window.URL.revokeObjectURL(url)
+      var h = mod.img.height
+      var w = mod.img.width
+      var buf = new Uint8ClampedArray(evt.data.buffer)
+      var imgdata = new ImageData(buf,w,h)
+      var ctx = mod.img.getContext("2d")
+      ctx.putImageData(imgdata,0,0)
+      output_image()
+      })
+   var ctx = mod.canvas.getContext("2d")
+   ctx.clearRect(0,0,mod.canvas.width,mod.canvas.height)
+   var h = mod.img.height
+   var w = mod.img.width
+   var ctx = mod.img.getContext("2d")
+   var img = ctx.getImageData(0,0,w,h)
+   webworker.postMessage({
+      height:img.height,width:img.width,buffer:img.data.buffer},
+      [img.data.buffer])
+   }
+function fill_worker() {
+   self.addEventListener('message',function(evt) {
+      var h = evt.data.height
+      var w = evt.data.width
+      var buf = new Uint8ClampedArray(evt.data.buffer)
+      for (var row = 0; row < h; ++row) {
+         for (var col = 0; col < w; ++col) {
+            alpha = buf[(h-1-row)*w*4+col*4+3]/255
+            buf[(h-1-row)*w*4+col*4+0] 
+               = (1-alpha)*255+alpha*buf[(h-1-row)*w*4+col*4+0] 
+            buf[(h-1-row)*w*4+col*4+1] 
+               = (1-alpha)*255+alpha*buf[(h-1-row)*w*4+col*4+1] 
+            buf[(h-1-row)*w*4+col*4+2] 
+               = (1-alpha)*255+alpha*buf[(h-1-row)*w*4+col*4+2] 
+            buf[(h-1-row)*w*4+col*4+3] = 255
+            }
+         }
+      self.postMessage({buffer:buf.buffer},[buf.buffer])
+      })
+   }
+//
+// invert image
+//
+function invert_image() {
+   var blob = new Blob(['('+invert_worker.toString()+'())'])
+   var url = window.URL.createObjectURL(blob)
+   var webworker = new Worker(url)
+   webworker.addEventListener('message',function(evt) {
+      window.URL.revokeObjectURL(url)
+      var h = mod.img.height
+      var w = mod.img.width
+      var buf = new Uint8ClampedArray(evt.data.buffer)
+      var imgdata = new ImageData(buf,w,h)
+      var ctx = mod.img.getContext("2d")
+      ctx.putImageData(imgdata,0,0)
+      if (w > h) {
+         var x0 = 0
+         var y0 = mod.canvas.height*.5*(1-h/w)
+         var wd = mod.canvas.width
+         var hd = mod.canvas.width*h/w
+         }
+      else {
+         var x0 = mod.canvas.width*.5*(1-w/h)
+         var y0 = 0
+         var wd = mod.canvas.height*w/h
+         var hd = mod.canvas.height
+         }
+      var ctx = mod.canvas.getContext("2d")
+      ctx.drawImage(mod.img,x0,y0,wd,hd)
+      webworker.terminate()
+      outputs.image.event()
+      })
+   var ctx = mod.canvas.getContext("2d")
+   ctx.clearRect(0,0,mod.canvas.width,mod.canvas.height)
+   var h = mod.img.height
+   var w = mod.img.width
+   var ctx = mod.img.getContext("2d")
+   var img = ctx.getImageData(0,0,w,h)
+   webworker.postMessage({
+      height:img.height,width:img.width,buffer:img.data.buffer},
+      [img.data.buffer])
+   }
+function invert_worker() {
+   self.addEventListener('message',function(evt) {
+      var h = evt.data.height
+      var w = evt.data.width
+      var buf = new Uint8ClampedArray(evt.data.buffer)
+      for (var row = 0; row < h; ++row) {
+         for (var col = 0; col < w; ++col) {
+            buf[(h-1-row)*w*4+col*4+0] 
+            buf[(h-1-row)*w*4+col*4+0] 
+               = 255-buf[(h-1-row)*w*4+col*4+0] 
+            buf[(h-1-row)*w*4+col*4+1] 
+               = 255-buf[(h-1-row)*w*4+col*4+1] 
+            buf[(h-1-row)*w*4+col*4+2] 
+               = 255-buf[(h-1-row)*w*4+col*4+2] 
+            buf[(h-1-row)*w*4+col*4+3] = 255
+            }
+         }
+      self.postMessage({buffer:buf.buffer},[buf.buffer])
+      })
    }
 //
 // return values
