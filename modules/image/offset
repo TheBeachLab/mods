@@ -1,9 +1,8 @@
 //
-// distance transform 
-//    assumes thresholded image, with zero intensity exterior
+// offset
 //
 // Neil Gershenfeld 
-// (c) Massachusetts Institute of Technology 2015,6
+// (c) Massachusetts Institute of Technology 2019
 // 
 // This work may be reproduced, modified, distributed, performed, and 
 // displayed for any purpose, but must acknowledge the mods
