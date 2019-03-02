@@ -4,6 +4,10 @@
 // Neil Gershenfeld 
 // (c) Massachusetts Institute of Technology 2018
 // 
+// Updated: Steven Chew
+// Date:    Feb 20 2019
+// Comments: Added option to output in inch or mm
+//
 // This work may be reproduced, modified, distributed, performed, and 
 // displayed for any purpose, but must acknowledge the mods
 // project. Copyright is retained and must be preserved. The work is 
@@ -25,13 +29,13 @@ var name = 'path to G-code'
 // initialization
 //
 var init = function() {
-   mod.cutspeed.value = 20
-   mod.plungespeed.value = 20
-   mod.jogspeed.value = 75
-   mod.jogheight.value = 5
-   mod.spindlespeed.value = 10000
-   mod.tool.value = 1
-   mod.coolanton.checked = true   
+   mod.cutspeed.value = '20'
+   mod.plungespeed.value = '20'
+   mod.jogspeed.value = '75'
+   mod.jogheight.value = '5'
+   mod.spindlespeed.value = '10000'
+   mod.tool.value = '1'
+   mod.coolanton.checked = true
    }
 //
 // inputs
@@ -145,23 +149,56 @@ var interface = function(div){
       div.appendChild(input)
       mod.coolantoff = input
    div.appendChild(document.createTextNode('off'))
+   div.appendChild(document.createElement('br'))
+   //
+   // Inch or mm
+   //
+   div.appendChild(document.createTextNode('format:'))
+   var input = document.createElement('input')
+      input.type = 'radio'
+      input.name = mod.div.id+'format'
+      input.id = mod.div.id+'formatInch'
+      input.checked = true
+      div.appendChild(input)
+      mod.formatInch = input
+   div.appendChild(document.createTextNode('inch'))
+   var input = document.createElement('input')
+      input.type = 'radio'
+      input.name = mod.div.id+'format'
+      input.id = mod.div.id+'formatMm'
+      div.appendChild(input)
+      mod.formatMm = input
+   div.appendChild(document.createTextNode('mm'))
+
    }
 //
 // local functions
 //
 function make_path() {
-   var dx = mod.width/mod.dpi
+   var dx = 25.4*mod.width/mod.dpi
+   var cut_speed = parseFloat(mod.cutspeed.value)
+   var plunge_speed = parseFloat(mod.plungespeed.value)
+   var jog_speed = parseFloat(mod.jogspeed.value)
+   var jog_height = parseFloat(mod.jogheight.value)
    var nx = mod.width
    var scale = dx/(nx-1)
-   var cut_speed = parseFloat(mod.cutspeed.value)/25.4
-   var plunge_speed = parseFloat(mod.plungespeed.value)/25.4
-   var jog_speed = parseFloat(mod.jogspeed.value)/25.4
-   var jog_height = parseFloat(mod.jogheight.value)/25.4
+   var in_mm_scale = 1
+   if (mod.formatInch.checked) {
+      dx /= 25.4
+      scale /= 25.4
+      cut_speed /= 25.4
+      plunge_speed /= 25.4
+      jog_speed /= 25.4
+      jog_height /= 25.4
+   }
    var spindle_speed = parseFloat(mod.spindlespeed.value)
    var tool = parseInt(mod.tool.value)
    str = "%\n" // tape start
    str += "G17\n" // xy plane
-   str += "G20\n" // inches
+   if (mod.formatInch.checked)
+      str += "G20\n" // inches
+   if (mod.formatMm.checked)
+      str += "G21\n" // mm
    str += "G40\n" // cancel tool radius compensation
    str += "G49\n" // cancel tool length compensation
    str += "G54\n" // coordinate system 1
