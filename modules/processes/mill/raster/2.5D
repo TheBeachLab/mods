@@ -101,7 +101,6 @@ var inputs = {
                clear_path()
                draw_path(mod.path)
                draw_connections()
-               add_depth()
                outputs.toolpath.event()
                }
             }
