@@ -57,9 +57,9 @@ var inputs = {
             // calculation in progress, show and accumulate
             //
             draw_path(evt.detail)
-            accumulate_path(evt.detail)
+            accumulate_layer(evt.detail)
             mod.offsetCount += 1
-            if ((mod.offsetCount != parseInt(mod.number.value))
+            if ((mod.offsetCount != 1+parseInt(mod.number.value))
                && (evt.detail.length > 0)) {
                //
                // layer detail present and offset not complete
@@ -72,6 +72,10 @@ var inputs = {
                //
                // layer loop not complete
                //
+               merge_layer()
+               clear_layer()
+               draw_path(mod.path)
+               draw_connections()
                console.log('depth '+mod.depth)
                mod.depth += parseFloat(mod.cut_mm.value)
                if (mod.depth > parseFloat(mod.max_mm.value)) {
@@ -97,10 +101,6 @@ var inputs = {
                //
                mod.label.nodeValue = 'calculate'
                mod.labelspan.style.fontWeight = 'normal'
-               merge_path()
-               clear_path()
-               draw_path(mod.path)
-               draw_connections()
                outputs.toolpath.event()
                }
             }
@@ -326,7 +326,7 @@ var interface = function(div){
          mod.path = []
          mods.output(mod,'offset','')
          mods.output(mod,'depth',{depthmm:mod.depth})
-         clear_path()
+         clear_layer()
          outputs.diameter.event()
          outputs.offset.event()
          })
@@ -407,9 +407,10 @@ function set_values(settings) {
       }
    }
 //
-// clear_path
+// clear_layer
 //
-function clear_path() {
+function clear_layer() {
+   mod.path = []
    var svg = document.getElementById(mod.div.id+'svg')
    svg.setAttribute('viewBox',"0 0 "+(mod.img.width-1)+" "+(mod.img.height-1))
    var g = document.getElementById(mod.div.id+'g')
@@ -419,11 +420,11 @@ function clear_path() {
    svg.appendChild(g)
    }
 //
-// accumulate_path
+// accumulate_layer
 //    todo: replace inefficient insertion sort
 //    todo: move sort out of main thread
 //
-function accumulate_path(path) {
+function accumulate_layer(path) {
    var forward = mod.forward.checked
    var conventional = mod.conventional.checked
    var sort = mod.sort.checked
@@ -462,9 +463,9 @@ function accumulate_path(path) {
       }
    }
 //
-// merge_path
+// merge_layer
 //
-function merge_path() {
+function merge_layer() {
    var dmerge = mod.dpi*parseFloat(mod.merge.value)*parseFloat(mod.dia_in.value)
    var seg = 0
    while (seg < (mod.path.length-1)) {
