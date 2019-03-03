@@ -26,6 +26,7 @@ var name = 'offset'
 //
 var init = function() {
    mod.offset.value = ''
+   mod.distances = ''
    }
 //
 // inputs
@@ -45,7 +46,11 @@ var inputs = {
    offset:{type:'number',
       event:function(evt){
          mod.offset.value = evt.detail
-         offset()}}}
+         if ((mod.offset.value != '') && (mod.distances != ''))
+            offset()
+         else
+            mod.distances = ''
+         }}}
 //
 // outputs
 //

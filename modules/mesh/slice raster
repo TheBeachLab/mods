@@ -47,10 +47,10 @@ var inputs = {
    settings:{type:'',
       event:function(evt){
          for (var p in evt.detail)
-      console.log(evt.detail)
-      console.log(p)
-      console.log(evt.detail[p])
-            mod[p].value = evt.detail[p]
+            if (p == 'depthmm') {
+               mod.depth.value = evt.detail[p]
+                  /parseFloat(mod.mmunits.value)
+               }
          find_limits_slice()}}}
 //
 // outputs

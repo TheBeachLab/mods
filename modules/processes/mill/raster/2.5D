@@ -25,11 +25,11 @@ var name = 'mill raster 2.5D'
 // initialization
 //
 var init = function() {
-   mod.dia_in.value = 0.0156
+   mod.dia_in.value = 0.1
    mod.dia_mm.value = 25.4*parseFloat(mod.dia_in.value)
-   mod.cut_in.value = 0.001
+   mod.cut_in.value = 0.1
    mod.cut_mm.value = 25.4*parseFloat(mod.cut_in.value)
-   mod.max_in.value = 0.001
+   mod.max_in.value = 1
    mod.max_mm.value = 25.4*parseFloat(mod.max_in.value)
    mod.number.value = 1
    mod.stepover.value = 0.5
@@ -53,14 +53,48 @@ var inputs = {
    path:{type:'',
       event:function(evt){
          if (mod.label.nodeValue == 'calculating') {
+            //
+            // calculation in progress, show and accumulate
+            //
             draw_path(evt.detail)
             accumulate_path(evt.detail)
             mod.offsetCount += 1
-            if ((mod.offsetCount != parseInt(mod.number.value)) && (evt.detail.length > 0)) {
+            if ((mod.offsetCount != parseInt(mod.number.value))
+               && (evt.detail.length > 0)) {
+               //
+               // layer detail present and offset not complete
+               //
+               console.log('layer '+mod.offsetCount)
                mod.offset += parseFloat(mod.stepover.value)
                outputs.offset.event()
                }
+            else if (mod.depth < parseFloat(mod.max_mm.value)) {
+               //
+               // layer loop not complete
+               //
+               console.log('depth '+mod.depth)
+               mod.depth += parseFloat(mod.cut_mm.value)
+               if (mod.depth > parseFloat(mod.max_mm.value)) {
+                  mod.depth = parseFloat(mod.max_mm.value)
+                  }
+               //
+               // clear offset
+               //
+               mods.output(mod,'offset','')
+               //
+               // set new depth
+               //
+               outputs.depth.event()
+               //
+               // set new offset
+               //
+               mod.offsetCount = 0
+               outputs.offset.event()
+               }
             else {
+               //
+               // done, finish and output
+               //
                mod.label.nodeValue = 'calculate'
                mod.labelspan.style.fontWeight = 'normal'
                merge_path()
@@ -69,7 +103,6 @@ var inputs = {
                draw_connections()
                add_depth()
                outputs.toolpath.event()
-         outputs.depth.event()
                }
             }
          }
@@ -86,8 +119,7 @@ var inputs = {
 var outputs = {
    depth:{type:'',
       event:function(){
-      console.log('out')
-         mods.output(mod,'depth',{depth:2})
+         mods.output(mod,'depth',{depthmm:mod.depth})
          }
       },
    diameter:{type:'',
@@ -289,9 +321,12 @@ var interface = function(div){
       btn.addEventListener('click',function(){
          mod.label.nodeValue = 'calculating'
          mod.labelspan.style.fontWeight = 'bold'
+         mod.depth = parseFloat(mod.cut_mm.value)
          mod.offset = 0.5
          mod.offsetCount = 0
          mod.path = []
+         mods.output(mod,'offset','')
+         mods.output(mod,'depth',{depthmm:mod.depth})
          clear_path()
          outputs.diameter.event()
          outputs.offset.event()
@@ -511,7 +546,8 @@ function draw_path(path) {
          // loop over points
          //
          for (var point = 1; point < path[segment].length; ++point) {
-            var line = document.createElementNS('http://www.w3.org/2000/svg','line')
+            var line = document.createElementNS(
+               'http://www.w3.org/2000/svg','line')
             line.setAttribute('stroke','black')
             line.setAttribute('stroke-width',1)
             line.setAttribute('stroke-linecap','round')
@@ -534,8 +570,10 @@ function draw_path(path) {
                var tx = 3*dy/d
                var ty = -3*dx/d
                g.appendChild(line)
-               triangle = document.createElementNS('http://www.w3.org/2000/svg','polygon')
-               triangle.setAttribute('points',x2+','+y2+' '+(x2-nx+tx)+','+(y2-ny+ty)
+               triangle = document.createElementNS(
+                  'http://www.w3.org/2000/svg','polygon')
+               triangle.setAttribute(
+                  'points',x2+','+y2+' '+(x2-nx+tx)+','+(y2-ny+ty)
                   +' '+(x2-nx-tx)+','+(y2-ny-ty))
                triangle.setAttribute('fill','black')
                g.appendChild(triangle)
@@ -558,7 +596,8 @@ function draw_connections() {
       //
       // draw connection from previous segment
       //
-      var line = document.createElementNS('http://www.w3.org/2000/svg','line')
+      var line = document.createElementNS(
+         'http://www.w3.org/2000/svg','line')
       line.setAttribute('stroke','red')
       line.setAttribute('stroke-width',1)
       line.setAttribute('stroke-linecap','round')
@@ -579,8 +618,10 @@ function draw_connections() {
          var tx = 3*dy/d
          var ty = -3*dx/d
          g.appendChild(line)
-         triangle = document.createElementNS('http://www.w3.org/2000/svg','polygon')
-         triangle.setAttribute('points',x2+','+y2+' '+(x2-nx+tx)+','+(y2-ny+ty)
+         triangle = document.createElementNS(
+            'http://www.w3.org/2000/svg','polygon')
+         triangle.setAttribute(
+            'points',x2+','+y2+' '+(x2-nx+tx)+','+(y2-ny+ty)
             +' '+(x2-nx-tx)+','+(y2-ny-ty))
          triangle.setAttribute('fill','red')
          g.appendChild(triangle)
