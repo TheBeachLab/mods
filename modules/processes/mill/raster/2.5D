@@ -69,6 +69,7 @@ var inputs = {
                draw_connections()
                add_depth()
                outputs.toolpath.event()
+         outputs.depth.event()
                }
             }
          }
@@ -83,6 +84,12 @@ var inputs = {
 // outputs
 //
 var outputs = {
+   depth:{type:'',
+      event:function(){
+      console.log('out')
+         mods.output(mod,'depth',{depth:2})
+         }
+      },
    diameter:{type:'',
       event:function(){
          mods.output(mod,'diameter',Math.ceil(mod.dpi*mod.dia_in.value))

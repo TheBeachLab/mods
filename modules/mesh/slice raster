@@ -44,9 +44,12 @@ var inputs = {
       event:function(evt){
          mod.mesh = new DataView(evt.detail)
          find_limits_slice()}},
-   variables:{type:'',
+   settings:{type:'',
       event:function(evt){
          for (var p in evt.detail)
+      console.log(evt.detail)
+      console.log(p)
+      console.log(evt.detail[p])
             mod[p].value = evt.detail[p]
          find_limits_slice()}}}
 //
