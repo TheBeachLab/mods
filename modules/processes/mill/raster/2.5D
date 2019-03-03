@@ -57,14 +57,13 @@ var inputs = {
             // calculation in progress, show and accumulate
             //
             draw_path(evt.detail)
-            accumulate_layer(evt.detail)
+            accumulate_path(evt.detail)
             mod.offsetCount += 1
             if ((mod.offsetCount != 1+parseInt(mod.number.value))
                && (evt.detail.length > 0)) {
                //
                // layer detail present and offset not complete
                //
-               console.log('layer '+mod.offsetCount)
                mod.offset += parseFloat(mod.stepover.value)
                outputs.offset.event()
                }
@@ -72,11 +71,9 @@ var inputs = {
                //
                // layer loop not complete
                //
-               merge_layer()
-               clear_layer()
-               draw_path(mod.path)
-               draw_connections()
-               console.log('depth '+mod.depth)
+               merge_path()
+               accumulate_toolpath()
+               clear_path()
                mod.depth += parseFloat(mod.cut_mm.value)
                if (mod.depth > parseFloat(mod.max_mm.value)) {
                   mod.depth = parseFloat(mod.max_mm.value)
@@ -99,6 +96,8 @@ var inputs = {
                //
                // done, finish and output
                //
+               //draw_path(mod.path)
+               //draw_connections()
                mod.label.nodeValue = 'calculate'
                mod.labelspan.style.fontWeight = 'normal'
                outputs.toolpath.event()
@@ -318,15 +317,15 @@ var interface = function(div){
          mod.labelspan = span
          btn.appendChild(span)
       btn.addEventListener('click',function(){
+         mods.output(mod,'offset','')
+         mods.output(mod,'depth',{depthmm:mod.depth})
          mod.label.nodeValue = 'calculating'
          mod.labelspan.style.fontWeight = 'bold'
          mod.depth = parseFloat(mod.cut_mm.value)
          mod.offset = 0.5
          mod.offsetCount = 0
-         mod.path = []
-         mods.output(mod,'offset','')
-         mods.output(mod,'depth',{depthmm:mod.depth})
-         clear_layer()
+         mod.toolpath = []
+         clear_path()
          outputs.diameter.event()
          outputs.offset.event()
          })
@@ -407,9 +406,9 @@ function set_values(settings) {
       }
    }
 //
-// clear_layer
+// clear_path
 //
-function clear_layer() {
+function clear_path() {
    mod.path = []
    var svg = document.getElementById(mod.div.id+'svg')
    svg.setAttribute('viewBox',"0 0 "+(mod.img.width-1)+" "+(mod.img.height-1))
@@ -420,11 +419,11 @@ function clear_layer() {
    svg.appendChild(g)
    }
 //
-// accumulate_layer
+// accumulate_path
 //    todo: replace inefficient insertion sort
 //    todo: move sort out of main thread
 //
-function accumulate_layer(path) {
+function accumulate_path(path) {
    var forward = mod.forward.checked
    var conventional = mod.conventional.checked
    var sort = mod.sort.checked
@@ -463,9 +462,9 @@ function accumulate_layer(path) {
       }
    }
 //
-// merge_layer
+// merge_path
 //
-function merge_layer() {
+function merge_path() {
    var dmerge = mod.dpi*parseFloat(mod.merge.value)*parseFloat(mod.dia_in.value)
    var seg = 0
    while (seg < (mod.path.length-1)) {
@@ -481,6 +480,12 @@ function merge_layer() {
       else
          seg += 1
       }
+   }
+//
+// accumulate_toolpath
+//
+function accumulate_toolpath() {
+   console.log('accum '+mod.depth)
    }
 //
 // add_depth
