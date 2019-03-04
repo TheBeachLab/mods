@@ -59,7 +59,7 @@ var inputs = {
             draw_path(evt.detail)
             accumulate_path(evt.detail)
             mod.offsetCount += 1
-            if ((mod.offsetCount != 1+parseInt(mod.number.value))
+            if ((mod.offsetCount != parseInt(mod.number.value))
                && (evt.detail.length > 0)) {
                //
                // layer detail present and offset not complete
