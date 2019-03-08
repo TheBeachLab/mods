@@ -56,8 +56,8 @@ var inputs = {
             //
             // calculation in progress, draw and accumulate
             //
-            draw_layer(evt.detail)
-            accumulate_layer(evt.detail)
+            draw_path(evt.detail)
+            accumulate_path(evt.detail)
             mod.offsetCount += 1
             if ((mod.offsetCount != parseInt(mod.number.value))
                && (evt.detail.length > 0)) {
@@ -73,7 +73,7 @@ var inputs = {
                // layer loop not complete
                //
                merge_layer()
-               accumulate_path()
+               accumulate_toolpath()
                clear_layer()
                mod.depthmm += parseFloat(mod.cut_mm.value)
                if (mod.depthmm > parseFloat(mod.max_mm.value)) {
@@ -98,8 +98,8 @@ var inputs = {
                //
                // done, finish and output
                //
-               //draw_path(mod.path)
-               //draw_connections()
+               draw_path(mod.toolpath)
+               draw_connections(mod.toolpath)
                mod.label.nodeValue = 'calculate'
                mod.labelspan.style.fontWeight = 'normal'
                outputs.toolpath.event()
@@ -422,11 +422,11 @@ function clear_layer() {
    svg.appendChild(g)
    }
 //
-// accumulate_layer
+// accumulate_path
 //    todo: replace inefficient insertion sort
 //    todo: move sort out of main thread
 //
-function accumulate_layer(path) {
+function accumulate_path(path) {
    var forward = mod.forward.checked
    var conventional = mod.conventional.checked
    var sort = mod.sort.checked
@@ -485,9 +485,9 @@ function merge_layer() {
       }
    }
 //
-// accumulate_path
+// accumulate_toolpath
 //
-function accumulate_path() {
+function accumulate_toolpath() {
    for (var seg = 0; seg < mod.path.length; ++seg) {
       var newseg = []
       for (var pt = 0; pt < mod.path[seg].length; ++pt) {
@@ -499,55 +499,9 @@ function accumulate_path() {
       }
    }
 //
-// add_depth
+// draw_path
 //
-function add_depth() {
-   var cut = parseFloat(mod.cut_in.value)
-   var max = parseFloat(mod.max_in.value)
-   var newpath = []
-   for (var seg = 0; seg < mod.path.length; ++seg) {
-      var depth = cut
-      if (mod.path[seg][0][0] == mod.path[seg][mod.path[seg].length-1][0]) {
-         var newseg = []
-         while (depth <= max) {
-            var idepth = -Math.round(mod.dpi*depth)
-            for (var pt = 0; pt < mod.path[seg].length; ++pt) {
-               var point = mod.path[seg][pt].concat(idepth)
-               newseg.splice(newseg.length,0,point)
-               }
-            if (depth == max)
-               break
-            depth += cut
-            if (depth > max)
-               depth = max
-            }
-         newpath.splice(newpath.length,0,newseg)
-         }
-      else {
-         var newseg = []
-         while (depth <= max) {
-            var idepth = -Math.round(mod.dpi*depth)
-            for (var pt = 0; pt < mod.path[seg].length; ++pt) {
-               var point = mod.path[seg][pt].concat(idepth)
-               newseg.splice(newseg.length,0,point)
-               }
-            newpath.splice(newpath.length,0,newseg)
-            newseg = []
-            if (depth == max)
-               break
-            depth += cut
-            if (depth > max)
-               depth = max
-            }
-         }
-      }
-   mod.path = newpath
-   mod.depth = Math.round(parseFloat(mod.max_in.value)*mod.dpi)
-   }
-//
-// draw_layer
-//
-function draw_layer(path) {
+function draw_path(path) {
    var g = document.getElementById(mod.div.id+'g')
    var h = mod.img.height
    var w = mod.img.width
@@ -601,14 +555,14 @@ function draw_layer(path) {
 //
 // draw_connections
 //
-function draw_connections() {
+function draw_connections(path) {
    var g = document.getElementById(mod.div.id+'g')
    var h = mod.img.height
    var w = mod.img.width
    //
    // loop over segments
    //
-   for (var segment = 1; segment < mod.path.length; ++segment) {
+   for (var segment = 1; segment < path.length; ++segment) {
       //
       // draw connection from previous segment
       //
@@ -617,10 +571,10 @@ function draw_connections() {
       line.setAttribute('stroke','red')
       line.setAttribute('stroke-width',1)
       line.setAttribute('stroke-linecap','round')
-      var x1 = mod.path[segment-1][mod.path[segment-1].length-1][0]
-      var y1 = h-mod.path[segment-1][mod.path[segment-1].length-1][1]-1
-      var x2 = mod.path[segment][0][0]
-      var y2 = h-mod.path[segment][0][1]-1
+      var x1 = path[segment-1][path[segment-1].length-1][0]
+      var y1 = h-path[segment-1][path[segment-1].length-1][1]-1
+      var x2 = path[segment][0][0]
+      var y2 = h-path[segment][0][1]-1
       line.setAttribute('x1',x1)
       line.setAttribute('y1',y1)
       line.setAttribute('x2',x2)
