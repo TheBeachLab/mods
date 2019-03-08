@@ -134,14 +134,13 @@ var outputs = {
       },
    toolpath:{type:'',
       event:function(){
-      console.log(mod.path)
          cmd = {}
-         cmd.path = mod.path
+         cmd.path = mod.toolpath
          cmd.name = mod.name
          cmd.dpi = mod.dpi
          cmd.width = mod.width
          cmd.height = mod.height
-         cmd.depth = mod.depth
+         cmd.depth = Math.round(parseFloat(mod.max_in.value)*mod.dpi)
          mods.output(mod,'toolpath',cmd)
          }
       }
@@ -489,7 +488,15 @@ function merge_layer() {
 // accumulate_path
 //
 function accumulate_path() {
-   console.log('accum '+mod.depthmm)
+   for (var seg = 0; seg < mod.path.length; ++seg) {
+      var newseg = []
+      for (var pt = 0; pt < mod.path[seg].length; ++pt) {
+         var idepth = -Math.round(mod.dpi*mod.depthmm/25.4)
+         var point = mod.path[seg][pt].concat(idepth)
+         newseg.splice(newseg.length,0,point)
+         }
+      mod.toolpath.splice(mod.toolpath.legnth,0,newseg)
+      }
    }
 //
 // add_depth
