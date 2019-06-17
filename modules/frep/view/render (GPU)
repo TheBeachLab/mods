@@ -890,7 +890,7 @@ function open_view_window() {
       //sceneAxes
       //
       sceneAxes=new THREE.Scene();
-      axes = new THREE.AxisHelper( 100 );
+      axes = new THREE.AxesHelper( 100 );
       sceneAxes.add( axes );   
 
       ///////////////////////////////////////////////////////////////////////////////////
@@ -1289,10 +1289,16 @@ function open_view_window() {
       tempCam.addScalar(0.5);
 
       //Render first pass and store the world space coords of the back face fragments into the texture.
-      renderer.render( sceneFirstPass, camera, rtTexture, true );
+      //renderer.render( sceneFirstPass, camera, rtTexture, true );
 
       //Render the second pass and perform the volume rendering.
-      renderer.render( sceneSecondPass, camera );
+      //renderer.render( sceneSecondPass, camera );
+
+      var previousRenderTarget = renderer.getRenderTarget();
+	  renderer.setRenderTarget(rtTexture);
+	  renderer.render( sceneFirstPass, camera );
+	  renderer.setRenderTarget( previousRenderTarget );
+	  renderer.render( sceneSecondPass, camera );
 
       //render axes camera
       cameraAxes.position.x=camera.position.x;
