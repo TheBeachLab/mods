@@ -1,20 +1,3 @@
-# Todo
-- processes
-    - three-axis rough cut
-    - three-axis finish cut
-- editing
-    - subgraph copy paste
-    - nested module graphs
-- ui
-    - collapse nodes
-    - refactor for skinning
-- Cross-Origin Resource Sharing (CORS)
-- formats
-    - HPGL input
-    - SVG export
-    - DXF export
-- ...
-
 # To install and run mods locally
 
 You need to first install [node.js](https://docs.npmjs.com/getting-started/installing-node).
@@ -25,7 +8,7 @@ Install the [http-server](https://www.npmjs.com/package/http-server) npm package
 
 Clone the mods repository:
 
-<code>git clone ssh://git@gitlab.cba.mit.edu:846/pub/mods.git</code>
+<code>git clone https://github.com/TheBeachLab/mods.git</code>
 
 Use the command line to navigate to the root of the mods repository:
 
