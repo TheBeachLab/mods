@@ -2,6 +2,8 @@
 
 ![](mods.png)
 
+My fork is focused in UI. See also [Sibu's](https://github.com/sibusaman/mods) fork, focused in machine functionality. We keep cherry-picking each other.
+
 # To install and run mods locally
 
 You need to first install [node.js](https://docs.npmjs.com/getting-started/installing-node).
