@@ -10,7 +10,7 @@ My fork is focused in UI. See also [Sibu's](https://github.com/sibusaman/mods) f
 
 Just go to https://thebeachlab.github.io/mods
 
-## To install and run `mods` locally
+## To install and run `mods` locally in Linux
 
 You need to first install [node.js](https://docs.npmjs.com/getting-started/installing-node).
 
@@ -36,7 +36,11 @@ Depending on how to need to use mods you can start local servers located in `mod
 
 `cd js`
 
-`node printserver.js`
+`node printserver.js ::ffff:localhost 1234` where `1234` is the port you would like to use.
+
+## To install and run `mods` locally in Windows
+
+Kindly email support@microsoft.com
 
 ## Mods Connection Debugging
 
