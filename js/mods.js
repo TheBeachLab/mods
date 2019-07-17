@@ -45,13 +45,35 @@
       xtrans: null,
       ytrans: null,
       maxzoom: 1.9,
-      minzoom: 0.4
+      minzoom: 0.4,
+      backgroundDark: "rgb(51, 51, 51)",
+      backgroundLight: "rgb(255, 255, 255)",
    }
+   //
+   // Toggle Dark Mode 'd'
+   //
+   var theme = 'light'
+   window.addEventListener('keydown', function (evt) {
+      if (evt.code == 'KeyD') {
+         var div = document.getElementById('prompt')
+         if (theme == 'light') {
+            theme = 'dark'
+            document.body.style.backgroundColor = mods.ui.backgroundDark
+            div.style.color = "rgb(255, 255, 255)"
+         }
+         else {
+            theme = 'light'
+            document.body.style.backgroundColor = mods.ui.backgroundLight
+            div.style.color = "rgb(0, 0, 0)"
+         }
+      }
+   })
    //
    // UI
    //
    document.body.style.overflow = "hidden"
    document.body.style.fontFamily = "monospace"
+   document.body.style.backgroundColor = mods.ui.backgroundLight
    function mods_transform() {
       var transform = document.body.style.transform
       var index = transform.indexOf('scale')
@@ -125,7 +147,7 @@
          //
          mods.ui.mousedown = evt.button
          if (mods.ui.mousedown == 0) {
-            set_prompt('left-drag to pan, right-drag to select')
+            set_prompt('left-drag to pan, right-drag to select, d to toggle dark mode')
             if (mods.ui.menu != null) {
                document.body.removeChild(mods.ui.menu)
                mods.ui.menu = null
@@ -681,7 +703,7 @@
    //
    var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg")
    svg.style.position = 'absolute'
-   svg.style.backgroundColor = 'rgb(200,200,200)'
+   svg.style.backgroundColor = 'rgba(200,200,200,0)'
    svg.style.top = mods.ui.header
    svg.style.left = 0
    svg.style.zIndex = 0
