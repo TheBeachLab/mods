@@ -117,12 +117,14 @@
          evt.preventDefault()
          evt.stopPropagation()
          var t = mods_transform()
-         if (evt.deltaY > 0)
+         if (evt.deltaY > 0) {
             if (t.s < mods.ui.maxzoom)
                var scale = t.s * 1.1
-            else
-               if (t.s > mods.ui.minzoom)
-                  var scale = t.s * 0.9
+         }
+         else {
+            if (t.s > mods.ui.minzoom)
+               var scale = t.s * 0.9
+         }
          var tx = t.tx + (evt.pageX - t.ox) * (1 - 1 / t.s)
          var ty = t.ty + (evt.pageY - t.oy) * (1 - 1 / t.s)
          document.body.style.transform = `scale(${scale}) translate(${tx}px,${ty}px)`
