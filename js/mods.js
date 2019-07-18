@@ -74,6 +74,9 @@
    document.body.style.overflow = "hidden"
    document.body.style.fontFamily = "monospace"
    document.body.style.backgroundColor = mods.ui.backgroundLight
+   document.body.aLink = "black";
+   document.body.link = "black";
+   document.body.vLink = "black";
    function mods_transform() {
       var transform = document.body.style.transform
       var index = transform.indexOf('scale')
