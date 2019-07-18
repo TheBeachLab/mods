@@ -42,9 +42,20 @@ Depending on how to need to use mods you can start local servers located in `mod
 
 Kindly email support@microsoft.com
 
-## Mods Connection Debugging
+## `mods` machine connection debugging
+
+### Serial Server
+
+`serialserver.js` is used by the Roland MDX-20.
 
 set correct serial port permission (do this each time you reboot the machine): `chmod a+rwx /dev/ttyUSB0`
+
+Another option is add your user to the `dialout` group (in Ubuntu) or the `uucp` group (in Arch et al.)
+
+### Device Server
+
+Roland GX-24 and Roland GS-24 vinyl cutters, and the Roland SRM-20 are identified as a printer. When you plug them a file is created `/dev/usb/lpx` where `x` is a number `/dev/usb/lp0`, `/dev/usb/lp1` 
+
 
 start serialserver in the terminal so you can see the logs as it tries to connect.  navigate to the mods/js folder in the terminal (probably use `cd ~/mods/js`) and type: `node serialserver.js ::ffff:127.0.0.1 1234`
 

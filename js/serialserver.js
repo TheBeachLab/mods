@@ -81,7 +81,7 @@ wss.on('connection',function(ws) {
          var device = msg.device
          console.log('close '+device)
          ws.send('serial port closed')
-         port.close()
+         port.close((err) => { if (err) throw err; })
          port = null
          }
       //
@@ -166,7 +166,7 @@ wss.on('connection',function(ws) {
    ws.on("close",function() {
       console.log("connection closed")
       if (port != null)
-         port.close()
+         port.close((err) => { if (err) throw err; })
       port = null
       })
    })
