@@ -49,23 +49,39 @@
       backgroundDark: "rgb(51, 51, 51)",
       backgroundLight: "rgb(255, 255, 255)",
    }
+   mods.darktheme = {
+      background: "rgb(51, 51, 51)",
+      text: "white",
+      link: "white",
+      alink: "white",
+      vlink: "white",
+      logodot: "white",
+      logorect: "white"
+   }
+   mods.lighttheme = {
+      background: "white",
+      text: "black",
+      link: "black",
+      alink: "black",
+      vlink: "black",
+      logodot: "red",
+      logorect: "blue"
+   }
+   mods.theme = mods.lighttheme
    //
    // Toggle Dark Mode 'd'
    //
-   var theme = 'light'
    window.addEventListener('keydown', function (evt) {
       if (evt.code == 'KeyD') {
          var div = document.getElementById('prompt')
-         if (theme == 'light') {
-            theme = 'dark'
-            document.body.style.backgroundColor = mods.ui.backgroundDark
-            div.style.color = "rgb(255, 255, 255)"
+         if (mods.theme = mods.lighttheme) {
+            mods.theme = mods.darktheme
          }
          else {
-            theme = 'light'
-            document.body.style.backgroundColor = mods.ui.backgroundLight
-            div.style.color = "rgb(0, 0, 0)"
+            mods.theme = mods.lighttheme
          }
+         document.body.style.backgroundColor = mods.theme.background
+         div.style.color = mods.theme.text
       }
    })
    //
@@ -73,10 +89,10 @@
    //
    document.body.style.overflow = "hidden"
    document.body.style.fontFamily = "monospace"
-   document.body.style.backgroundColor = mods.ui.backgroundLight
-   document.body.aLink = "black";
-   document.body.link = "black";
-   document.body.vLink = "black";
+   document.body.style.backgroundColor = mods.theme.background
+   document.body.aLink = mods.theme.alink
+   document.body.link = mods.theme.link
+   document.body.vLink = mods.theme.vlink
    function mods_transform() {
       var transform = document.body.style.transform
       var index = transform.indexOf('scale')
@@ -114,19 +130,19 @@
       var el = document.elementFromPoint(evt.pageX, evt.pageY)
       if ((el.tagName == "HTML") || (el.tagName == "BODY")) {
          set_prompt('scroll to zoom')
-         evt.preventDefault()
+         //evt.preventDefault()
          evt.stopPropagation()
          var t = mods_transform()
          if (evt.deltaY > 0)
             if (t.s < mods.ui.maxzoom)
-               var scale = t.s * 1.1
+               var scale = t.s * 1.05
             else
                var scale = t.s * 1.0
          else
             if (t.s < mods.ui.minzoom)
                var scale = t.s * 1.0
             else
-               var scale = t.s * 0.9
+               var scale = t.s * 0.95
 
          var tx = t.tx + (evt.pageX - t.ox) * (1 - 1 / t.s)
          var ty = t.ty + (evt.pageY - t.oy) * (1 - 1 / t.s)
@@ -643,7 +659,7 @@
       new_rect.setAttribute("height", size / 3.8)
       new_rect.setAttribute("x", x)
       new_rect.setAttribute("y", y)
-      new_rect.setAttribute("fill", "blue")
+      new_rect.setAttribute("fill", mods.theme.logorect)
       logo.appendChild(new_rect)
       var new_rect = document.createElementNS(svgNS, "rect");
       new_rect.setAttribute("width", size / 3.8)
