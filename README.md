@@ -6,6 +6,18 @@ Everything is better at the beach :sunglasses:
 
 My fork is focused in UI. See also [Sibu's](https://github.com/sibusaman/mods) fork, focused in machine functionality. We keep cherry-picking each other.
 
+- [To run `mods` online](#To-run-mods-online)
+- [To install and run `mods` locally in Linux](#To-install-and-run-mods-locally-in-Linux)
+  - [Installing `mods`](#Installing-mods)
+  - [Running `mods` locally in your computer](#Running-mods-locally-in-your-computer)
+- [To install and run `mods` locally in Windows](#To-install-and-run-mods-locally-in-Windows)
+- [Talking to the machines](#Talking-to-the-machines)
+  - [Setting permissions](#Setting-permissions)
+  - [Starting the local servers](#Starting-the-local-servers)
+    - [Serial Server](#Serial-Server)
+    - [Device Server](#Device-Server)
+- [FAQ](#FAQ)
+
 ## To run `mods` online
 
 Just go to https://thebeachlab.github.io/mods
