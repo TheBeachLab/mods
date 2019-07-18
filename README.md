@@ -12,6 +12,8 @@ Just go to https://thebeachlab.github.io/mods
 
 ## To install and run `mods` locally in Linux
 
+### Installing `mods`
+
 You need to first install [node.js](https://docs.npmjs.com/getting-started/installing-node).
 
 Install the [http-server](https://www.npmjs.com/package/http-server) npm package. Including '-g' sets the installs the package globally, allowing you to use it as a command line tool:
@@ -22,47 +24,82 @@ Clone the mods repository:
 
 `git clone https://github.com/TheBeachLab/mods.git`
 
+To talk to the machines you will also need to install `ws` and `serialport` npm packages inside `mods/js` folder:
+
+```bash
+cd mods/js
+npm install ws
+npm install serialport
+```
+
+### Running `mods` locally in your computer
+
 Use the command line to navigate to the root of the mods repository:
 
-`cd mods`
+`cd mods` 
 
-Start up a server:
+and start a server
 
 `http-server` or `hs`
 
 Open a browser tab and go to `127.0.0.1:8080` which is the same as `http://localhost:8080` to view the server that you just started.
 
-Depending on how to need to use mods you can start local servers located in `mods/js`, for example, if you start from the root of the mods repository:
-
-`cd js`
-
-`node printserver.js ::ffff:localhost 1234` where `1234` is the port you would like to use.
-
 ## To install and run `mods` locally in Windows
 
-Kindly email support@microsoft.com
+Kindly contact support@microsoft.com
 
-## `mods` machine connection debugging
+## Talking to the machines
 
-### Serial Server
+### Setting permissions
 
-`serialserver.js` is used by the Roland MDX-20.
+To talk to the machines you need permissions. Machines usually identify themselves as printers (`/dev/usb/lp0`) or serial devices (`/dev/ttyUSB0`). Those files (in Linux everything is a file) belong to the `root` user. But they also grant permissions if you belong to specific groups. In Ubuntu Linux, add yourself to the groups `lp`, and `dialout`. This will give you access to printers, and serial devices.
 
-set correct serial port permission (do this each time you reboot the machine): `chmod a+rwx /dev/ttyUSB0`
+```bash
+sudo adduser $USER lp
+sudo adduser $USER dialout
+```
 
-Another option is add your user to the `dialout` group (in Ubuntu) or the `uucp` group (in Arch et al.)
+In Arch Linux et al., add yourself to `lp` and `uucp` groups.
+
+```bash
+sudo adduser $USER lp
+sudo adduser $USER uucp
+```
+
+Logout or reboot for the changes to take effect. The permissions are now persistent.
+
+### Starting the local servers
+
+Depending on which machine you need to use inside `mods`, you can start local servers inside `mods/js`.
+
+#### Serial Server
+
+Roland Modela MDX-20 is identified as a serial device. When you plug it, a file is created `/dev/ttyUSBx` where `x` is a number `/dev/ttyUSB0`. So for using the Roland MDX-20 you need to start `serialserver.js` inside the `mods/js` directory.
+
+```bash
+cd mods/js
+node serialserver.js ::ffff:127.0.0.1 1234
+```
+
+Check that `serialserver.js` is running with: `ps aux | grep node`
+
+
+> Do **not** start the server using the localhost address:  
+`node serialserver.js ::ffff:localhost 1234` :point_left: do not
 
 ### Device Server
 
-Roland GX-24 and Roland GS-24 vinyl cutters, and the Roland SRM-20 are identified as a printer. When you plug them a file is created `/dev/usb/lpx` where `x` is a number `/dev/usb/lp0`, `/dev/usb/lp1` 
+Roland GX-24 and Roland GS-24 vinyl cutters, and the Roland SRM-20 Monofab are identified as a printer. When you plug them a file is created `/dev/usb/lpx` where `x` is a number `/dev/usb/lp0`, `/dev/usb/lp1`. Therefore, you need to start `deviceserver.js ` inside the `mods/js` directory.
+
+```bash
+cd mods/js
+node deviceserver.js ::ffff:127.0.0.1 1234
+```
+
+> Do **not** start the server using the localhost address:  
+`node deviceserver.js ::ffff:localhost 1234` :point_left: do not
 
 
-start serialserver in the terminal so you can see the logs as it tries to connect.  navigate to the mods/js folder in the terminal (probably use `cd ~/mods/js`) and type: `node serialserver.js ::ffff:127.0.0.1 1234`
+## FAQ
 
-check serialserver is running with: `ps aux | grep node`
-
-## Common Issues
-
-1. **_Help! My SRM-20 will only run a single job and then go dead!_** Chances are you are using printserver.js instead of deviceserver.js to connect to the machine.  For now, we need to treat the SRM-20 as a device instead of a printer.
-2. **_Argg... why do I need to reset permissions on /dev/usb/lp0 every restart?_**  You can use `sudo add_user username lp` and `sudo add_user username lpadmin` to make persistent permissions.
-3. **_Why is my web socket connection refused when the addresses are the same?_** This can happen due to a difference between IPV4 and IPV6 addresses.  In your start mods server script, try changing 127.0.0.1 to ::ffff:127.0.0.1 and see if it helps.
+1. **Why do we use ::ffff: before 127.0.0.1?** Due to a difference between IPV4 and IPV6 addresses, web socket might give connection refused error if you use 127.0.0.1 instead of ::ffff:127.0.0.1
