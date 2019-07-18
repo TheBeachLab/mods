@@ -62,9 +62,9 @@ sudo adduser $USER dialout
 In Arch Linux et al., add yourself to `lp` and `uucp` groups.
 
 ```bash
-sudo adduser $USER lp
-sudo adduser $USER lpadmin
-sudo adduser $USER uucp
+sudo usermod -a -G lp $USER
+sudo usermod -a -G lpadmin $USER
+sudo usermod -a -G uucp $USER
 ```
 
 Logout or reboot for the changes to take effect. The permissions are now persistent.
