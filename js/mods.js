@@ -19,6 +19,7 @@
    // globals
    //
    var mods = {}
+   mods.theme = {}
    mods.mod = {}
    mods.globals = {}
    mods.ui = {
@@ -48,6 +49,7 @@
       minzoom: 0.4
    }
    mods.darktheme = {
+      status: "dark",
       background: "rgb(51, 51, 51)",
       text: "white",
       link: "white",
@@ -57,7 +59,8 @@
       logorect: "white"
    }
    mods.lighttheme = {
-      background: "white",
+      status: "light",
+      background: "rgb(255, 255, 255)",
       text: "black",
       link: "black",
       alink: "black",
@@ -70,17 +73,23 @@
    // Toggle Dark Mode 'd'
    //
    window.addEventListener('keydown', function (evt) {
-      if (evt.code == 'KeyD') {
+      if (evt.code == 'KeyD') 
+      {
          var div = document.getElementById('prompt')
-         if (mods.theme = mods.lighttheme) {
+         if (mods.theme == mods.lighttheme) 
+         {
             mods.theme = mods.darktheme
          }
-         else {
+         else if (mods.theme == mods.darktheme) 
+         {
             mods.theme = mods.lighttheme
          }
+         document.body.style.backgroundColor = mods.theme.background
+         div.style.color = mods.theme.text
+         document.body.aLink = mods.theme.alink
+         document.body.link = mods.theme.link
+         document.body.vLink = mods.theme.vlink         
       }
-      document.body.style.backgroundColor = mods.theme.background
-      div.style.color = mods.theme.text
    })
    //
    // UI
