@@ -45,9 +45,7 @@
       xtrans: null,
       ytrans: null,
       maxzoom: 1.9,
-      minzoom: 0.4,
-      backgroundDark: "rgb(51, 51, 51)",
-      backgroundLight: "rgb(255, 255, 255)",
+      minzoom: 0.4
    }
    mods.darktheme = {
       background: "rgb(51, 51, 51)",
@@ -80,9 +78,9 @@
          else {
             mods.theme = mods.lighttheme
          }
-         document.body.style.backgroundColor = mods.theme.background
-         div.style.color = mods.theme.text
       }
+      document.body.style.backgroundColor = mods.theme.background
+      div.style.color = mods.theme.text
    })
    //
    // UI
@@ -134,16 +132,15 @@
          evt.stopPropagation()
          var t = mods_transform()
          if (evt.deltaY > 0)
-            if (t.s < mods.ui.maxzoom)
-               var scale = t.s * 1.05
-            else
-               var scale = t.s * 1.0
+         {
+             if (t.s < mods.ui.maxzoom)
+               var scale = t.s * 1.1
+         }
          else
-            if (t.s < mods.ui.minzoom)
-               var scale = t.s * 1.0
-            else
-               var scale = t.s * 0.95
-
+         {
+            if (t.s > mods.ui.minzoom)
+               var scale = t.s * 0.9
+         }
          var tx = t.tx + (evt.pageX - t.ox) * (1 - 1 / t.s)
          var ty = t.ty + (evt.pageY - t.oy) * (1 - 1 / t.s)
          document.body.style.transform = `scale(${scale}) translate(${tx}px,${ty}px)`
