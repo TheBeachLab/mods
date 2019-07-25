@@ -30,7 +30,7 @@ You need to first install [node.js](https://docs.npmjs.com/getting-started/insta
 
 Install the [http-server](https://www.npmjs.com/package/http-server) npm package. Including `-g` installs the package globally, allowing you to use it as a command line tool:
 
-`npm install http-server -g`
+`npm install http-server -g` depending on how you installed nodejs you might need to use `sudo`
 
 Clone the `mods` repository:
 
