@@ -27,8 +27,8 @@ var name = 'WebSocket serial'
 var init = function() {
    mod.address.value = '127.0.0.1'
    mod.port.value = 1234
-   mod.device.value = 'COM3'
-   mod.baud.value = 115200
+   mod.device.value = 'COM8'
+   mod.baud.value = 9600
    mod.flow_none.checked = true
    mod.socket = null
    socket_open()
